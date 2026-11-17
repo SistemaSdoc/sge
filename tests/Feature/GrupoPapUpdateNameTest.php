@@ -14,6 +14,7 @@ use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -27,7 +28,7 @@ beforeEach(function (): void {
     ]);
 });
 
-test('um professor tutor consegue alterar o nome do grupo pap', function (): void {
+test('um professor tutor consegue corrigir e reenviar o tema sem alterar o nome do grupo pap', function (): void {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição Teste',
         'sigla' => 'IT',
@@ -98,10 +99,10 @@ test('um professor tutor consegue alterar o nome do grupo pap', function (): voi
         'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
     ]);
 
+    Notification::fake();
     $this->actingAs($user, 'tenant');
 
     $response = $this->put(route('tenant.dashboard.grupo-pap-aprovacao.atualizar', $grupoPap), [
-        'nome_grupo' => 'Grupo Renomeado',
         'tema_grupo' => 'Tema atualizado',
         'problema' => 'Problema atualizado',
         'objectivo_geral' => 'Objectivo geral atualizado',
@@ -110,10 +111,24 @@ test('um professor tutor consegue alterar o nome do grupo pap', function (): voi
 
     $response->assertRedirect();
 
+    $response = $this->post(
+        route('tenant.dashboard.grupo-pap-aprovacao.reenviar', $grupoPap),
+        [
+            'tema_grupo' => 'Tema reenviado',
+            'problema' => 'Problema reenviado',
+            'objectivo_geral' => 'Objectivo geral reenviado',
+            'objectivos_especificos' => 'Objectivos específicos reenviados',
+        ],
+    );
+
+    $response->assertRedirect();
+
     $grupoPap->refresh();
 
-    expect($grupoPap->nome_grupo)->toBe('Grupo Renomeado')
-        ->and($grupoPap->tema_grupo)->toBe('Tema atualizado')
-        ->and($grupoPap->objectivo_geral)->toBe('Objectivo geral atualizado')
-        ->and($grupoPap->objectivos_especificos)->toBe('Objectivos específicos atualizados');
+    expect($grupoPap->nome_grupo)->toBe('Grupo Original')
+        ->and($grupoPap->tema_grupo)->toBe('Tema reenviado')
+        ->and($grupoPap->problema)->toBe('Problema reenviado')
+        ->and($grupoPap->objectivo_geral)->toBe('Objectivo geral reenviado')
+        ->and($grupoPap->objectivos_especificos)->toBe('Objectivos específicos reenviados')
+        ->and($grupoPap->status_aprovacao)->toBe(GrupoPap::APROVACAO_SUBMETIDO);
 });

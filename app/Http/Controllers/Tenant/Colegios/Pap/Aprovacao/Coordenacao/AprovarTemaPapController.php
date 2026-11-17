@@ -105,6 +105,15 @@ class AprovarTemaPapController extends Controller
 
         abort_unless($user->can('grupopap.aprovar'), 403);
 
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         $dados = $request->validated();
 
         $tenantTutoraId = (string) tenancy()->tenant->getTenantKey();
@@ -127,9 +136,11 @@ class AprovarTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Erro ao aprovar o tema.']);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Erro ao aprovar o tema.']);
         }
 
-        return back()->with('success', 'Tema aprovado com sucesso.');
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema aprovado com sucesso.');
     }
 }

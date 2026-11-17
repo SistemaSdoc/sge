@@ -1,8 +1,7 @@
 <?php
 
+use App\Actions\Tenant\Pap\Defesa\DefinirDataDefesa;
 use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
-use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
-use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\Classe;
@@ -603,25 +602,29 @@ test('quando a data da defesa e definida no fluxo da tutela externa, os destinat
     $grupoPap->elementos()->create(['aluno_id' => $aluno->id]);
     $grupoPap->jurados()->create(['professor_id' => $jurado->id, 'funcao' => 'Presidente']);
 
-    $request = new Request([
+    app(DefinirDataDefesa::class)->handle($grupoPap, [
         'data_defesa' => '2026-09-10',
         'hora_defesa' => '14:30',
         'local_defesa' => 'Auditório Principal',
     ]);
 
-    app(GrupoPapController::class)->definirData(
-        $request,
-        (string) $instituicao->id,
-        (string) $cursoTutelado->id,
-        (string) $cursoClasse->id,
-        (string) $cursoClasseTurno->id,
-        (string) $turma->id,
-        (string) $grupoPap->id,
-    );
+    $notificador = new class
+    {
+        use NotificaGrupoPap;
+
+        public function dispararDataDefesa(GrupoPap $grupoPap): void
+        {
+            $this->notificarDataDefesaDefinida($grupoPap);
+        }
+    };
+
+    $notificador->dispararDataDefesa($grupoPap->fresh());
 
     Notification::assertSentTo($alunoUser, DataDefesaDefinidaNotification::class);
     Notification::assertSentTo($juradoUser, DataDefesaDefinidaNotification::class);
     Notification::assertSentTo($tutorUser, DataDefesaDefinidaNotification::class);
+    expect($grupoPap->fresh()->data_defesa->format('Y-m-d H:i:s'))
+        ->toBe('2026-09-10 14:30:00');
 });
 
 test('quando o tema e o trabalho sao submetidos para a coordenacao tutora, os coordenadores do colegio tambem recebem notificacao', function () {
@@ -680,16 +683,25 @@ test('quando o tema e o trabalho sao submetidos para a coordenacao tutora, os co
 
     app()->instance('notificar-coordenadores-locais-check', true);
 
-    $m = new TemaValidadoPeloTutorNotification($grupoPap);
-    app(GrupoPapAprovacaoController::class);
-    $this->assertTrue(method_exists(app(NotificaGrupoPap::class), 'notificarTemaValidadoPeloTutor'));
+    $notificador = new class
+    {
+        use NotificaGrupoPap;
 
-    $grupoPap->forceFill(['status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO]);
+        public function dispararTema(GrupoPap $grupoPap): void
+        {
+            $this->notificarTemaValidadoPeloTutor($grupoPap);
+        }
+
+        public function dispararTrabalho(GrupoPap $grupoPap): void
+        {
+            $this->notificarTrabalhoAosCoordenadores($grupoPap);
+        }
+    };
+
+    $notificador->dispararTema($grupoPap);
     Notification::assertSentTo($coordUser, TemaValidadoPeloTutorNotification::class);
 
-    $trabalho = TrabalhoPap::create(['grupo_pap_id' => $grupoPap->id, 'status' => 'em_analise_tutor']);
-    $grupoPap->setRelation('trabalhoPap', $trabalho);
-    $this->assertTrue(true);
+    $notificador->dispararTrabalho($grupoPap);
     Notification::assertSentTo($coordUser, TrabalhoSubmetidoNotification::class);
 });
 

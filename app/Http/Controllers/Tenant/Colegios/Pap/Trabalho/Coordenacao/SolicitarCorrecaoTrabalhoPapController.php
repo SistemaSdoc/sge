@@ -39,6 +39,15 @@ class SolicitarCorrecaoTrabalhoPapController extends Controller
 
         abort_unless($user->can('grupopap.aprovar'), 403);
 
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         $tenantTutoraId = (string) tenancy()->tenant->getTenantKey();
 
         $validated = $request->validated();
@@ -78,14 +87,14 @@ class SolicitarCorrecaoTrabalhoPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors([
-                'trabalho' => 'O trabalho não está disponível para análise da coordenação.',
-            ]);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['trabalho' => 'O trabalho não está disponível para análise da coordenação.']);
         }
 
-        return back()->with('toast', [
-            'type' => 'warning',
-            'message' => 'Correção solicitada ao aluno.',
-        ]);
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('toast', [
+                'type' => 'warning',
+                'message' => 'Correção solicitada ao aluno.',
+            ]);
     }
 }

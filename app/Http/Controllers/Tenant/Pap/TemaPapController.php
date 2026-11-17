@@ -141,10 +141,26 @@ class TemaPapController extends Controller
             'professor.user',
         ]);
 
-        return Inertia::render('tenant/pap/EditarTemaMelhoria', [
+        $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma?->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno?->cursoClasse;
+        $cursoTutelado = $cursoClasse?->cursoTutelado;
+        $instituicao = $cursoTutelado?->instituicaoCurso?->instituicao_id;
+
+        abort_unless(
+            $turma && $cursoClasseTurno && $cursoClasse && $cursoTutelado && $instituicao,
+            404,
+        );
+
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/edit', [
             'grupoPap' => $grupoPap,
             'routeContext' => 'instituicao',
             'routeParams' => [
+                'instituicao' => $instituicao,
+                'cursoTutelado' => $cursoTutelado->id,
+                'cursoClasse' => $cursoClasse->id,
+                'cursoClasseTurno' => $cursoClasseTurno->id,
+                'turma' => $turma->id,
                 'grupoPap' => $grupoPap->id,
             ],
         ]);

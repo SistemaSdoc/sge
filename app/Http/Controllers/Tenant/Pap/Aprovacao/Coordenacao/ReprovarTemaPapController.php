@@ -76,6 +76,22 @@ class ReprovarTemaPapController extends Controller
 
         Gate::forUser($user)->authorize('reprovar', $grupoPap);
 
+        $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
+        $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno->cursoClasse;
+        $cursoTutelado = $cursoClasse->cursoTutelado;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao_id;
+
+        $params = compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         $resultado = $this->decisaoTemaCoordenacaoService->reprovar(
             $grupoPap,
             $user,
@@ -83,9 +99,11 @@ class ReprovarTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Este tema não pode ser reprovado neste momento.']);
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Este tema não pode ser reprovado neste momento.']);
         }
 
-        return back()->with('success', 'Tema reprovado com sucesso.');
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema reprovado com sucesso.');
     }
 }

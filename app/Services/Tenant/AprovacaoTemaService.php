@@ -234,7 +234,6 @@ class AprovacaoTemaService
             $estadoAnterior = $grupoPap->status_aprovacao;
 
             $grupoPap->update([
-                'nome_grupo' => $dados['nome_grupo'],
                 'tema_grupo' => $dados['tema_grupo'],
                 'problema' => $dados['problema'] ?? null,
                 'objectivo_geral' => $dados['objectivo_geral'] ?? null,

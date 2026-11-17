@@ -98,6 +98,14 @@ class SolicitarMelhoriaTemaPapController extends Controller
         $user = Auth::guard('tenant')->user();
         abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.solicitarMelhoria'), 403);
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
         $dados = $request->validated();
         $tenantTutoraId = (string) tenancy()->tenant->getTenantKey();
         $resultado = $this->executarAcaoNoGrupoPapTutelado->executar(
@@ -118,9 +126,11 @@ class SolicitarMelhoriaTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Não é possível solicitar melhoria neste momento.']);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Não é possível solicitar melhoria neste momento.']);
         }
 
-        return back()->with('success', 'Recomendação de melhoria enviada com sucesso.');
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Recomendação de melhoria enviada com sucesso.');
     }
 }

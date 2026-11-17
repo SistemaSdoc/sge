@@ -33,7 +33,6 @@ class ReenviarTemaPapPeloColegioRequest extends FormRequest
         $cursoTutelado = $cursoClasseTurno?->cursoClasse?->cursoTutelado;
 
         return [
-            'nome_grupo' => ['required', 'string', 'max:255'],
             'tema_grupo' => [
                 'required',
                 'string',
@@ -46,6 +45,9 @@ class ReenviarTemaPapPeloColegioRequest extends FormRequest
                     $this->input('estudo_caso', $grupoPap->estudo_caso),
                 ),
             ],
+            'problema' => ['nullable', 'string', 'max:2000'],
+            'objectivo_geral' => ['nullable', 'string', 'max:2000'],
+            'objectivos_especificos' => ['nullable', 'string', 'max:2000'],
         ];
     }
 
@@ -57,9 +59,6 @@ class ReenviarTemaPapPeloColegioRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome_grupo.required' => 'O nome do grupo é obrigatório.',
-            'nome_grupo.string' => 'O nome do grupo deve ser um texto.',
-            'nome_grupo.max' => 'O nome do grupo não pode exceder 255 caracteres.',
             'tema_grupo.required' => 'O tema do grupo é obrigatório.',
             'tema_grupo.string' => 'O tema do grupo deve ser um texto.',
             'tema_grupo.max' => 'O tema do grupo não pode exceder 255 caracteres.',

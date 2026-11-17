@@ -1,7 +1,13 @@
 import { Loader2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
@@ -10,7 +16,6 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -20,217 +25,245 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 export function TemaForm({
   title,
+  description,
   errors,
   processing,
-  grupoPap,
+  data,
+  setData,
+  submitFn,
   professores = [],
   sugestoesTemas = [],
+  mode = 'create',
+  showStudyCase = true,
+  actions,
 }) {
-  const [professorTutorId, setProfessorTutorId] = useState(undefined);
-  const [origemTema, setOrigemTema] = useState(
-    sugestoesTemas.length > 0 ? 'sugerido' : 'autoral',
-  );
-  const [sugestaoTemaId, setSugestaoTemaId] = useState('');
+  const fieldProps = (name) => ({
+    value: data[name] ?? '',
+    onChange: (event) => setData(name, event.target.value),
+  });
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
-      <Card className="overflow-visible">
-        <CardHeader className="border-b">
-          <CardTitle>{title}</CardTitle>
-        </CardHeader>
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
+      <form onSubmit={submitFn}>
+        <Card className="overflow-visible">
+          <CardHeader className="border-b">
+            <CardTitle>{title}</CardTitle>
+            {description && <CardDescription>{description}</CardDescription>}
+          </CardHeader>
 
-        <CardContent>
-          <FieldGroup>
-            <FieldSet>
-              <Field>
-                <FieldLabel>Professor tutor</FieldLabel>
-                <input
-                  type="hidden"
-                  name="professor_tutor_id"
-                  value={professorTutorId}
-                />
-                <Select
-                  value={professorTutorId || undefined}
-                  onValueChange={setProfessorTutorId}
-                  disabled={processing}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione o professor tutor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Professores</SelectLabel>
-                      {professores.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {errors.professor_tutor_id && (
-                  <FieldError>{errors.professor_tutor_id}</FieldError>
-                )}
-              </Field>
-
-              <Field data-invalid={!!errors.origem_tema}>
-                <FieldLabel>Escolha do tema</FieldLabel>
-                <input type="hidden" name="origem_tema" value={origemTema} />
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant={origemTema === 'sugerido' ? 'default' : 'outline'}
-                    aria-pressed={origemTema === 'sugerido'}
-                    disabled={processing || sugestoesTemas.length === 0}
-                    onClick={() => {
-                      setSugestaoTemaId('');
-                      setOrigemTema('sugerido');
-                    }}
-                  >
-                    Escolher tema sugerido
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={origemTema === 'autoral' ? 'default' : 'outline'}
-                    aria-pressed={origemTema === 'autoral'}
-                    disabled={processing}
-                    onClick={() => {
-                      setSugestaoTemaId('');
-                      setOrigemTema('autoral');
-                    }}
-                  >
-                    Propor tema do grupo
-                  </Button>
-                </div>
-                {errors.origem_tema && (
-                  <FieldError>{errors.origem_tema}</FieldError>
-                )}
-
-                {origemTema === 'sugerido' ? (
-                  <>
-                    <input
-                      type="hidden"
-                      name="tema_sugerido_id"
-                      value={sugestaoTemaId}
-                    />
+          <CardContent>
+            <FieldGroup>
+              <FieldSet>
+                {mode === 'create' && (
+                  <Field>
+                    <FieldLabel>Professor tutor</FieldLabel>
                     <Select
-                      value={sugestaoTemaId || undefined}
-                      onValueChange={setSugestaoTemaId}
+                      value={data.professor_tutor_id || undefined}
+                      onValueChange={(value) =>
+                        setData('professor_tutor_id', value)
+                      }
                       disabled={processing}
                     >
-                      <SelectTrigger
-                        id="tema-sugerido-select"
-                        className="w-full"
-                      >
-                        <SelectValue placeholder="Selecione um tema sugerido" />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione o professor tutor" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectLabel>
-                            Temas sugeridos para o curso
-                          </SelectLabel>
-                          {sugestoesTemas.map((sugestao) => (
-                            <SelectItem
-                              key={sugestao.id}
-                              value={String(sugestao.id)}
-                            >
-                              {sugestao.titulo}
+                          <SelectLabel>Professores</SelectLabel>
+                          {professores.map((p) => (
+                            <SelectItem key={p.id} value={String(p.id)}>
+                              {p.nome}
                             </SelectItem>
                           ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                    {errors.tema_sugerido_id && (
-                      <FieldError>{errors.tema_sugerido_id}</FieldError>
+                    {errors.professor_tutor_id && (
+                      <FieldError>{errors.professor_tutor_id}</FieldError>
                     )}
-                    {sugestoesTemas.length === 0 && (
-                      <p className="text-sm text-muted-foreground">
-                        Não existem temas sugeridos. Proponha um tema do grupo.
-                      </p>
+                  </Field>
+                )}
+
+                {mode === 'create' && (
+                  <Field data-invalid={Boolean(errors.origem_tema)}>
+                    <FieldLabel>Escolha do tema</FieldLabel>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Button
+                        type="button"
+                        variant={
+                          data.origem_tema === 'sugerido'
+                            ? 'default'
+                            : 'outline'
+                        }
+                        aria-pressed={data.origem_tema === 'sugerido'}
+                        disabled={processing || sugestoesTemas.length === 0}
+                        onClick={() => {
+                          setData('tema_sugerido_id', '');
+                          setData('origem_tema', 'sugerido');
+                        }}
+                      >
+                        Escolher tema sugerido
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          data.origem_tema === 'autoral' ? 'default' : 'outline'
+                        }
+                        aria-pressed={data.origem_tema === 'autoral'}
+                        disabled={processing}
+                        onClick={() => {
+                          setData('tema_sugerido_id', '');
+                          setData('origem_tema', 'autoral');
+                        }}
+                      >
+                        Propor tema do grupo
+                      </Button>
+                    </div>
+                    {errors.origem_tema && (
+                      <FieldError>{errors.origem_tema}</FieldError>
                     )}
-                  </>
-                ) : (
-                  <Input
-                    name="tema_grupo"
+
+                    {data.origem_tema === 'sugerido' ? (
+                      <>
+                        <Select
+                          value={data.tema_sugerido_id || undefined}
+                          onValueChange={(value) =>
+                            setData('tema_sugerido_id', value)
+                          }
+                          disabled={processing}
+                        >
+                          <SelectTrigger
+                            id="tema-sugerido-select"
+                            className="w-full"
+                          >
+                            <SelectValue placeholder="Selecione um tema sugerido" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>
+                                Temas sugeridos para o curso
+                              </SelectLabel>
+                              {sugestoesTemas.map((sugestao) => (
+                                <SelectItem
+                                  key={sugestao.id}
+                                  value={String(sugestao.id)}
+                                >
+                                  {sugestao.titulo}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        {errors.tema_sugerido_id && (
+                          <FieldError>{errors.tema_sugerido_id}</FieldError>
+                        )}
+                        {sugestoesTemas.length === 0 && (
+                          <p className="text-sm text-muted-foreground">
+                            Não existem temas sugeridos. Proponha um tema do
+                            grupo.
+                          </p>
+                        )}
+                      </>
+                    ) : null}
+                  </Field>
+                )}
+
+                {(mode === 'edit' || data.origem_tema === 'autoral') && (
+                  <Field>
+                    <FieldLabel>Tema do Grupo</FieldLabel>
+                    <Input
+                      name="tema_grupo"
+                      disabled={processing}
+                      placeholder="Ex.: Sistema de Gestão Escolar"
+                      aria-invalid={Boolean(errors.tema_grupo)}
+                      {...fieldProps('tema_grupo')}
+                    />
+                    {errors.tema_grupo && (
+                      <FieldError>{errors.tema_grupo}</FieldError>
+                    )}
+                  </Field>
+                )}
+
+                <Field>
+                  <FieldLabel>Problema</FieldLabel>
+                  <Textarea
+                    name="problema"
                     disabled={processing}
-                    placeholder="Ex.: Sistema de Gestão Escolar"
-                    defaultValue={grupoPap?.tema_grupo ?? ''}
-                    aria-invalid={Boolean(errors.tema_grupo)}
+                    placeholder="Ex.: Dificuldades na gestão de alunos e professores"
+                    aria-invalid={Boolean(errors.problema)}
+                    {...fieldProps('problema')}
                   />
-                )}
-                {errors.tema_grupo && (
-                  <FieldError>{errors.tema_grupo}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <FieldLabel>Problema</FieldLabel>
-                <Input
-                  name="problema"
-                  disabled={processing}
-                  placeholder="Ex.: Dificuldades na gestão de alunos e professores"
-                  defaultValue={grupoPap?.problema ?? ''}
-                />
-                {errors.problema && <FieldError>{errors.problema}</FieldError>}
-              </Field>
-
-              <Field>
-                <FieldLabel>Objectivo Geral</FieldLabel>
-                <Input
-                  name="objectivo_geral"
-                  disabled={processing}
-                  placeholder="Ex.: Desenvolver um sistema de gestão escolar"
-                  defaultValue={grupoPap?.objectivo_geral ?? ''}
-                />
-                {errors.objectivo_geral && (
-                  <FieldError>{errors.objectivo_geral}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <FieldLabel>Objectivos Específicos</FieldLabel>
-                <Textarea
-                  name="objectivos_especificos"
-                  disabled={processing}
-                  placeholder="Descreve os objectivos específicos..."
-                  defaultValue={grupoPap?.objectivos_especificos ?? ''}
-                />
-                {errors.objectivos_especificos && (
-                  <FieldError>{errors.objectivos_especificos}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <FieldLabel>Estudo de caso</FieldLabel>
-                <Input
-                  name="estudo_caso"
-                  disabled={processing}
-                  placeholder="Descreve o estudo de caso..."
-                  defaultValue={grupoPap?.estudo_caso ?? ''}
-                />
-                {errors.estudo_caso && (
-                  <FieldError>{errors.estudo_caso}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <Button type="submit" disabled={processing}>
-                  {processing ? (
-                    <>
-                      <Loader2 className="animate-spin" /> A guardar...
-                    </>
-                  ) : (
-                    <>Guardar</>
+                  {errors.problema && (
+                    <FieldError>{errors.problema}</FieldError>
                   )}
-                </Button>
-              </Field>
-            </FieldSet>
-          </FieldGroup>
-        </CardContent>
-      </Card>
+                </Field>
+
+                <Field>
+                  <FieldLabel>Objectivo Geral</FieldLabel>
+                  <Textarea
+                    name="objectivo_geral"
+                    disabled={processing}
+                    placeholder="Ex.: Desenvolver um sistema de gestão escolar"
+                    aria-invalid={Boolean(errors.objectivo_geral)}
+                    {...fieldProps('objectivo_geral')}
+                  />
+                  {errors.objectivo_geral && (
+                    <FieldError>{errors.objectivo_geral}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Objectivos Específicos</FieldLabel>
+                  <Textarea
+                    name="objectivos_especificos"
+                    disabled={processing}
+                    placeholder="Descreve os objectivos específicos..."
+                    aria-invalid={Boolean(errors.objectivos_especificos)}
+                    {...fieldProps('objectivos_especificos')}
+                  />
+                  {errors.objectivos_especificos && (
+                    <FieldError>{errors.objectivos_especificos}</FieldError>
+                  )}
+                </Field>
+
+                {showStudyCase && (
+                  <Field>
+                    <FieldLabel>Estudo de caso</FieldLabel>
+                    <Input
+                      name="estudo_caso"
+                      disabled={processing}
+                      placeholder="Descreve o estudo de caso..."
+                      aria-invalid={Boolean(errors.estudo_caso)}
+                      {...fieldProps('estudo_caso')}
+                    />
+                    {errors.estudo_caso && (
+                      <FieldError>{errors.estudo_caso}</FieldError>
+                    )}
+                  </Field>
+                )}
+
+                <Field>
+                  {actions ?? (
+                    <Button type="submit" disabled={processing}>
+                      {processing ? (
+                        <>
+                          <Loader2 className="animate-spin" /> A guardar...
+                        </>
+                      ) : (
+                        <>Guardar</>
+                      )}
+                    </Button>
+                  )}
+                </Field>
+              </FieldSet>
+            </FieldGroup>
+          </CardContent>
+        </Card>
+      </form>
     </div>
   );
 }

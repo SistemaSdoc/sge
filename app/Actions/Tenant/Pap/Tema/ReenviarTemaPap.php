@@ -20,7 +20,7 @@ class ReenviarTemaPap
     /**
      * Valida o tema corrigido e delega a transição de reenvio à aprovação.
      *
-     * @param  array{nome_grupo: string, tema_grupo: string, problema?: string|null, objectivo_geral?: string|null, objectivos_especificos?: string|null, estudo_caso?: string|null}  $dados
+     * @param  array{tema_grupo: string, problema?: string|null, objectivo_geral?: string|null, objectivos_especificos?: string|null, estudo_caso?: string|null}  $dados
      */
     public function handle(GrupoPap $grupoPap, User $actor, array $dados): bool
     {

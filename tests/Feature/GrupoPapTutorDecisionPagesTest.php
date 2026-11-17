@@ -12,8 +12,11 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Services\Tenant\Pap\Aprovacao\DecisaoTemaCoordenacaoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 uses(RefreshDatabase::class);
 
@@ -184,6 +187,105 @@ it('renders the coordination improvement page for an authorized coordinator', fu
             ->where('routeContext', 'instituicao')
             ->where('routeParams', $params)
         );
+});
+
+it('renders the theme correction page with all institution show route parameters', function () {
+    $context = createGrupoPapTutorDecisionContext();
+    $context['tutor']->givePermissionTo('grupopap.update');
+
+    $params = [
+        'instituicao' => $context['instituicao']->id,
+        'cursoTutelado' => $context['cursoTutelado']->id,
+        'cursoClasse' => $context['cursoClasse']->id,
+        'cursoClasseTurno' => $context['cursoClasseTurno']->id,
+        'turma' => $context['turma']->id,
+        'grupoPap' => $context['grupoPap']->id,
+    ];
+
+    $this->withoutMiddleware([
+        PreventAccessFromCentralDomains::class,
+        InitializeTenancyByDomain::class,
+    ])
+        ->actingAs($context['tutor'], 'tenant')
+        ->get(route('tenant.dashboard.grupo-pap-aprovacao.editar', $context['grupoPap']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/edit')
+            ->where('routeContext', 'instituicao')
+            ->where('routeParams', $params)
+        );
+});
+
+it('redirects a successful coordination improvement request to the PAP show page', function () {
+    $context = createGrupoPapTutorDecisionContext();
+    $context['grupoPap']->update(['status_aprovacao' => GrupoPap::APROVACAO_PENDENTE]);
+    $context['tutor']->givePermissionTo('grupopap.solicitarMelhoria');
+
+    $service = Mockery::mock(DecisaoTemaCoordenacaoService::class);
+    $service->shouldReceive('solicitarMelhoria')
+        ->once()
+        ->andReturnTrue();
+    $this->app->instance(DecisaoTemaCoordenacaoService::class, $service);
+
+    $params = [
+        'instituicao' => $context['instituicao']->id,
+        'cursoTutelado' => $context['cursoTutelado']->id,
+        'cursoClasse' => $context['cursoClasse']->id,
+        'cursoClasseTurno' => $context['cursoClasseTurno']->id,
+        'turma' => $context['turma']->id,
+        'grupoPap' => $context['grupoPap']->id,
+    ];
+
+    $this->withoutMiddleware([
+        PreventAccessFromCentralDomains::class,
+        InitializeTenancyByDomain::class,
+    ])
+        ->actingAs($context['tutor'], 'tenant')
+        ->post(route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria', $context['grupoPap']), [
+            'recomendacao' => 'Rever a delimitação do tema proposto.',
+        ])
+        ->assertRedirect(route(
+            'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
+            $params,
+        ))
+        ->assertSessionHas('success', 'Recomendação de melhoria enviada com sucesso.');
+});
+
+it('redirects a rejected coordination improvement request to the PAP show page with errors', function () {
+    $context = createGrupoPapTutorDecisionContext();
+    $context['grupoPap']->update(['status_aprovacao' => GrupoPap::APROVACAO_PENDENTE]);
+    $context['tutor']->givePermissionTo('grupopap.solicitarMelhoria');
+
+    $service = Mockery::mock(DecisaoTemaCoordenacaoService::class);
+    $service->shouldReceive('solicitarMelhoria')
+        ->once()
+        ->andReturnFalse();
+    $this->app->instance(DecisaoTemaCoordenacaoService::class, $service);
+
+    $params = [
+        'instituicao' => $context['instituicao']->id,
+        'cursoTutelado' => $context['cursoTutelado']->id,
+        'cursoClasse' => $context['cursoClasse']->id,
+        'cursoClasseTurno' => $context['cursoClasseTurno']->id,
+        'turma' => $context['turma']->id,
+        'grupoPap' => $context['grupoPap']->id,
+    ];
+
+    $this->withoutMiddleware([
+        PreventAccessFromCentralDomains::class,
+        InitializeTenancyByDomain::class,
+    ])
+        ->actingAs($context['tutor'], 'tenant')
+        ->post(route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria', $context['grupoPap']), [
+            'recomendacao' => 'Rever a delimitação do tema proposto.',
+        ])
+        ->assertRedirect(route(
+            'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
+            $params,
+        ))
+        ->assertSessionHasErrors([
+            'grupo' => 'Não é possível solicitar melhoria neste momento.',
+        ]);
 });
 
 dataset('coordination decision forms', [

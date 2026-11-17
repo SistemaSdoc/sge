@@ -76,8 +76,27 @@ class AprovarTemaPapController extends Controller
 
         Gate::forUser($user)->authorize('aprovar', $grupoPap);
 
+        $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
+        $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno->cursoClasse;
+        $cursoTutelado = $cursoClasse->cursoTutelado;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao_id;
+
+        $params = compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         if (! $grupoPap->podeSerAprovado()) {
-            return back()->withErrors([
+            return to_route(
+                'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
+                $params,
+            )->withErrors([
                 'grupo' => 'Este tema já foi finalizado e não pode ser alterado.',
             ])->with('status', 'erro');
         }
@@ -89,9 +108,11 @@ class AprovarTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Erro ao aprovar o tema.']);
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Erro ao aprovar o tema.']);
         }
 
-        return back()->with('success', 'Tema aprovado com sucesso.');
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema aprovado com sucesso.');
     }
 }

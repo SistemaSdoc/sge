@@ -1,8 +1,5 @@
-import { Form } from '@inertiajs/react';
-import { useState } from 'react';
-import { router, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/Tenant/Pap/TemaPapController';
-import { show } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { TemaForm } from './components/tema-form';
 
 export default function Create() {
@@ -16,45 +13,40 @@ export default function Create() {
     form,
   } = usePage().props;
 
-  const [professorTutorId, setProfessorTutorId] = useState(undefined);
+  const { data, setData, post, processing, errors } = useForm({
+    professor_tutor_id: '',
+    origem_tema: form.sugestoes_temas.length > 0 ? 'sugerido' : 'autoral',
+    tema_sugerido_id: '',
+    tema_grupo: '',
+    problema: '',
+    objectivo_geral: '',
+    objectivos_especificos: '',
+    estudo_caso: '',
+  });
 
   return (
-    <Form
-      action={store({
-        instituicao: instituicao.id,
-        cursoTutelado: cursoTutelado.id,
-        cursoClasse: cursoClasse.id,
-        cursoClasseTurno: cursoClasseTurno.id,
-        turma: turma.id,
-        grupoPap: grupoPap.id,
-      })}
-      transform={(data) => ({
-        ...data,
-      })}
-      onSuccess={() =>
-        router.visit(
-          show({
+    <TemaForm
+      title="Definir Proposta de Tema"
+      description="Escolha ou proponha o tema e preencha os dados que orientam o trabalho de PAP."
+      data={data}
+      setData={setData}
+      errors={errors}
+      processing={processing}
+      professores={form.professores}
+      sugestoesTemas={form.sugestoes_temas}
+      submitFn={(event) => {
+        event.preventDefault();
+        post(
+          store({
             instituicao: instituicao.id,
             cursoTutelado: cursoTutelado.id,
             cursoClasse: cursoClasse.id,
             cursoClasseTurno: cursoClasseTurno.id,
             turma: turma.id,
             grupoPap: grupoPap.id,
-          }),
-        )
-      }
-    >
-      {({ errors, processing }) => (
-        <TemaForm
-          title="Definir Tema do Grupo"
-          errors={errors}
-          processing={processing}
-          professores={form.professores}
-          sugestoesTemas={form.sugestoes_temas}
-          professorTutorId={professorTutorId}
-          setProfessorTutorId={setProfessorTutorId}
-        />
-      )}
-    </Form>
+          }).url,
+        );
+      }}
+    />
   );
 }

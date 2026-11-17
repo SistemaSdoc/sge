@@ -78,6 +78,23 @@ class SolicitarMelhoriaTemaPapController extends Controller
 
         Gate::forUser($user)->authorize('solicitarMelhoria', $grupoPap);
 
+        $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
+        $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno->cursoClasse;
+        $cursoTutelado = $cursoClasse->cursoTutelado;
+
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao_id;
+
+        $params = compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         $resultado = $this->decisaoTemaCoordenacaoService->solicitarMelhoria(
             $grupoPap,
             $user,
@@ -85,9 +102,11 @@ class SolicitarMelhoriaTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Não é possível solicitar melhoria neste momento.']);
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Não é possível solicitar melhoria neste momento.']);
         }
 
-        return back()->with('success', 'Recomendação de melhoria enviada com sucesso.');
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Recomendação de melhoria enviada com sucesso.');
     }
 }

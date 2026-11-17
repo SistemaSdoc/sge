@@ -44,11 +44,18 @@ class SolicitarCorrecaoTrabalhoPapController extends Controller
         $validated = $request->validated();
 
         $trabalho = $grupoPap->trabalhoPap;
+        $params = compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
 
         if (! $trabalho || ! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
-            return back()->withErrors([
-                'trabalho' => 'O trabalho não está disponível para análise da coordenação.',
-            ]);
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['trabalho' => 'O trabalho não está disponível para análise da coordenação.']);
         }
 
         $this->revisaoTrabalhoPapCoordenacaoService->solicitarCorrecao(
@@ -58,16 +65,10 @@ class SolicitarCorrecaoTrabalhoPapController extends Controller
             $request->file('ficheiro'),
         );
 
-        return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'grupoPap' => $grupoPap->id,
-        ])->with('toast', [
-            'type' => 'warning',
-            'message' => 'Correção solicitada ao aluno.',
-        ]);
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+            ->with('toast', [
+                'type' => 'warning',
+                'message' => 'Correção solicitada ao aluno.',
+            ]);
     }
 }

@@ -48,11 +48,18 @@ class SubmeterTrabalhoPapController extends Controller
         $validated = $request->validated();
 
         $trabalho = $grupoPap->trabalhoPap;
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
 
         if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
-            return back()->withErrors([
-                'ficheiro' => 'O trabalho não pode ser submetido neste momento.',
-            ]);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['ficheiro' => 'O trabalho não pode ser submetido neste momento.']);
         }
 
         $this->submissaoTrabalhoPapService->submeter(
@@ -61,9 +68,10 @@ class SubmeterTrabalhoPapController extends Controller
             $validated['ficheiro'],
         );
 
-        return back()->with('toast', [
-            'type' => 'success',
-            'message' => 'Trabalho submetido com sucesso. Aguarda revisão do professor tutor.',
-        ]);
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Trabalho submetido com sucesso. Aguarda revisão do professor tutor.',
+            ]);
     }
 }

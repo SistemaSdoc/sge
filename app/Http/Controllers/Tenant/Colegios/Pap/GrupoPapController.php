@@ -229,6 +229,15 @@ class GrupoPapController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         abort_if($user->hasRole('Secretario do Curso'), 403);
 
         abort_unless($user->can('grupopap.definirData'), 403);
@@ -282,10 +291,11 @@ class GrupoPapController extends Controller
             $this->notificarDataDefesaDefinida($grupoPapModel->fresh());
         });
 
-        return back()->with('toast', [
-            'type' => 'success',
-            'message' => 'Data e local da defesa definidos com sucesso!',
-        ]);
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Data e local da defesa definidos com sucesso!',
+            ]);
     }
 
     /**

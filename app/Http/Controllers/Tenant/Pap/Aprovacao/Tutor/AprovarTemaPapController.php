@@ -83,6 +83,15 @@ class AprovarTemaPapController extends Controller
 
         Gate::forUser($user)->authorize('aprovarComoTutor', $grupoPap);
 
+        $params = compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         $resultado = $this->decisaoTemaTutorService->enviarParaCoordenacao(
             $grupoPap,
             $user,
@@ -90,17 +99,9 @@ class AprovarTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Este tema não pode ser enviado à coordenação neste momento.']);
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Este tema não pode ser enviado à coordenação neste momento.']);
         }
-
-        $params = compact(
-            'instituicao',
-            'cursoTutelado',
-            'cursoClasse',
-            'cursoClasseTurno',
-            'turma',
-            'grupoPap'
-        );
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
             ->with('toast', [

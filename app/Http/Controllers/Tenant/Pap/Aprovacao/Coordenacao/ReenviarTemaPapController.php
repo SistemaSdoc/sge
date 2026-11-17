@@ -30,23 +30,28 @@ class ReenviarTemaPapController extends Controller
 
         Gate::forUser($user)->authorize('reenviarTema', $grupoPap);
 
-        if (! $this->reenviarTemaPap->handle($grupoPap, $user, $request->validated())) {
-            return back()->withErrors(['grupo' => 'Erro ao reenviar o tema.']);
-        }
-
         $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
         $turma = $grupoPap->turma;
         $cursoClasseTurno = $turma->cursoClasseTurno;
         $cursoClasse = $cursoClasseTurno->cursoClasse;
         $cursoTutelado = $cursoClasse->cursoTutelado;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao_id;
 
-        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao' => $cursoTutelado->instituicaoCurso->instituicao_id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'grupoPap' => $grupoPap->id,
-        ])->with('success', 'Tema reenviado com sucesso.');
+        $params = compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
+        if (! $this->reenviarTemaPap->handle($grupoPap, $user, $request->validated())) {
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Erro ao reenviar o tema.']);
+        }
+
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema reenviado com sucesso.');
     }
 }

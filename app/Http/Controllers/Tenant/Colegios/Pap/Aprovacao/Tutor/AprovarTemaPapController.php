@@ -77,16 +77,6 @@ class AprovarTemaPapController extends Controller
 
         $this->authorize('aprovarComoTutor', $grupoPap);
 
-        $resultado = $this->decisaoTemaTutorService->enviarParaCoordenacao(
-            $grupoPap,
-            $user,
-            $request->validated()['comentario'] ?? null,
-        );
-
-        if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Este tema não pode ser enviado à coordenação neste momento.']);
-        }
-
         $params = compact(
             'colegio',
             'cursoTutelado',
@@ -95,6 +85,17 @@ class AprovarTemaPapController extends Controller
             'turma',
             'grupoPap',
         );
+
+        $resultado = $this->decisaoTemaTutorService->enviarParaCoordenacao(
+            $grupoPap,
+            $user,
+            $request->validated()['comentario'] ?? null,
+        );
+
+        if (! $resultado) {
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Este tema não pode ser enviado à coordenação neste momento.']);
+        }
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
             ->with('toast', [

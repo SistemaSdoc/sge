@@ -44,11 +44,18 @@ class AprovarTrabalhoPapController extends Controller
         $validated = $request->validated();
 
         $trabalho = $grupoPap->trabalhoPap;
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
 
         if (! $trabalho || ! $trabalho->podeSerAnalisadoPeloTutor()) {
-            return back()->withErrors([
-                'trabalho' => 'O trabalho não está disponível para análise do tutor.',
-            ]);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['trabalho' => 'O trabalho não está disponível para análise do tutor.']);
         }
 
         $this->revisaoTrabalhoPapTutorService->aprovar(
@@ -57,9 +64,10 @@ class AprovarTrabalhoPapController extends Controller
             $validated['comentario'] ?? null,
         );
 
-        return back()->with('toast', [
-            'type' => 'success',
-            'message' => 'Trabalho enviado para a coordenação.',
-        ]);
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Trabalho enviado para a coordenação.',
+            ]);
     }
 }

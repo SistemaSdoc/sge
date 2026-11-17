@@ -49,7 +49,7 @@ class TemaPapController extends Controller
 
         abort_unless($turma && $cursoClasseTurno && $cursoClasse && $cursoTutelado, 404);
 
-        return Inertia::render('tenant/pap/EditarTemaMelhoria', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/edit', [
             'grupoPap' => $grupoPap,
             'routeContext' => 'colegio',
             'routeParams' => [
@@ -80,23 +80,38 @@ class TemaPapController extends Controller
 
         $validated = $request->validated();
 
-        $grupoPap->loadMissing('turma.cursoClasseTurno.cursoClasse');
+        $grupoPap->loadMissing('turma.cursoClasseTurno.cursoClasse.cursoTutelado');
 
         $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma?->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno?->cursoClasse;
+        $cursoTutelado = $cursoClasse?->cursoTutelado;
+
+        abort_unless($turma && $cursoClasseTurno && $cursoClasse && $cursoTutelado, 404);
+
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
 
         $this->temaPapUnicidadeService->validarUnicidade(
             [
                 ...$validated,
                 'estudo_caso' => $grupoPap->estudo_caso,
             ],
-            (string) $turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
-            (string) $turma?->ano_lectivo_id,
-            (string) $turma?->curso_classe_turno_id,
+            (string) $cursoTutelado->id,
+            (string) $turma->ano_lectivo_id,
+            (string) $cursoClasseTurno->id,
             (string) $grupoPap->getKey(),
         );
 
         $grupoPap->update($validated);
 
-        return back()->with('success', 'Tema atualizado com sucesso.');
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema atualizado com sucesso.');
     }
 }

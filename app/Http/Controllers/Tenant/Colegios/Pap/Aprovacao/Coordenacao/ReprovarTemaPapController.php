@@ -105,6 +105,15 @@ class ReprovarTemaPapController extends Controller
 
         abort_unless($user->can('grupopap.reprovar'), 403);
 
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         $dados = $request->validated();
 
         $tenantTutoraId = (string) tenancy()->tenant->getTenantKey();
@@ -127,9 +136,11 @@ class ReprovarTemaPapController extends Controller
         );
 
         if (! $resultado) {
-            return back()->withErrors(['grupo' => 'Este tema não pode ser reprovado neste momento.']);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Este tema não pode ser reprovado neste momento.']);
         }
 
-        return back()->with('success', 'Tema reprovado com sucesso.');
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema reprovado com sucesso.');
     }
 }

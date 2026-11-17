@@ -33,12 +33,28 @@ class ReenviarTemaPapController extends Controller
 
         $this->authorize('reenviarTema', $grupoPap);
 
+        $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
+        $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno->cursoClasse;
+        $cursoTutelado = $cursoClasse->cursoTutelado;
+        $colegio = $cursoTutelado->instituicaoCurso->instituicao_id;
+
+        $params = compact(
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        );
+
         if (! $this->reenviarTemaPap->handle($grupoPap, $user, $request->validated())) {
-            return back()->withErrors([
-                'grupo' => 'Este tema não pode ser reenviado neste momento.',
-            ]);
+            return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+                ->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
         }
 
-        return back()->with('success', 'Tema corrigido e reenviado para nova análise com sucesso.');
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params)
+            ->with('success', 'Tema corrigido e reenviado para nova análise com sucesso.');
     }
 }
