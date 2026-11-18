@@ -57,6 +57,14 @@ export default function Create() {
           processing={formProcessing || processing}
           professores={professores}
           funcoes={funcoes}
+          grupoPapUrl={show.url({
+            instituicao: instituicao.id,
+            cursoTutelado: cursoTutelado.id,
+            cursoClasse: cursoClasse.id,
+            cursoClasseTurno: cursoClasseTurno.id,
+            turma: turma.id,
+            grupoPap: grupoPap.id,
+          })}
         />
       )}
     </Form>

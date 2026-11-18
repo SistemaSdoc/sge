@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +27,7 @@ export function CreateForm({
   professores = [],
   setData,
   funcoes = [],
+  grupoPapUrl,
 }) {
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -110,6 +113,12 @@ export function CreateForm({
                   ) : (
                     <>Adicionar</>
                   )}
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={grupoPapUrl}>
+                    <ArrowUpLeft aria-hidden="true" />
+                    Voltar ao grupo PAP
+                  </Link>
                 </Button>
               </Field>
             </FieldSet>
