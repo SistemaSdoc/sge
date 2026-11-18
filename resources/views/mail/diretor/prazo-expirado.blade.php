@@ -7,7 +7,11 @@
     <meta name="x-apple-disable-message-reformatting">
     <title>Prazo expirado</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background-color: #f1f3f4;
@@ -26,7 +30,10 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
-        .header { text-align: center; padding: 32px 40px 24px; }
+        .header {
+            text-align: center;
+            padding: 32px 40px 24px;
+        }
 
         .header h1 {
             font-size: 20px;
@@ -104,9 +111,17 @@
             margin-bottom: 12px;
         }
 
-        .progress-block .percent.ok    { color: #137333; }
-        .progress-block .percent.warn  { color: #b06000; }
-        .progress-block .percent.danger{ color: #b3261e; }
+        .progress-block .percent.ok {
+            color: #137333;
+        }
+
+        .progress-block .percent.warn {
+            color: #b06000;
+        }
+
+        .progress-block .percent.danger {
+            color: #b3261e;
+        }
 
         .progress-bar {
             width: 100%;
@@ -121,9 +136,17 @@
             border-radius: 4px;
         }
 
-        .progress-bar .fill.ok     { background: #137333; }
-        .progress-bar .fill.warn   { background: #f9ab00; }
-        .progress-bar .fill.danger { background: #b3261e; }
+        .progress-bar .fill.ok {
+            background: #137333;
+        }
+
+        .progress-bar .fill.warn {
+            background: #f9ab00;
+        }
+
+        .progress-bar .fill.danger {
+            background: #b3261e;
+        }
 
         /* Grid de estatísticas */
         .stats-grid {
@@ -155,9 +178,17 @@
             line-height: 1;
         }
 
-        .stat-card.ok     .stat-value { color: #137333; }
-        .stat-card.warn   .stat-value { color: #b06000; }
-        .stat-card.danger .stat-value { color: #b3261e; }
+        .stat-card.ok .stat-value {
+            color: #137333;
+        }
+
+        .stat-card.warn .stat-value {
+            color: #b06000;
+        }
+
+        .stat-card.danger .stat-value {
+            color: #b3261e;
+        }
 
         /* ─── Tabela de atribuições ─── */
         .atribuicoes-table {
@@ -267,12 +298,27 @@
         }
 
         @media only screen and (max-width: 520px) {
-            body { padding: 0; }
-            .email-wrapper { width: 100%; border-radius: 0; }
-            .stat-card { flex: 1 1 100%; }
-            .atribuicoes-table { font-size: 12px; }
+            body {
+                padding: 0;
+            }
+
+            .email-wrapper {
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .stat-card {
+                flex: 1 1 100%;
+            }
+
+            .atribuicoes-table {
+                font-size: 12px;
+            }
+
             .atribuicoes-table thead th,
-            .atribuicoes-table tbody td { padding: 8px 10px; }
+            .atribuicoes-table tbody td {
+                padding: 8px 10px;
+            }
         }
     </style>
 </head>
@@ -280,13 +326,6 @@
 <body>
     <div class="email-wrapper">
         @include('mail.partials.institution-logo')
-
-        <div class="header">
-            <h1>Prazo expirado</h1>
-            <div class="account-badge">
-                {{ $instituicao->nome ?? 'SGE' }}
-            </div>
-        </div>
 
         <hr class="divider">
 
@@ -300,7 +339,7 @@
         </p>
 
         {{-- ════════════════════════════════════════════════════ --}}
-        {{-- DETALHES DO PRAZO                                    --}}
+        {{-- DETALHES DO PRAZO --}}
         {{-- ════════════════════════════════════════════════════ --}}
         <p class="section-label">Detalhes do prazo</p>
 
@@ -333,127 +372,18 @@
         </div>
 
         @if(!empty($periodo))
-            <div class="credential-item">
-                <div class="item-text">
-                    <div class="label">Período</div>
-                    <div class="sublabel">{{ $periodo }}</div>
-                </div>
+        <div class="credential-item">
+            <div class="item-text">
+                <div class="label">Período</div>
+                <div class="sublabel">{{ $periodo }}</div>
             </div>
+        </div>
         @endif
 
         <br>
 
         {{-- ════════════════════════════════════════════════════ --}}
-        {{-- BARRA DE PROGRESSO                                   --}}
-        {{-- ════════════════════════════════════════════════════ --}}
-        @php
-            $classeProgresso = $taxaCumprimento >= 80 ? 'ok' : ($taxaCumprimento >= 50 ? 'warn' : 'danger');
-        @endphp
-
-        <div class="progress-block">
-            <div class="label">Taxa de cumprimento</div>
-            <div class="percent {{ $classeProgresso }}">{{ $taxaCumprimento }}%</div>
-            <div class="progress-bar">
-                <div class="fill {{ $classeProgresso }}" style="width: {{ $taxaCumprimento }}%;"></div>
-            </div>
-        </div>
-
-        {{-- ════════════════════════════════════════════════════ --}}
-        {{-- ESTATÍSTICAS                                         --}}
-        {{-- ════════════════════════════════════════════════════ --}}
-        <p class="section-label">Estatísticas</p>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total de atribuições</div>
-                <div class="stat-value">{{ $totalProfessores }}</div>
-            </div>
-
-            <div class="stat-card ok">
-                <div class="stat-label">Submeteram</div>
-                <div class="stat-value">{{ $submeteram }}</div>
-            </div>
-
-            <div class="stat-card danger">
-                <div class="stat-label">Não submeteram</div>
-                <div class="stat-value">{{ $naoSubmeteram }}</div>
-            </div>
-
-            <div class="stat-card warn">
-                <div class="stat-label">Justificaram</div>
-                <div class="stat-value">{{ $justificaram }}</div>
-            </div>
-        </div>
-
-        {{-- ════════════════════════════════════════════════════ --}}
-        {{-- DETALHES POR PROFESSOR + TURMA                       --}}
-        {{-- ════════════════════════════════════════════════════ --}}
-        @if(!empty($atribuicoes))
-            <p class="section-label">Detalhes por professor</p>
-
-            <table class="atribuicoes-table">
-                <thead>
-                    <tr>
-                        <th>Professor</th>
-                        <th>Turma</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($atribuicoes as $atr)
-                        @php
-                            $submeteu = $atr['submeteu'] ?? false;
-                            $justStatus = $atr['justificativa_status'] ?? null;
-
-                            if ($submeteu) {
-                                $estadoLabel = 'Submeteu';
-                                $estadoClass = 'ok';
-                            } elseif ($justStatus === 'aceita') {
-                                $estadoLabel = 'Justificou (aceite)';
-                                $estadoClass = 'warn';
-                            } elseif ($justStatus === 'pendente') {
-                                $estadoLabel = 'Justificou (pendente)';
-                                $estadoClass = 'warn';
-                            } elseif ($justStatus === 'recusada') {
-                                $estadoLabel = 'Justificativa recusada';
-                                $estadoClass = 'danger';
-                            } else {
-                                $estadoLabel = 'Não submeteu';
-                                $estadoClass = 'danger';
-                            }
-                        @endphp
-
-                        <tr class="{{ $submeteu ? '' : 'row-pending' }}">
-                            <td class="col-prof">{{ $atr['professor_nome'] ?? '—' }}</td>
-                            <td class="col-turma">{{ $atr['turma_nome'] ?? '—' }}</td>
-                            <td>
-                                <span class="badge-estado {{ $estadoClass }}">
-                                    {{ $estadoLabel }}
-                                </span>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
-
-        {{-- ════════════════════════════════════════════════════ --}}
-        {{-- AVISO                                                --}}
-        {{-- ════════════════════════════════════════════════════ --}}
-        @if($naoSubmeteram > 0)
-            <div class="security-note">
-                <div class="text">
-                    <div class="title">Ação recomendada</div>
-                    <p>
-                        Existem <strong>{{ $naoSubmeteram }}</strong> atribuição(ões) sem submissão.
-                        Consulte a lista detalhada no painel para tomar as devidas providências.
-                    </p>
-                </div>
-            </div>
-        @endif
-
-        {{-- ════════════════════════════════════════════════════ --}}
-        {{-- FOOTER                                               --}}
+        {{-- FOOTER --}}
         {{-- ════════════════════════════════════════════════════ --}}
         <div class="footer">
             <p>

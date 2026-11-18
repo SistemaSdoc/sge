@@ -23,6 +23,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
         public User $user,
         public string $passwordPlain,
         public ?string $loginUrl = null,
+        public bool $perfilIncompleto = false,
     ) {}
 
     public function via(object $notifiable): array
@@ -52,6 +53,10 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
                     default => 'à',
                 },
                 'logoUrl' => $logoUrl,
+                'perfilIncompleto' => $this->perfilIncompleto,
+                'perfilUrl' => $this->perfilIncompleto
+                    ? $this->tenantNotificationUrl('tenant.dashboard.profile.edit')
+                    : null,
             ]);
     }
 

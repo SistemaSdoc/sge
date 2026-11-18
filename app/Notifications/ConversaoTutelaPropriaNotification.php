@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -16,6 +17,7 @@ class ConversaoTutelaPropriaNotification extends Notification implements ShouldQ
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoSolicitante,
@@ -59,7 +61,7 @@ class ConversaoTutelaPropriaNotification extends Notification implements ShouldQ
             ->view('mail.conversao-tutela-propria-notification', [
                 'nomeInstituicaoSolicitante' => $this->instituicaoSolicitante,
                 'nomeCurso' => $this->cursoNome,
-                'url' => $this->url ?: config('app.url').'/dashboard',
+                'url' => $this->url ?: $this->tenantNotificationUrl('tenant.dashboard'),
             ]);
     }
 }

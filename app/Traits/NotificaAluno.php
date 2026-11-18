@@ -21,12 +21,14 @@ trait NotificaAluno
      */
     protected function notificarAlunoCriado(
         User $user,
-        string $passwordPlain
+        string $passwordPlain,
+        bool $perfilIncompleto = false,
     ): void {
         $user->notify(new AlunoCriadoNotification(
             $user,
             $passwordPlain,
             $this->tenantNotificationUrl('tenant.login'),
+            $perfilIncompleto,
         ));
     }
 

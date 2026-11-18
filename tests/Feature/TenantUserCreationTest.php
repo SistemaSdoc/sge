@@ -3,6 +3,7 @@
 use App\Actions\Tenant\User\CreateUser;
 use App\Actions\Tenant\User\UpdateUser;
 use App\Models\Tenant\User;
+use App\Notifications\User\EmailAlteradoNotification;
 use App\Notifications\User\UserCriadoNotification;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,6 +58,31 @@ test('it creates a professor user profile and sends credentials notification', f
     expect($notifications)->toHaveCount(1)
         ->and($notifications->first()->passwordPlain)->toBe('secret123')
         ->and($notifications->first()->via($created))->toBe(['database', 'mail']);
+});
+
+test('changing an email sends an email-change notification to the new address', function (): void {
+    Notification::fake();
+
+    $user = User::factory()->create([
+        'nome' => 'Utilizador Alterado',
+        'email' => 'email-antigo@teste.local',
+    ]);
+
+    app(UpdateUser::class)->handle(
+        $user,
+        ['nome' => 'Utilizador Alterado', 'email' => 'email-novo@teste.local'],
+        $user,
+    );
+
+    Notification::assertSentTo(
+        $user,
+        EmailAlteradoNotification::class,
+        function (EmailAlteradoNotification $notification): bool {
+            return $notification->user->email === 'email-novo@teste.local'
+                && filled($notification->passwordPlain)
+                && in_array('mail', $notification->via($notification->user), true);
+        },
+    );
 });
 
 test('a director cannot remove their own role when updating their user profile', function (): void {

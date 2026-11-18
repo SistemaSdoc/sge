@@ -38,7 +38,7 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
             'tipo' => 'perfil_incompleto',
             'titulo' => 'Complete o seu perfil',
             'mensagem' => 'O seu acesso está limitado. Preencha os dados obrigatórios para continuar.',
-            'url' => '/dashboard/settings/profile',
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.profile.edit'),
         ];
     }
 }

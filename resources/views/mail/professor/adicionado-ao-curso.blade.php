@@ -150,12 +150,7 @@
 <body>
     <div class="email-wrapper">
         @include('mail.partials.institution-logo')
-
-        <div class="header">
-            <h1>Adicionado a um curso</h1>
-            <div class="account-badge">{{ $instituicao->nome ?? 'SGE' }}</div>
-        </div>
-
+        
         <hr class="divider">
 
         <br>

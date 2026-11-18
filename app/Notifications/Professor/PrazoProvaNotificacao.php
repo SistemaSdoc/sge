@@ -3,13 +3,15 @@
 namespace App\Notifications\Professor;
 
 use App\Models\Tenant\PrazoProva;
-use Illuminate\Bus\Queueable;
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class PrazoProvaNotificacao extends Notification
 {
-    use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public const TIPO_CRIADO = 'criado';
 
@@ -47,8 +49,7 @@ class PrazoProvaNotificacao extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
-        // Se tiveres email configurado: return ['database', 'mail'];
+        return ['database', 'mail'];
     }
 
     // ─────────────────────────────────────────────────────
@@ -103,7 +104,7 @@ class PrazoProvaNotificacao extends Notification
                 'fecho' => 'Solicita-se o cumprimento rigoroso do prazo indicado. A submissão deve ser efetuada através da plataforma institucional.',
                 'assinatura' => "Com os melhores cumprimentos,\nA Direção — {$instituicao}",
                 'tipo' => $this->tipo,
-                'url' => '/dashboard/professor/provas',
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
                 'prazos' => $this->prazosConsolidados,
             ];
         }
@@ -159,7 +160,7 @@ class PrazoProvaNotificacao extends Notification
             'fecho' => $fecho,
             'assinatura' => "Com os melhores cumprimentos,\nA Direção — {$instituicao}",
             'tipo' => $this->tipo,
-            'url' => '/dashboard/professor/provas',
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
             'prazos' => $this->prazo ? [['prazo_id' => $this->prazo->id]] : [],
         ];
     }
@@ -169,15 +170,41 @@ class PrazoProvaNotificacao extends Notification
     // ─────────────────────────────────────────────────────
     public function toMail(object $notifiable): MailMessage
     {
-        $instituicao = $this->nomeInstituicao($notifiable);
-        [$assunto, $corpo] = $this->comporConteudo($instituicao);
+        $instituicao = $notifiable->instituicao;
+        $url = $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index');
+
+        $titulo = $this->prazo
+            ? ($this->prazo->titulo_apresentacao ?? 'Prazo de prova')
+            : 'Novos prazos de prova';
+
+        $disciplina = $this->prazo?->disciplina?->nome;
+        $classe = $this->prazo?->classe?->nome;
+        $dataLimite = $this->prazo?->data_limite?->format('d/m/Y H:i') ?? '—';
+        $periodo = $this->prazo?->periodo;
+
+        $assunto = match ($this->tipo) {
+            self::TIPO_CRIADO => 'Novo prazo de submissão de prova',
+            self::TIPO_PRORROGADO => 'Prazo de prova prorrogado',
+            self::TIPO_FECHADO => 'Prazo de prova encerrado',
+            self::TIPO_A_EXPIRAR => 'Prazo de prova a expirar',
+            self::TIPO_EXPIRADO => 'Prazo de prova expirado',
+            default => 'Atualização de prazo de prova',
+        };
 
         return (new MailMessage)
             ->subject($assunto)
-            ->greeting("Exmo.(a) Senhor(a) {$notifiable->nome},")
-            ->line($corpo)
-            ->action('Aceder à plataforma', url('/dashboard/professor/provas'))
-            ->salutation("Com os melhores cumprimentos,\nA Direção — {$instituicao}");
+            ->view('mail.professor.prazo-prova', [
+                'nome' => $notifiable->nome,
+                'instituicao' => $instituicao,
+                'tipo' => $this->tipo,
+                'titulo' => $titulo,
+                'disciplina' => $disciplina,
+                'classe' => $classe,
+                'dataLimite' => $dataLimite,
+                'periodo' => $periodo,
+                'prazosConsolidados' => $this->prazosConsolidados,
+                'url' => $url,
+            ]);
     }
 
     // ─────────────────────────────────────────────────────

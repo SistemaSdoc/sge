@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -16,6 +17,7 @@ class ConversaoTutelaPropriaResultadoNotification extends Notification implement
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoDecisora,
@@ -76,7 +78,7 @@ class ConversaoTutelaPropriaResultadoNotification extends Notification implement
                 'nomeInstituicaoDecisora' => $this->instituicaoDecisora,
                 'nomeCurso' => $this->cursoNome,
                 'resultado' => $this->resultado,
-                'url' => $this->url ?: config('app.url').'/dashboard',
+                'url' => $this->url ?: $this->tenantNotificationUrl('tenant.dashboard'),
             ]);
     }
 }

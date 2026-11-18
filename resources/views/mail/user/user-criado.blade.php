@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
 
-    <title>Conta criada com sucesso</title>
+    <title>{{ $dadosActualizados ?? false ? 'Dados de acesso actualizados' : 'Conta criada com sucesso' }}</title>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -79,8 +79,13 @@
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            A sua conta {{ $artigoInstituicao }} <strong>{{ $instituicao?->nome ?? config('app.name') }}</strong> foi criada com sucesso.
-            Utilize as credenciais abaixo para aceder à plataforma.
+            @if ($dadosActualizados ?? false)
+                Os dados de acesso da sua conta {{ $artigoInstituicao }} <strong>{{ $instituicao?->nome ?? config('app.name') }}</strong> foram actualizados.
+                Utilize as novas credenciais abaixo para aceder à plataforma.
+            @else
+                A sua conta {{ $artigoInstituicao }} <strong>{{ $instituicao?->nome ?? config('app.name') }}</strong> foi criada com sucesso.
+                Utilize as credenciais abaixo para aceder à plataforma.
+            @endif
         </p>
 
         <p style="padding: 0 24px 12px; font-size: 13px; color: #202124;">

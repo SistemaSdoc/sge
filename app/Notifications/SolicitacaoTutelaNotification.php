@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -16,6 +17,7 @@ class SolicitacaoTutelaNotification extends Notification implements ShouldQueue,
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoTutelada,
@@ -64,10 +66,7 @@ class SolicitacaoTutelaNotification extends Notification implements ShouldQueue,
 
     public function toMail(object $notifiable): MailMessage
     {
-        // NÃO USAR url() helper aqui!
-        // Se $url não foi passado, usa um fallback seguro
-        $defaultUrl = config('app.url').'/dashboard';
-        $finalUrl = $this->url ?: $defaultUrl;
+        $finalUrl = $this->url ?: $this->tenantNotificationUrl('tenant.dashboard');
 
         return (new MailMessage)
             ->subject('Nova solicitação de tutela')

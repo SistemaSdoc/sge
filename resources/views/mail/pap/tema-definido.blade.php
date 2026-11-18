@@ -159,9 +159,6 @@
         @include('mail.partials.institution-logo')
 
         {{-- Header --}}
-        <div class="header">
-            <h1>Tema definido no PAP</h1>
-        </div>
 
         <hr class="divider">
 
@@ -172,7 +169,7 @@
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            O tema do grupo <strong>{{ $nomeGrupo }}</strong> foi definido com sucesso.
+            O tema do <strong>{{ $nomeGrupo }}</strong> foi definido com sucesso.
         </p>
 
         {{-- Info Card --}}

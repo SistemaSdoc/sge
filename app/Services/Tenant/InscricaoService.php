@@ -9,7 +9,6 @@ use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Notifications\Aluno\InscricaoEstadoNotification;
-use App\Notifications\Aluno\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;
@@ -187,8 +186,7 @@ class InscricaoService
         ]);
 
         if ($wasRecentlyCreated) {
-            $this->notificarAlunoCriado($user, $password);
-            $user->notify(new PerfilIncompletoNotificacao);
+            $this->notificarAlunoCriado($user, $password, true);
         }
 
         if ($turmaId) {

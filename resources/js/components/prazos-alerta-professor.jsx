@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { index as professorProvas } from '@/routes/tenant/dashboard/professor/provas';
 import { Button } from '@/components/ui/button';
 
 export function PrazosAlertaProfessor({ prazos = [] }) {
@@ -40,7 +41,7 @@ export function PrazosAlertaProfessor({ prazos = [] }) {
           <p className="text-sm font-semibold leading-tight">
             {tudoSubmetido
               ? 'Todos os prazos foram submetidos'
-              : `${totalPendentes} ${totalPendentes === 1 ? 'prazo pendente' : 'prazos pendentes'} de submissão de propostas de provas`}
+              : 'Prazos pendentes para submissão de propostas de provas'}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             {totalUrgentes > 0 && (
@@ -54,9 +55,9 @@ export function PrazosAlertaProfessor({ prazos = [] }) {
                 {totalExpirados === 1 ? 'expirado' : 'expirados'}
               </span>
             )}
-            {totalUrgentes === 0 && totalExpirados === 0 && (
-              <span>{prazos.length} no total</span>
-            )}
+            <span className="font-medium text-foreground">
+              Total: {totalPendentes}
+            </span>
           </div>
         </div>
       </div>
@@ -68,7 +69,7 @@ export function PrazosAlertaProfessor({ prazos = [] }) {
         size="sm"
         className="shrink-0 hover:cursor-pointer"
       >
-        <Link href="/dashboard/professor/provas">Ver página de provas</Link>
+        <Link href={professorProvas.url()}>Ver página de provas</Link>
       </Button>
     </div>
   );

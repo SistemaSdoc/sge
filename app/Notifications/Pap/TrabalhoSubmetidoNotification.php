@@ -52,18 +52,26 @@ class TrabalhoSubmetidoNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $cursoTutelado = $this->grupoPap->turma
-            ?->cursoClasseTurno
-            ?->cursoClasse
-            ?->cursoTutelado;
-        $nomeInstituicao = $cursoTutelado?->instituicaoCurso?->instituicao?->nome;
+        $turma = $this->grupoPap->turma;
+        $turno = $turma?->cursoClasseTurno;
+        $classe = $turno?->cursoClasse;
+        $cursoTutelado = $classe?->cursoTutelado;
+        $instituicao = $cursoTutelado?->instituicaoCurso?->instituicao;
+        $nomeInstituicao = $instituicao?->nome;
 
         return [
             'tipo' => 'trabalho_submetido',
             'titulo' => 'Novo trabalho submetido',
             'mensagem' => "O grupo \"{$this->grupoPap->nome_grupo}\" do {$nomeInstituicao} submeteu uma nova versão do trabalho PAP para revisão.",
             'grupo_pap_id' => $this->grupoPap->id,
-            'url' => $this->urlExterno ?? "/grupos-pap/{$this->grupoPap->id}",
+            'url' => $this->urlExterno ?? $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+                'instituicao' => $instituicao?->id,
+                'cursoTutelado' => $cursoTutelado?->id,
+                'cursoClasse' => $classe?->id,
+                'cursoClasseTurno' => $turno?->id,
+                'turma' => $turma?->id,
+                'grupoPap' => $this->grupoPap->id,
+            ]),
         ];
     }
 }

@@ -4,7 +4,9 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Notifications\Aluno\AlunoCriadoNotification;
+use App\Notifications\Professor\PrazoProvaNotificacao;
 use App\Traits\NotificaAluno;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use Stancl\Tenancy\Contracts\Tenant as TenantContract;
 use Stancl\Tenancy\Database\Models\Domain;
@@ -50,4 +52,13 @@ it('uses the active tenant domain for the student login link', function () {
             PHP_URL_HOST,
         ) === 'colegio.sge.test',
     );
+});
+
+it('sends deadline notifications through database and mail channels', function (): void {
+    $user = new User(['nome' => 'Professor Teste']);
+
+    $notification = new PrazoProvaNotificacao;
+
+    expect($notification->via($user))->toBe(['database', 'mail'])
+        ->and($notification)->not->toBeInstanceOf(ShouldQueue::class);
 });

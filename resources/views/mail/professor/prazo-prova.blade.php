@@ -229,6 +229,23 @@
 
         <p class="section-label">Detalhes do prazo</p>
 
+        @if (!empty($prazosConsolidados))
+            @foreach ($prazosConsolidados as $prazoConsolidado)
+                <div class="credential-item">
+                    <div class="item-text">
+                        <div class="label">{{ $prazoConsolidado['titulo'] ?? 'Prazo de prova' }}</div>
+                        <div class="sublabel">
+                            {{ $prazoConsolidado['disciplina'] ?? 'Todas as disciplinas' }}
+                            @if (!empty($prazoConsolidado['turmas']))
+                                — {{ implode(', ', $prazoConsolidado['turmas']) }}
+                            @endif
+                            — limite: {{ $prazoConsolidado['data_limite'] ?? '—' }}
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+
         <div class="credential-item">
             <div class="item-text">
                 <div class="label">Título</div>
@@ -266,6 +283,8 @@
             </div>
         @endif
 
+        @endif
+
         <div class="security-note">
             <div class="text">
                 <div class="title">{{ $config['avisoTitulo'] }}</div>
@@ -280,7 +299,7 @@
         </div>
 
         <div class="footer">
-            <p>Este email foi enviado automaticamente pela plataforma {{ $instituicao->nome }}. Por favor, não responda
+            <p>Este email foi enviado automaticamente pela plataforma {{ $instituicao?->nome ?? config('app.name') }}. Por favor, não responda
                 directamente a esta mensagem.</p>
             <p class="company">© {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.</p>
         </div>

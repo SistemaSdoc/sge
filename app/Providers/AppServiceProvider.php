@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Central\AnoLectivo;
+use App\Models\Central\User as CentralUser;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Aula;
 use App\Models\Tenant\CursoTuteladoProfessor;
@@ -16,6 +17,7 @@ use App\Models\Tenant\User;
 use App\Notifications\Channels\InstitutionLogoMailChannel;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
+use App\Observers\UserEmailAlteradoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
 use App\Policies\Tenant\AnoLectivoPolicy;
 use App\Policies\Tenant\AulaPolicy;
@@ -164,6 +166,8 @@ class AppServiceProvider extends ServiceProvider
         // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
+        User::observe(UserEmailAlteradoObserver::class);
+        CentralUser::observe(UserEmailAlteradoObserver::class);
 
         // Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
         //     if (\in_array($response->statusCode(), [403, 404, 500, 503])) {

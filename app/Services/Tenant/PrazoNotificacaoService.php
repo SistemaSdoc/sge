@@ -425,6 +425,7 @@ class PrazoNotificacaoService
             'tipo' => $tipo,
             'professores_notificados' => $enviadas,
             'prazos_agrupados' => count($prazos),
+            'professores_elegiveis' => count($porProfessor),
         ]);
 
         return $enviadas;
@@ -459,10 +460,6 @@ class PrazoNotificacaoService
                 ->unique()
                 ->values()
                 ->all();
-
-            if (empty($turmas)) {
-                continue;
-            }
 
             $resultado[] = [
                 'professor' => $professor,
