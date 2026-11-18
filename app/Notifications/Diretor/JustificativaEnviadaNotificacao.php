@@ -4,6 +4,7 @@ namespace App\Notifications\Diretor;
 
 use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class JustificativaEnviadaNotificacao extends Notification implements ShouldQueu
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public JustificativaNaoSubmissao $justificativa
@@ -40,7 +42,9 @@ class JustificativaEnviadaNotificacao extends Notification implements ShouldQueu
                 'turmaNome' => $this->justificativa->turma?->nome,
                 'dataJustificativa' => $this->justificativa->data_justificativa?->format('d/m/Y H:i') ?? '—',
                 'motivo' => $this->justificativa->motivo,
-                'url' => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.diretor.prazos.status', [
+                    'prazo' => $prazo?->id,
+                ]),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -53,7 +57,9 @@ class JustificativaEnviadaNotificacao extends Notification implements ShouldQueu
             'tipo' => 'justificativa_enviada',
             'titulo' => 'Nova justificativa recebida',
             'mensagem' => "{$professor} enviou uma justificativa para \"{$this->justificativa->prazo?->titulo}\".",
-            'url' => "/dashboard/diretor/prazos/{$this->justificativa->prazo_prova_id}/status",
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.diretor.prazos.status', [
+                'prazo' => $this->justificativa->prazo_prova_id,
+            ]),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Notifications\Diretor;
 
 use App\Models\Tenant\PrazoProva;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public PrazoProva $prazo,
@@ -46,7 +48,9 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
                 'justificaram' => $this->justificaram,
                 'taxaCumprimento' => $this->taxaCumprimento(),
                 'atribuicoes' => $this->atribuicoes,
-                'url' => url("/dashboard/diretor/prazos/{$this->prazo->id}/status"),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.diretor.prazos.status', [
+                    'prazo' => $this->prazo->id,
+                ]),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -58,7 +62,9 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
             'titulo' => 'Prazo expirado',
             'mensagem' => "O prazo \"{$this->tituloPrazo()}\" expirou. "
                           ."{$this->submeteram}/{$this->totalProfessores} professores submeteram.",
-            'url' => "/dashboard/diretor/prazos/{$this->prazo->id}/status",
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.diretor.prazos.status', [
+                'prazo' => $this->prazo->id,
+            ]),
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Notifications\Diretor;
 
 use App\Models\Tenant\SubmissaoProva;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class NovaSubmissaoNotificacao extends Notification implements ShouldQueue, Shou
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public SubmissaoProva $submissao
@@ -40,7 +42,9 @@ class NovaSubmissaoNotificacao extends Notification implements ShouldQueue, Shou
                 'versao' => $this->submissao->versao,
                 'dataSubmissao' => $this->submissao->data_submissao?->format('d/m/Y H:i') ?? '—',
                 'comentario' => $this->submissao->comentario,
-                'url' => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.diretor.prazos.status', [
+                    'prazo' => $prazo?->id,
+                ]),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -52,7 +56,9 @@ class NovaSubmissaoNotificacao extends Notification implements ShouldQueue, Shou
             'titulo' => 'Nova submissão recebida',
             'mensagem' => ($this->submissao->professor?->user?->nome ?? 'Professor').
                           " submeteu a prova \"{$this->submissao->prazo?->titulo}\".",
-            'url' => "/dashboard/diretor/prazos/{$this->submissao->prazo_prova_id}/status",
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.diretor.prazos.status', [
+                'prazo' => $this->submissao->prazo_prova_id,
+            ]),
         ];
     }
 }

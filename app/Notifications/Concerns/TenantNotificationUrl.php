@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Concerns;
 
-use App\Services\Tenant\TenantUrlGenerator;
+use LogicException;
 
 trait TenantNotificationUrl
 {
@@ -14,6 +14,12 @@ trait TenantNotificationUrl
         array $parameters = [],
         ?string $domain = null
     ): string {
-        return app(TenantUrlGenerator::class)->route($routeName, $parameters, $domain);
+        $domain ??= tenant()?->domains()->first()?->domain;
+
+        if (! $domain) {
+            throw new LogicException('Cannot generate a tenant notification URL without a tenant domain.');
+        }
+
+        return tenant_route($domain, $routeName, $parameters);
     }
 }
