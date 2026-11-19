@@ -8,31 +8,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type {
-  AnoLectivoOption,
-  FiltroQuadrosHonra,
-} from '@/types/quadro-honra';
+import type { FiltroQuadrosHonra } from '@/types/quadro-honra';
 
 type FiltrosQuadrosHonraProps = {
-  anosLectivos: AnoLectivoOption[];
   filtros: FiltroQuadrosHonra;
 };
 
-/** Filtra o histórico por ano lectivo e tipo, mantendo a navegação Inertia. */
-export function FiltrosQuadrosHonra({
-  anosLectivos,
-  filtros,
-}: FiltrosQuadrosHonraProps) {
+/** Permite seleccionar o trimestre do Quadro de Honra. */
+export function FiltrosQuadrosHonra({ filtros }: FiltrosQuadrosHonraProps) {
   const aplicarFiltros = (alteracoes: Partial<FiltroQuadrosHonra>) => {
     const novosFiltros = { ...filtros, ...alteracoes };
     const query: Record<string, string> = {};
 
-    if (novosFiltros.ano_lectivo_id) {
-      query.ano_lectivo_id = novosFiltros.ano_lectivo_id;
-    }
-
-    if (novosFiltros.tipo) {
-      query.tipo = novosFiltros.tipo;
+    if (novosFiltros.periodo) {
+      query.periodo = novosFiltros.periodo;
     }
 
     router.get(quadroHonraIndex().url, query, {
@@ -44,48 +33,25 @@ export function FiltrosQuadrosHonra({
 
   return (
     <Card>
-      <CardContent className="flex flex-col gap-3 pt-4 sm:flex-row">
+      <CardContent className="flex flex-col gap-3 pt-4">
         <Select
-          value={filtros.ano_lectivo_id || 'todos'}
-          onValueChange={(ano) =>
-            aplicarFiltros({ ano_lectivo_id: ano === 'todos' ? '' : ano })
-          }
-        >
-          <SelectTrigger
-            className="w-full sm:max-w-xs"
-            aria-label="Filtrar por ano lectivo"
-          >
-            <SelectValue placeholder="Todos os anos lectivos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os anos lectivos</SelectItem>
-            {anosLectivos.map((ano) => (
-              <SelectItem key={ano.id} value={ano.id}>
-                {ano.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={filtros.tipo || 'todos'}
-          onValueChange={(tipo) =>
+          value={filtros.periodo}
+          onValueChange={(periodo) =>
             aplicarFiltros({
-              tipo:
-                tipo === 'todos' ? '' : (tipo as FiltroQuadrosHonra['tipo']),
+              periodo: periodo as FiltroQuadrosHonra['periodo'],
             })
           }
         >
           <SelectTrigger
             className="w-full sm:max-w-xs"
-            aria-label="Filtrar por tipo de quadro de honra"
+            aria-label="Selecionar trimestre"
           >
-            <SelectValue placeholder="Todos os tipos" />
+            <SelectValue placeholder="Selecionar trimestre" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            <SelectItem value="geral">Quadro geral</SelectItem>
-            <SelectItem value="curso">Quadro por curso</SelectItem>
+            <SelectItem value="1">1.º trimestre</SelectItem>
+            <SelectItem value="2">2.º trimestre</SelectItem>
+            <SelectItem value="3">3.º trimestre</SelectItem>
           </SelectContent>
         </Select>
       </CardContent>

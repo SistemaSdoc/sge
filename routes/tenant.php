@@ -182,7 +182,7 @@ Route::middleware([
             require base_path('routes/modules/acess-management.php');
             require base_path('routes/modules/certificado.php');
             require base_path('routes/modules/pautas.php');
-            // Geração e exportação usam o grupo tenant autenticado acima.
+            // A consulta e a configuração dos quadros herdam a autenticação tenant acima.
             require base_path('routes/modules/quadro-honra.php');
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
@@ -240,7 +240,7 @@ Route::middleware([
 
             Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
                 ->name('users.avatar.update');
-                
+
             Route::get('users/{user}/security', [UserProfileController::class, 'security'])
                 ->name('users.security');
 

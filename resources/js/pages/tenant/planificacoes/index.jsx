@@ -1,11 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import {
-  Filter,
-  Search,
-  X,
-  Sparkles,
-} from 'lucide-react';
+import { Search, X, Sparkles } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -54,7 +49,7 @@ export default function Index({
     curso_id: filters.curso_id ?? '',
     disciplina_id: filters.disciplina_id ?? '',
     classe_id: filters.classe_id ?? '',
-    periodo: filters.periodo ?? '',
+    periodo: userRole === 'aluno' ? '' : (filters.periodo ?? ''),
   });
 
   const [busca, setBusca] = useState('');
@@ -80,10 +75,10 @@ export default function Index({
 
   const filtrosAtivos = Boolean(
     filtros.curso_id ||
-      filtros.disciplina_id ||
-      filtros.classe_id ||
-      filtros.periodo ||
-      filtros.ano_letivo_id !== (anoAtivoId ?? ''),
+    filtros.disciplina_id ||
+    filtros.classe_id ||
+    filtros.periodo ||
+    filtros.ano_letivo_id !== (anoAtivoId ?? ''),
   );
 
   const stats = useMemo(() => {
@@ -183,32 +178,137 @@ export default function Index({
             </div>
           </CardHeader>
 
-          {/* Filtros */}
-          <CardContent className="space-y-3 p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold whitespace-nowrap">
-                Filtros
-              </h2>
-            </div>
+          {!isAluno && (
+            <CardContent className="space-y-3 p-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold whitespace-nowrap">
+                  Filtros
+                </h2>
+              </div>
 
-            {isAluno ? (
-              /* Aluno: só período */
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Filter className="size-4" />
-                  <span className="font-medium">Período:</span>
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Pesquisar disciplina por nome ou sigla…"
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pr-9 pl-9"
+                />
+                {busca && (
+                  <button
+                    type="button"
+                    onClick={() => setBusca('')}
+                    className="absolute top-1/2 right-2 -translate-y-1/2 p-1 hover:bg-muted"
+                  >
+                    <X className="size-4 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+
+              {chipsFiltros.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {chipsFiltros.map((chip) => (
+                    <Badge
+                      key={chip.key}
+                      variant="outline"
+                      className="gap-1 py-1 pr-1 pl-2"
+                    >
+                      {chip.label}
+                      <button
+                        type="button"
+                        onClick={() => removerChip(chip.key)}
+                        className="p-0.5 hover:bg-background/60"
+                        aria-label={`Remover filtro ${chip.label}`}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  ))}
                 </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2">
                 <Select
-                  value={filtros.periodo || 'todos'}
+                  value={filtros.ano_letivo_id}
                   onValueChange={(v) => {
-                    const periodo = v === 'todos' ? '' : v;
-                    const novos = { ...filtros, periodo };
+                    const novos = { ...filtros, ano_letivo_id: v };
                     setFiltros(novos);
                     aplicarFiltros(novos);
                   }}
                 >
-                  <SelectTrigger className="w-full sm:w-56">
-                    <SelectValue placeholder="Todos os períodos" />
+                  <SelectTrigger className="w-full sm:w-44">
+                    <SelectValue placeholder="Ano letivo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anosLectivos.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {a.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filtros.curso_id || 'todos'}
+                  onValueChange={(v) => {
+                    const novos = {
+                      ...filtros,
+                      curso_id: v === 'todos' ? '' : v,
+                    };
+                    setFiltros(novos);
+                    aplicarFiltros(novos);
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os cursos</SelectItem>
+                    {cursos.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filtros.classe_id || 'todas'}
+                  onValueChange={(v) => {
+                    const novos = {
+                      ...filtros,
+                      classe_id: v === 'todas' ? '' : v,
+                    };
+                    setFiltros(novos);
+                    aplicarFiltros(novos);
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-44">
+                    <SelectValue placeholder="Classe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas">Todas as classes</SelectItem>
+                    {classes.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filtros.periodo || 'todos'}
+                  onValueChange={(v) => {
+                    const novos = {
+                      ...filtros,
+                      periodo: v === 'todos' ? '' : v,
+                    };
+                    setFiltros(novos);
+                    aplicarFiltros(novos);
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="Período" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos os períodos</SelectItem>
@@ -220,146 +320,8 @@ export default function Index({
                   </SelectContent>
                 </Select>
               </div>
-            ) : (
-              /* Staff */
-              <>
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Pesquisar disciplina por nome ou sigla…"
-                    value={busca}
-                    onChange={(e) => setBusca(e.target.value)}
-                    className="pr-9 pl-9"
-                  />
-                  {busca && (
-                    <button
-                      type="button"
-                      onClick={() => setBusca('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted"
-                    >
-                      <X className="size-4 text-muted-foreground" />
-                    </button>
-                  )}
-                </div>
-
-                {chipsFiltros.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {chipsFiltros.map((chip) => (
-                      <Badge
-                        key={chip.key}
-                        variant="outline"
-                        className="gap-1 py-1 pl-2 pr-1"
-                      >
-                        {chip.label}
-                        <button
-                          type="button"
-                          onClick={() => removerChip(chip.key)}
-                          className="p-0.5 hover:bg-background/60"
-                          aria-label={`Remover filtro ${chip.label}`}
-                        >
-                          <X className="size-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <Select
-                    value={filtros.ano_letivo_id}
-                    onValueChange={(v) => {
-                      const novos = { ...filtros, ano_letivo_id: v };
-                      setFiltros(novos);
-                      aplicarFiltros(novos);
-                    }}
-                  >
-                    <SelectTrigger className="w-full sm:w-44">
-                      <SelectValue placeholder="Ano letivo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {anosLectivos.map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          {a.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={filtros.curso_id || 'todos'}
-                    onValueChange={(v) => {
-                      const novos = {
-                        ...filtros,
-                        curso_id: v === 'todos' ? '' : v,
-                      };
-                      setFiltros(novos);
-                      aplicarFiltros(novos);
-                    }}
-                  >
-                    <SelectTrigger className="w-full sm:w-48">
-                      <SelectValue placeholder="Curso" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos os cursos</SelectItem>
-                      {cursos.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={filtros.classe_id || 'todas'}
-                    onValueChange={(v) => {
-                      const novos = {
-                        ...filtros,
-                        classe_id: v === 'todas' ? '' : v,
-                      };
-                      setFiltros(novos);
-                      aplicarFiltros(novos);
-                    }}
-                  >
-                    <SelectTrigger className="w-full sm:w-44">
-                      <SelectValue placeholder="Classe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todas">Todas as classes</SelectItem>
-                      {classes.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={filtros.periodo || 'todos'}
-                    onValueChange={(v) => {
-                      const novos = {
-                        ...filtros,
-                        periodo: v === 'todos' ? '' : v,
-                      };
-                      setFiltros(novos);
-                      aplicarFiltros(novos);
-                    }}
-                  >
-                    <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Período" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos os períodos</SelectItem>
-                      {periodos.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
 
         {/* Resumo da busca */}
@@ -381,18 +343,19 @@ export default function Index({
 
         {/* Lista */}
         {disciplinasFiltradas.length === 0 ? (
-          <EmptyState
-            variant="table"
-            icon={busca ? Search : Sparkles}
-            title={busca ? 'Sem resultados' : 'Sem planificações'}
-            description={
-              busca
-                ? 'Tente ajustar a pesquisa ou limpar os filtros.'
-                : can.create
-                  ? 'Ainda não foi criada nenhuma planificação para os filtros atuais.'
-                  : 'Ainda não há planificações disponíveis para você.'
-            }
-          />
+          <Card>
+            <CardContent className="pt-6">
+              <EmptyState
+                icon={busca ? Search : Sparkles}
+                title={busca ? 'Sem resultados' : 'Sem planificações'}
+                description={
+                  busca
+                    ? 'Tente ajustar a pesquisa ou limpar os filtros.'
+                    : 'Ainda não há planificações disponíveis para você.'
+                }
+              />
+            </CardContent>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {disciplinasFiltradas.map((d) => (

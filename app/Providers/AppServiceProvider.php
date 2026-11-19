@@ -11,6 +11,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\Planificacao;
+use App\Models\Tenant\QuadroHonra;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
 use App\Notifications\Channels\InstitutionLogoMailChannel;
@@ -29,6 +30,7 @@ use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
 use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Policies\Tenant\PrazoProvaPolicy;
+use App\Policies\Tenant\QuadroHonraPolicy;
 use App\Policies\Tenant\RolePolicy;
 use App\Policies\Tenant\SubmissaoProvaPolicy;
 use App\Policies\Tenant\UserPolicy;
@@ -105,11 +107,16 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(GrupoPap::class, GrupoPapPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
+        Gate::policy(QuadroHonra::class, QuadroHonraPolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
         Gate::before(function ($user, $ability, array $arguments) {
             if ($ability === 'delete' && ($arguments[0] ?? null) instanceof Aluno) {
+                return null;
+            }
+
+            if ($ability === 'updateCriteria') {
                 return null;
             }
 
@@ -146,11 +153,11 @@ class AppServiceProvider extends ServiceProvider
 
         // ── AULAS / SUMÁRIOS ──────────────────────────────────────
         // Abilities nomeadas — usadas pelo SidebarMenuService e testes
-        Gate::define('aula.viewAny',  [AulaPolicy::class, 'viewAny']);
-        Gate::define('aula.view',     [AulaPolicy::class, 'view']);
-        Gate::define('aula.create',   [AulaPolicy::class, 'create']);
-        Gate::define('aula.update',   [AulaPolicy::class, 'update']);
-        Gate::define('aula.delete',   [AulaPolicy::class, 'delete']);
+        Gate::define('aula.viewAny', [AulaPolicy::class, 'viewAny']);
+        Gate::define('aula.view', [AulaPolicy::class, 'view']);
+        Gate::define('aula.create', [AulaPolicy::class, 'create']);
+        Gate::define('aula.update', [AulaPolicy::class, 'update']);
+        Gate::define('aula.delete', [AulaPolicy::class, 'delete']);
         Gate::define('aula.publicar', [AulaPolicy::class, 'publicar']);
         Gate::define('aula.cancelar', [AulaPolicy::class, 'cancelar']);
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\FinalizarPautasVencidas;
+use App\Console\Commands\GerarQuadrosHonraAutomaticamente;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -23,5 +24,11 @@ Schedule::command(FinalizarPautasVencidas::class)
     ->withoutOverlapping()
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
+
+Schedule::command(GerarQuadrosHonraAutomaticamente::class)
+    ->everyFifteenMinutes()
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/quadros-honra-automaticos.log'));
 
 Schedule::command('prazos:verificar')->everyFiveMinutes();

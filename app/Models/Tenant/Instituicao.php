@@ -25,6 +25,8 @@ use Throwable;
     'logo',
     'descricao',
     'tenant_id',
+    'quadro_honra_media_minima',
+    'quadro_honra_limite_alunos',
 ])]
 
 class Instituicao extends Model
@@ -36,6 +38,14 @@ class Instituicao extends Model
     protected $table = 'instituicoes';
 
     protected $primaryKey = 'id';
+
+    protected function casts(): array
+    {
+        return [
+            'quadro_honra_media_minima' => 'decimal:2',
+            'quadro_honra_limite_alunos' => 'integer',
+        ];
+    }
 
     public function getLogoUrlAttribute(): ?string
     {
@@ -59,7 +69,7 @@ class Instituicao extends Model
 
     public function cursos()
     {
-        return $this->belongsToMany( 
+        return $this->belongsToMany(
             Curso::class,
             'instituicao_curso',
             'instituicao_id',

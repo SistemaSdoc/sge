@@ -1,10 +1,10 @@
 import { router } from '@inertiajs/react';
-import { Download, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { index as quadroHonraIndex } from '@/actions/App/Http/Controllers/Tenant/QuadroHonraController';
 import { EmptyState } from '@/components/empty-state';
 import TablePagination from '@/components/table-pagination';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -12,14 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import type {
   FiltroQuadrosHonra,
   Paginacao,
@@ -31,104 +23,113 @@ type ListaQuadrosHonraProps = {
   filtros: FiltroQuadrosHonra;
 };
 
-/** Apresenta os quadros de honra registados, o estado vazio e as ligações para os respectivos documentos PDF. */
+function iniciais(nome: string): string {
+  return nome
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0])
+    .join('')
+    .toUpperCase();
+}
+
+/** Apresenta os estudantes do quadro em cartões de perfil. */
 export function ListaQuadrosHonra({
   quadros,
   filtros,
 }: ListaQuadrosHonraProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Quadros de honra gerados</CardTitle>
-        <CardDescription>
-          Total de quadros registados: {quadros.total}. Ordenação do mais
-          recente para o mais antigo.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {quadros.data.length === 0 ? (
-          <EmptyState
-            icon={Trophy}
-            title="Não existem quadros de honra gerados"
-            description="Os quadros de honra gerados serão apresentados nesta lista."
-            variant="table"
-          />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Ano lectivo</TableHead>
-                <TableHead>Tipo de quadro de honra</TableHead>
-                <TableHead>Curso</TableHead>
-                <TableHead>Média mínima</TableHead>
-                <TableHead>Nº de alunos</TableHead>
-                <TableHead>Data de geração</TableHead>
-                <TableHead className="text-right">Documento</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {quadros.data.map((quadro) => (
-                <TableRow key={quadro.id}>
-                  <TableCell>{quadro.ano_lectivo ?? ' - '}</TableCell>
-                  <TableCell>
-                    <Badge variant="default">
-                      {quadro.tipo === 'geral' ? 'Geral' : 'Por curso'}
+    <section className="flex flex-col gap-6">
+      {quadros.data.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6">
+            <EmptyState
+              icon={Trophy}
+              title="Ainda não há alunos no Quadro de Honra"
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        quadros.data.map((quadro) => (
+          <Card key={quadro.id}>
+            <CardHeader>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <CardTitle>Quadro de Honra</CardTitle>
+                  <CardDescription>
+                    Ano lectivo {quadro.ano_lectivo ?? '-'}
+                    {' · '}
+                    {quadro.periodo}.º trimestre
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {quadro.alunos.map((aluno) => (
+                  <article
+                    key={aluno.id}
+                    className="flex flex-col items-center gap-3 rounded-lg border bg-card p-5 text-center"
+                  >
+                    <Avatar className="size-20">
+                      <AvatarImage
+                        src={aluno.avatar_url ?? undefined}
+                        alt={aluno.nome}
+                      />
+                      <AvatarFallback className="text-lg">
+                        {iniciais(aluno.nome)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <p className="font-semibold">
+                        <span className="text-muted-foreground">
+                          {aluno.posicao}.{' '}
+                        </span>
+                        {aluno.nome}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Curso: {aluno.curso}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Classe: {aluno.classe}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Turma: {aluno.turma}
+                      </p>
+                    </div>
+                    <Badge variant="secondary">
+                      Média:{' '}
+                      {aluno.media.toLocaleString('pt-AO', {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      })}
                     </Badge>
-                  </TableCell>
-                  <TableCell>{quadro.curso ?? 'Todos os cursos'}</TableCell>
-                  <TableCell>
-                    {Number(quadro.media_minima).toLocaleString('pt-AO')}{' '}
-                    valores
-                  </TableCell>
-                  <TableCell>{quadro.quantidade_alunos}</TableCell>
-                  <TableCell>
-                    {quadro.gerado_em
-                      ? new Date(quadro.gerado_em).toLocaleDateString('pt-AO')
-                      : '—'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {quadro.quantidade_alunos > 0 ? (
-                      <Button asChild variant="outline" size="sm">
-                        <a
-                          href={quadro.pdf_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Download className="size-4" />
-                          PDF
-                        </a>
-                      </Button>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        Sem alunos elegíveis
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+                  </article>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      )}
 
-        {quadros.last_page > 1 && (
-          <TablePagination
-            pagination={quadros}
-            onPageChange={(page: number) =>
-              router.get(
-                quadroHonraIndex().url,
-                {
-                  ...filtros,
-                  page,
-                },
-                {
-                  preserveScroll: true,
-                  preserveState: true,
-                },
-              )
-            }
-          />
-        )}
-      </CardContent>
-    </Card>
+      {quadros.last_page > 1 && (
+        <TablePagination
+          pagination={quadros}
+          onPageChange={(page: number) =>
+            router.get(
+              quadroHonraIndex().url,
+              {
+                ...filtros,
+                page,
+              },
+              {
+                preserveScroll: true,
+                preserveState: true,
+              },
+            )
+          }
+        />
+      )}
+    </section>
   );
 }

@@ -1,11 +1,10 @@
 <?php
 
-use App\Actions\Tenant\QuadroHonra\GerarQuadroHonra;
 use App\Http\Controllers\Tenant\QuadroHonraController;
 use App\Http\Requests\Tenant\QuadroHonra\GerarQuadroHonraRequest;
 use App\Models\Tenant\User;
 use App\Services\Tenant\QuadroHonra\CalcularCandidatosQuadroHonra;
-use App\Services\Tenant\QuadroHonra\QuadroHonraPdfService;
+use App\Services\Tenant\QuadroHonra\SincronizarQuadrosHonraTrimestrais;
 use Illuminate\Http\JsonResponse;
 use Tests\TestCase;
 
@@ -20,8 +19,8 @@ it('returns only fields rendered in the eligibility preview', function () {
 
     $request = Mockery::mock(GerarQuadroHonraRequest::class);
     $request->shouldReceive('validated')->once()->andReturn([
-        'tipo' => 'geral',
         'ano_lectivo_id' => '58977671-514d-44bf-bb06-f68e6a97665a',
+        'periodo' => 2,
     ]);
     $request->shouldReceive('user')->with('tenant')->once()->andReturn($user);
 
@@ -33,7 +32,7 @@ it('returns only fields rendered in the eligibility preview', function () {
             '0fd49a17-2aa4-4420-9a9b-246c20e141a2',
             null,
             null,
-            null,
+            2,
         )
         ->andReturn(collect([[
             'turma_aluno_id' => 'turma-aluno-id',
@@ -49,9 +48,8 @@ it('returns only fields rendered in the eligibility preview', function () {
         ]]));
 
     $controller = new QuadroHonraController(
-        Mockery::mock(GerarQuadroHonra::class),
         $calcularCandidatos,
-        Mockery::mock(QuadroHonraPdfService::class),
+        Mockery::mock(SincronizarQuadrosHonraTrimestrais::class),
     );
 
     $response = $controller->previsualizar($request);

@@ -11,10 +11,6 @@ Route::prefix('quadro-honra')->name('quadro-honra.')->group(function (): void {
     Route::post('/previsualizar', [QuadroHonraController::class, 'previsualizar'])
         ->name('previsualizar');
 
-    Route::post('/', [QuadroHonraController::class, 'gerar'])
-        ->name('gerar');
-
-    Route::get('/{quadroHonra}/pdf', [QuadroHonraController::class, 'exportar'])
-        ->whereUuid('quadroHonra')
-        ->name('exportar');
+    Route::patch('/criterios', [QuadroHonraController::class, 'atualizarCriterios'])
+        ->name('criterios.update');
 });

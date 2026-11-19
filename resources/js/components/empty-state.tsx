@@ -38,7 +38,7 @@ interface EmptyStateProps {
 export function EmptyState({
   icon: Icon,
   title = 'Nenhum dado disponível',
-  description = 'Parece que ainda não há nada por aqui',
+  description,
   action,
   secondaryActions = [],
   variant = 'default',
@@ -140,9 +140,11 @@ export function EmptyState({
           <EmptyTitle className={titleClasses[effectiveVariant]}>
             {title}
           </EmptyTitle>
-          <EmptyDescription className={descriptionClasses[effectiveVariant]}>
-            {description}
-          </EmptyDescription>
+          {description && (
+            <EmptyDescription className={descriptionClasses[effectiveVariant]}>
+              {description}
+            </EmptyDescription>
+          )}
         </EmptyContent>
       </EmptyHeader>
 

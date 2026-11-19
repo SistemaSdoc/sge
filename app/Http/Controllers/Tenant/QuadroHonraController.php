@@ -2,32 +2,26 @@
 
 namespace App\Http\Controllers\Tenant;
 
-use App\Actions\Tenant\QuadroHonra\GerarQuadroHonra;
-use App\Enums\TipoQuadroHonra;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\QuadroHonra\AtualizarCriteriosQuadroHonraRequest;
 use App\Http\Requests\Tenant\QuadroHonra\GerarQuadroHonraRequest;
-use App\Models\Central\AnoLectivo;
-use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\QuadroHonra as QuadroHonraModel;
 use App\Models\Tenant\User;
 use App\Services\Tenant\QuadroHonra\CalcularCandidatosQuadroHonra;
-use App\Services\Tenant\QuadroHonra\QuadroHonraPdfService;
+use App\Services\Tenant\QuadroHonra\SincronizarQuadrosHonraTrimestrais;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-/** Entrega a página, recebe gerações e autoriza a exportação dos quadros. */
+/** Apresenta os quadros e permite à Direcção configurar os critérios. */
 class QuadroHonraController extends Controller
 {
     public function __construct(
-        private readonly GerarQuadroHonra $gerarQuadroHonra,
         private readonly CalcularCandidatosQuadroHonra $calcularCandidatos,
-        private readonly QuadroHonraPdfService $quadroHonraPdfService,
+        private readonly SincronizarQuadrosHonraTrimestrais $sincronizarQuadros,
     ) {}
 
     public function index(Request $request): InertiaResponse
@@ -35,114 +29,100 @@ class QuadroHonraController extends Controller
         $this->authorize('viewAny', QuadroHonraModel::class);
         $utilizador = $request->user('tenant');
         abort_unless($utilizador instanceof User, 403);
+        $isAluno = $utilizador->hasRole('Aluno');
         $filtros = $request->validate([
-            'ano_lectivo_id' => ['nullable', 'uuid'],
-            'tipo' => ['nullable', Rule::in(array_map(
-                fn (TipoQuadroHonra $tipo): string => $tipo->value,
-                TipoQuadroHonra::cases(),
-            ))],
+            'periodo' => ['nullable', 'integer', 'in:1,2,3'],
         ]);
+
+        $ultimoQuadro = QuadroHonraModel::query()
+            ->where('tipo', 'geral')
+            ->whereNotNull('periodo')
+            ->orderByDesc('gerado_em')
+            ->orderByDesc('id')
+            ->first(['ano_lectivo_id', 'periodo']);
 
         $query = QuadroHonraModel::query()
             ->with([
                 'anoLectivo:id,nome',
-                'cursoTutelado.instituicaoCurso.curso:id,nome',
-                'geradoPor:id,nome',
+                'itens' => fn ($itensQuery) => $itensQuery->orderBy('posicao'),
+                'itens.aluno.user:id,avatar',
             ])
-            ->withCount('itens')
-            ->where(function ($query) use ($utilizador): void {
-                if ($utilizador->hasRole('Director')) {
-                    $query->where('tipo', TipoQuadroHonra::GERAL->value)
-                        ->orWhere(function ($cursoQuery) use ($utilizador): void {
-                            $cursoQuery->where('tipo', TipoQuadroHonra::CURSO->value)
-                                ->whereHas('cursoTutelado.instituicaoCurso', fn ($instituicaoQuery) => $instituicaoQuery->where('instituicao_id', $utilizador->instituicao_id)
-                                );
-                        });
+            ->whereNotNull('periodo')
+            ->where('tipo', 'geral');
 
-                    return;
-                }
-
-                $query->where('tipo', TipoQuadroHonra::CURSO->value)
-                    ->whereHas('cursoTutelado.instituicaoCurso', fn ($instituicaoQuery) => $instituicaoQuery->where('instituicao_id', $utilizador->instituicao_id)
-                    );
-
-                if ($utilizador->hasRole('Secretario do Curso')) {
-                    $cursosIds = $utilizador->cursosSecretariados()->select('curso_tutelado.id');
-                    $query->whereIn('curso_tutelado_id', $cursosIds);
-                }
-            });
-
-        if (isset($filtros['ano_lectivo_id'])) {
-            $query->where('ano_lectivo_id', $filtros['ano_lectivo_id']);
+        if ($ultimoQuadro) {
+            $query->where('ano_lectivo_id', $ultimoQuadro->ano_lectivo_id);
         }
 
-        if (isset($filtros['tipo'])) {
-            $query->where('tipo', $filtros['tipo']);
+        $periodoSelecionado = isset($filtros['periodo'])
+            ? (int) $filtros['periodo']
+            : $ultimoQuadro?->periodo;
+
+        if ($periodoSelecionado !== null) {
+            $query->where('periodo', $periodoSelecionado);
         }
 
         $quadros = $query->orderByDesc('gerado_em')
+            ->orderByDesc('id')
             ->paginate(20)
             ->through(fn (QuadroHonraModel $quadro): array => [
                 'id' => $quadro->id,
                 'ano_lectivo_id' => $quadro->ano_lectivo_id,
                 'ano_lectivo' => $quadro->anoLectivo?->nome,
-                'tipo' => $quadro->tipo->value,
-                'curso' => $quadro->cursoTutelado?->instituicaoCurso?->curso?->nome,
+                'periodo' => $quadro->periodo,
                 'media_minima' => $quadro->media_minima,
-                'quantidade_alunos' => $quadro->itens_count,
                 'gerado_em' => $quadro->gerado_em?->toISOString(),
-                'gerado_por' => $quadro->geradoPor?->nome,
-                'pdf_url' => route('tenant.dashboard.quadro-honra.exportar', $quadro),
+                'alunos' => $quadro->itens->map(fn ($item): array => [
+                    'id' => $item->id,
+                    'posicao' => $item->posicao,
+                    'nome' => $item->nome_aluno,
+                    'avatar_url' => $item->aluno?->user?->avatar_url,
+                    'curso' => $item->curso,
+                    'classe' => $item->classe,
+                    'turma' => $item->turma,
+                    'media' => (float) $item->media,
+                ])->all(),
             ]);
 
-        $cursosQuery = CursoTutelado::query()
-            ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $utilizador->instituicao_id))
-            ->with('instituicaoCurso.curso:id,nome');
-
-        if ($utilizador->hasRole('Secretario do Curso')) {
-            $cursosIds = $utilizador->cursosSecretariados()->select('curso_tutelado.id');
-            $cursosQuery->whereIn('id', $cursosIds);
-        }
-
-        $cursos = $cursosQuery->get()
-            ->map(fn (CursoTutelado $curso): array => [
-                'id' => $curso->id,
-                'nome' => $curso->instituicaoCurso?->curso?->nome ?? 'Curso',
-            ])
-            ->sortBy('nome')
-            ->values();
+        $instituicao = Instituicao::query()->findOrFail($utilizador->instituicao_id);
 
         return Inertia::render('tenant/quadro-honra/index', [
             'quadros' => $quadros,
-            'anosLectivos' => AnoLectivo::query()->orderByDesc('data_inicio')->get(['id', 'nome']),
-            'anoAtivoId' => AnoLectivo::activo()?->id,
-            'cursos' => $cursos,
+            'criterios' => [
+                'media_minima' => (float) $instituicao->quadro_honra_media_minima,
+                'limite_alunos' => (int) $instituicao->quadro_honra_limite_alunos,
+            ],
             'filtros' => [
-                'ano_lectivo_id' => $filtros['ano_lectivo_id'] ?? '',
-                'tipo' => $filtros['tipo'] ?? '',
+                'periodo' => $periodoSelecionado === null ? '' : (string) $periodoSelecionado,
             ],
-            'can' => [
-                'gerarGeral' => $utilizador->hasRole('Director'),
-                'gerarCurso' => $utilizador->hasAnyRole(['Director', 'Secretaria']),
-            ],
+            'can' => ['ajustarCriterios' => $utilizador->can('updateCriteria', QuadroHonraModel::class)],
+            'userRole' => $isAluno ? 'aluno' : 'staff',
         ]);
     }
 
-    public function gerar(GerarQuadroHonraRequest $request): RedirectResponse
+    public function atualizarCriterios(AtualizarCriteriosQuadroHonraRequest $request): RedirectResponse
     {
         $dados = $request->validated();
-        $this->authorize('generate', [
-            QuadroHonraModel::class,
-            $dados['tipo'],
-            $dados['curso_tutelado_id'] ?? null,
+        $utilizador = $request->user('tenant');
+        abort_unless($utilizador instanceof User && $utilizador->instituicao_id !== null, 403);
+
+        $instituicao = Instituicao::query()->findOrFail($utilizador->instituicao_id);
+        $instituicao->update([
+            'quadro_honra_media_minima' => $dados['media_minima'],
+            'quadro_honra_limite_alunos' => $dados['limite_alunos'],
         ]);
 
-        $utilizador = Auth::guard('tenant')->user();
-        abort_unless($utilizador instanceof User, 403);
+        $anoLectivo = AnoLectivo::activo();
 
-        $quadro = $this->gerarQuadroHonra->handle($dados, $utilizador);
+        if ($anoLectivo) {
+            $this->sincronizarQuadros->recalcularUltimoTrimestreGerado(
+                $utilizador->instituicao_id,
+                (string) $anoLectivo->getKey(),
+                $utilizador,
+            );
+        }
 
-        return back()->with('success', "Quadro de Honra gerado com {$quadro->itens()->count()} aluno(s).");
+        return back()->with('success', 'Critérios actualizados. Os quadros do último trimestre gerado foram recalculados.');
     }
 
     /**
@@ -157,9 +137,9 @@ class QuadroHonraController extends Controller
         $candidatos = $this->calcularCandidatos->calcular(
             $dados['ano_lectivo_id'],
             $utilizador->instituicao_id,
-            $dados['tipo'] === TipoQuadroHonra::CURSO->value ? $dados['curso_tutelado_id'] : null,
             isset($dados['media_minima']) ? (float) $dados['media_minima'] : null,
             isset($dados['limite_alunos']) ? (int) $dados['limite_alunos'] : null,
+            isset($dados['periodo']) ? (int) $dados['periodo'] : 3,
         );
 
         return response()->json([
@@ -175,13 +155,5 @@ class QuadroHonraController extends Controller
                 ])
                 ->values(),
         ]);
-    }
-
-    public function exportar(QuadroHonraModel $quadroHonra): Response
-    {
-        $this->authorize('export', $quadroHonra);
-        abort_unless($quadroHonra->itens()->exists(), 404);
-
-        return $this->quadroHonraPdfService->download($quadroHonra);
     }
 }

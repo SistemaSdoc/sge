@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenant;
 
-use App\Enums\TipoQuadroHonra;
 use App\Models\Central\AnoLectivo;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'ano_lectivo_id',
     'tipo',
-    'curso_tutelado_id',
     'escopo',
+    'periodo',
     'media_minima',
     'limite_alunos',
     'gerado_por',
@@ -30,7 +29,8 @@ class QuadroHonra extends Model
     protected function casts(): array
     {
         return [
-            'tipo' => TipoQuadroHonra::class,
+            'tipo' => 'string',
+            'periodo' => 'integer',
             'media_minima' => 'decimal:2',
             'limite_alunos' => 'integer',
             'gerado_em' => 'datetime',
@@ -40,11 +40,6 @@ class QuadroHonra extends Model
     public function anoLectivo(): BelongsTo
     {
         return $this->belongsTo(AnoLectivo::class);
-    }
-
-    public function cursoTutelado(): BelongsTo
-    {
-        return $this->belongsTo(CursoTutelado::class);
     }
 
     public function geradoPor(): BelongsTo

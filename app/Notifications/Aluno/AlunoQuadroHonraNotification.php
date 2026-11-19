@@ -10,10 +10,9 @@ class AlunoQuadroHonraNotification extends Notification
     public function __construct(
         public string $quadroHonraId,
         public string $anoLectivo,
-        public string $tipo,
-        public string $curso,
         public int $posicao,
         public float $media,
+        public int $periodo,
     ) {}
 
     public function via(object $notifiable): array
@@ -23,20 +22,17 @@ class AlunoQuadroHonraNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $tipoQuadro = $this->tipo === 'geral'
-            ? 'geral'
-            : "do curso de {$this->curso}";
+        $trimestre = "{$this->periodo}.º trimestre";
 
         return [
             'tipo' => 'quadro_honra',
             'titulo' => 'Felicitações! Foi distinguido(a) com a inclusão no Quadro de Honra.',
-            'mensagem' => "Informa-se que foi distinguido(a) com a inclusão no Quadro de Honra {$tipoQuadro}, do ano letivo de {$this->anoLectivo}, tendo alcançado a {$this->posicao}.ª classificação, com a média final de ".number_format($this->media, 1, ',', '.').' valores.',
+            'mensagem' => "Informa-se que foi distinguido(a) com a inclusão no Quadro de Honra, do {$trimestre} do ano letivo de {$this->anoLectivo}, tendo alcançado a {$this->posicao}.ª classificação, com a média trimestral de ".number_format($this->media, 2, ',', '.').' valores.',
             'quadro_honra_id' => $this->quadroHonraId,
             'ano_lectivo' => $this->anoLectivo,
-            'tipo_quadro' => $this->tipo,
-            'curso' => $this->curso,
             'posicao' => $this->posicao,
             'media' => $this->media,
+            'periodo' => $this->periodo,
         ];
     }
 }

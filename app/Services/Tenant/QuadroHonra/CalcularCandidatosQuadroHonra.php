@@ -7,11 +7,12 @@ use App\Models\Tenant\TurmaAluno;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
-/** Selecciona alunos com notas finais completas e ordena os elegíveis. */
+/** Selecciona alunos com notas trimestrais fechadas e ordena os elegíveis. */
 class CalcularCandidatosQuadroHonra
 {
     public function __construct(
         private readonly ResolverCriteriosQuadroHonra $resolverCriterios,
+        private readonly AvaliarMediaQuadroHonra $avaliarMedia,
     ) {}
 
     /**
@@ -31,9 +32,9 @@ class CalcularCandidatosQuadroHonra
     public function calcular(
         string $anoLectivoId,
         string $instituicaoId,
-        ?string $cursoTuteladoId = null,
         ?float $mediaMinima = null,
         ?int $limiteAlunos = null,
+        int $periodo = 3,
     ): Collection {
         $criterios = $this->resolverCriterios->resolver($mediaMinima, $limiteAlunos);
 
@@ -53,13 +54,6 @@ class CalcularCandidatosQuadroHonra
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
                 fn (Builder $query) => $query->where('instituicao_id', $instituicaoId),
             )
-            ->when(
-                $cursoTuteladoId !== null,
-                fn (Builder $query) => $query->whereHas(
-                    'turma.cursoClasseTurno.cursoClasse',
-                    fn (Builder $cursoQuery) => $cursoQuery->where('curso_tutelado_id', $cursoTuteladoId),
-                ),
-            )
             ->get();
 
         return $turmasAlunos
@@ -67,6 +61,7 @@ class CalcularCandidatosQuadroHonra
                 $turmaAluno,
                 $anoLectivoId,
                 $criterios['media_minima'],
+                $periodo,
             ))
             ->filter(fn (?array $candidato): bool => $candidato !== null)
             ->sort(function (array $a, array $b): int {
@@ -100,21 +95,29 @@ class CalcularCandidatosQuadroHonra
      *     notas_abaixo_dez: int
      * }|null
      */
-    private function calcularAluno(TurmaAluno $turmaAluno, string $anoLectivoId, float $mediaMinima): ?array
-    {
+    private function calcularAluno(
+        TurmaAluno $turmaAluno,
+        string $anoLectivoId,
+        float $mediaMinima,
+        int $periodo,
+    ): ?array {
         $turma = $turmaAluno->turma;
         $aluno = $turmaAluno->aluno;
         $classe = $turma?->cursoClasseTurno?->cursoClasse?->classe;
 
-        // Qualquer registo de recurso, inclusive uma nota do quarto período, exclui o aluno.
         if (
             ! $turma
             || ! $aluno
             || ! $classe
             || $classe->ordem > 12
-            || in_array($turmaAluno->resultado, ['recurso', 'aprovado_recurso', 'reprovado_recurso'], true)
-            || in_array($turmaAluno->situacao, ['recurso', 'aprovado_recurso', 'reprovado_recurso'], true)
-            || $turmaAluno->notas->contains(fn (Nota $nota): bool => $nota->periodo === 4)
+            || (
+                $periodo === 3
+                && (
+                    in_array($turmaAluno->resultado, ['recurso', 'aprovado_recurso', 'reprovado_recurso'], true)
+                    || in_array($turmaAluno->situacao, ['recurso', 'aprovado_recurso', 'reprovado_recurso'], true)
+                    || $turmaAluno->notas->contains(fn (Nota $nota): bool => $nota->periodo === 4)
+                )
+            )
         ) {
             return null;
         }
@@ -134,7 +137,6 @@ class CalcularCandidatosQuadroHonra
         $faltasTotal = 0;
         $notasAbaixoDez = 0;
 
-        // A média só é válida quando todas as disciplinas têm os três períodos fechados e nota final.
         foreach ($disciplinasCurriculares as $disciplinaCurricular) {
             $turmaDisciplinaProfessor = $turmaDisciplinasProfessor->get($disciplinaCurricular->id);
 
@@ -144,40 +146,28 @@ class CalcularCandidatosQuadroHonra
 
             $statusPorPeriodo = $turmaDisciplinaProfessor->pautaStatuses->keyBy('periodo');
 
-            foreach ([1, 2, 3] as $periodo) {
-                if (! in_array($statusPorPeriodo->get($periodo)?->status, ['finalizada', 'expirada'], true)) {
-                    return null;
-                }
+            if (! in_array($statusPorPeriodo->get($periodo)?->status, ['finalizada', 'expirada'], true)) {
+                return null;
             }
 
             $notas = $turmaAluno->notas
                 ->where('turma_disciplina_professor_id', $turmaDisciplinaProfessor->id)
                 ->keyBy('periodo');
-            $notasTrimestrais = collect([1, 2, 3])->map(fn (int $periodo): ?float => $notas->get($periodo)?->media_trimestral
-            );
+            $notaTrimestral = $notas->get($periodo);
+            $mediaTrimestral = $notaTrimestral?->media_trimestral;
 
-            if ($notasTrimestrais->contains(fn (?float $media): bool => $media === null)) {
+            if ($mediaTrimestral === null) {
                 return null;
             }
 
-            $mediaFinal = $notas->get(3)?->media_final;
-
-            if ($mediaFinal === null || $mediaFinal < Nota::NOTA_MINIMA_APTO) {
-                return null;
-            }
-
-            $notasPorDisciplina[] = (float) $mediaFinal;
-
-            foreach ([1, 2, 3] as $periodo) {
-                $nota = $notas->get($periodo);
-                $faltasTotal += (int) ($nota?->faltas ?? 0);
-                $notasAbaixoDez += (int) ($nota?->media_trimestral < Nota::NOTA_MINIMA_APTO);
-            }
+            $notasPorDisciplina[] = (float) $mediaTrimestral;
+            $faltasTotal += (int) ($notaTrimestral->faltas ?? 0);
+            $notasAbaixoDez += (int) ($mediaTrimestral < Nota::NOTA_MINIMA_APTO);
         }
 
-        $media = round(array_sum($notasPorDisciplina) / count($notasPorDisciplina), 1, PHP_ROUND_HALF_UP);
+        $media = $this->avaliarMedia->calcular($notasPorDisciplina, $mediaMinima);
 
-        if ($media < $mediaMinima) {
+        if ($media === null) {
             return null;
         }
 

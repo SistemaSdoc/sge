@@ -15,11 +15,13 @@ class PeriodoLancamentoNotas extends Model
         'ano_lectivo_id',
         'data_inicio',
         'data_limite',
+        'quadro_honra_processado_em',
     ];
 
     protected $casts = [
         'data_inicio' => 'datetime',
         'data_limite' => 'datetime',
+        'quadro_honra_processado_em' => 'datetime',
     ];
 
     public function dentroDoPrazo(): bool

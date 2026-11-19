@@ -36,8 +36,13 @@ class PlanificacaoController extends Controller
 
     private function resolverUserRole($user): string
     {
-        if ($user->hasRole('Aluno')) return 'aluno';
-        if ($user->hasRole('Professor')) return 'professor';
+        if ($user->hasRole('Aluno')) {
+            return 'aluno';
+        }
+        if ($user->hasRole('Professor')) {
+            return 'professor';
+        }
+
         return 'staff';
     }
 
@@ -48,7 +53,7 @@ class PlanificacaoController extends Controller
             ->with('instituicaoCurso.curso:id,nome')
             ->get()
             ->map(fn ($c) => [
-                'id'   => $c->id,
+                'id' => $c->id,
                 'nome' => $c->instituicaoCurso?->curso?->nome ?? 'Curso',
             ])
             ->sortBy('nome')
@@ -63,17 +68,28 @@ class PlanificacaoController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $isAluno = $user->hasRole('Aluno');
         $instituicaoId = $this->getInstituicaoId();
         $anoAtivo = AnoLectivo::activo();
         $anoLetivoId = $request->input('ano_letivo_id') ?? $anoAtivo?->id;
 
         $query = Planificacao::query()->where('instituicao_id', $instituicaoId);
 
-        if ($anoLetivoId)                          $query->where('ano_letivo_id', $anoLetivoId);
-        if ($request->filled('curso_id'))          $query->where('curso_id', $request->input('curso_id'));
-        if ($request->filled('disciplina_id'))     $query->where('disciplina_id', $request->input('disciplina_id'));
-        if ($request->filled('classe_id'))         $query->where('classe_id', $request->input('classe_id'));
-        if ($request->filled('periodo'))           $query->where('periodo', $request->input('periodo'));
+        if ($anoLetivoId) {
+            $query->where('ano_letivo_id', $anoLetivoId);
+        }
+        if ($request->filled('curso_id')) {
+            $query->where('curso_id', $request->input('curso_id'));
+        }
+        if ($request->filled('disciplina_id')) {
+            $query->where('disciplina_id', $request->input('disciplina_id'));
+        }
+        if ($request->filled('classe_id')) {
+            $query->where('classe_id', $request->input('classe_id'));
+        }
+        if ($request->filled('periodo') && ! $isAluno) {
+            $query->where('periodo', $request->input('periodo'));
+        }
 
         $this->aplicarFiltroPorRole($query, $user);
 
@@ -83,13 +99,14 @@ class PlanificacaoController extends Controller
             ->groupBy('disciplina_id')
             ->map(function ($grupo) {
                 $primeira = $grupo->first();
+
                 return [
-                    'id'                 => $primeira->disciplina_id,
-                    'nome'               => $primeira->disciplina?->nome ?? 'Sem disciplina',
-                    'sigla'              => $primeira->disciplina?->sigla,
-                    'total'              => $grupo->count(),
-                    'total_classes'      => $grupo->pluck('classe_id')->unique()->count(),
-                    'total_cursos'       => $grupo->pluck('curso_id')->filter()->unique()->count(),
+                    'id' => $primeira->disciplina_id,
+                    'nome' => $primeira->disciplina?->nome ?? 'Sem disciplina',
+                    'sigla' => $primeira->disciplina?->sigla,
+                    'total' => $grupo->count(),
+                    'total_classes' => $grupo->pluck('classe_id')->unique()->count(),
+                    'total_cursos' => $grupo->pluck('curso_id')->filter()->unique()->count(),
                     'ultima_atualizacao' => $grupo->max('updated_at')
                         ? Carbon::parse($grupo->max('updated_at'))->format('d/m/Y H:i')
                         : '—',
@@ -99,15 +116,15 @@ class PlanificacaoController extends Controller
             ->values();
 
         return Inertia::render('tenant/planificacoes/index', [
-            'disciplinas'   => $disciplinas,
-            'cursos'        => $this->cursosDaInstituicao($instituicaoId),
-            'filters'       => $request->only(['ano_letivo_id', 'curso_id', 'disciplina_id', 'classe_id', 'periodo']),
-            'classes'       => Classe::orderBy('nome')->get(['id', 'nome']),
-            'anosLectivos'  => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
-            'anoAtivoId'    => $anoLetivoId,
-            'periodos'      => PeriodoProva::valores(),
-            'userRole'      => $this->resolverUserRole($user),
-            'can'           => ['create' => $user->can('create', Planificacao::class)],
+            'disciplinas' => $disciplinas,
+            'cursos' => $this->cursosDaInstituicao($instituicaoId),
+            'filters' => $request->only(['ano_letivo_id', 'curso_id', 'disciplina_id', 'classe_id', 'periodo']),
+            'classes' => Classe::orderBy('nome')->get(['id', 'nome']),
+            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+            'anoAtivoId' => $anoLetivoId,
+            'periodos' => PeriodoProva::valores(),
+            'userRole' => $this->resolverUserRole($user),
+            'can' => ['create' => $user->can('create', Planificacao::class)],
         ]);
     }
 
@@ -128,10 +145,18 @@ class PlanificacaoController extends Controller
             ->where('instituicao_id', $instituicaoId)
             ->where('disciplina_id', $disciplinaId);
 
-        if ($anoLetivoId)                      $query->where('ano_letivo_id', $anoLetivoId);
-        if ($request->filled('curso_id'))      $query->where('curso_id', $request->input('curso_id'));
-        if ($request->filled('classe_id'))     $query->where('classe_id', $request->input('classe_id'));
-        if ($request->filled('periodo'))       $query->where('periodo', $request->input('periodo'));
+        if ($anoLetivoId) {
+            $query->where('ano_letivo_id', $anoLetivoId);
+        }
+        if ($request->filled('curso_id')) {
+            $query->where('curso_id', $request->input('curso_id'));
+        }
+        if ($request->filled('classe_id')) {
+            $query->where('classe_id', $request->input('classe_id'));
+        }
+        if ($request->filled('periodo')) {
+            $query->where('periodo', $request->input('periodo'));
+        }
 
         $this->aplicarFiltroPorRole($query, $user);
 
@@ -143,14 +168,14 @@ class PlanificacaoController extends Controller
             ->values();
 
         return Inertia::render('tenant/planificacoes/disciplina', [
-            'disciplina'    => ['id' => $disciplina->id, 'nome' => $disciplina->nome, 'sigla' => $disciplina->sigla],
+            'disciplina' => ['id' => $disciplina->id, 'nome' => $disciplina->nome, 'sigla' => $disciplina->sigla],
             'planificacoes' => $planificacoes,
-            'cursos'        => $this->cursosDaInstituicao($instituicaoId),
-            'anosLectivos'  => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
-            'anoAtivoId'    => $anoLetivoId,
-            'filters'       => $request->only(['ano_letivo_id', 'curso_id', 'classe_id', 'periodo']),
-            'userRole'      => $this->resolverUserRole($user),
-            'can'           => ['create' => $user->can('create', Planificacao::class)],
+            'cursos' => $this->cursosDaInstituicao($instituicaoId),
+            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+            'anoAtivoId' => $anoLetivoId,
+            'filters' => $request->only(['ano_letivo_id', 'curso_id', 'classe_id', 'periodo']),
+            'userRole' => $this->resolverUserRole($user),
+            'can' => ['create' => $user->can('create', Planificacao::class)],
         ]);
     }
 
@@ -164,12 +189,12 @@ class PlanificacaoController extends Controller
         $instituicaoId = $this->getInstituicaoId();
 
         return Inertia::render('tenant/planificacoes/create', [
-            'cursos'        => $this->cursosDaInstituicao($instituicaoId),
-            'disciplinas'   => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),
-            'classes'       => Classe::orderBy('nome')->get(['id', 'nome']),
-            'anosLectivos'  => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
-            'periodos'      => PeriodoProva::valores(),
-            'anoAtivoId'    => $anoAtivo?->id,
+            'cursos' => $this->cursosDaInstituicao($instituicaoId),
+            'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),
+            'classes' => Classe::orderBy('nome')->get(['id', 'nome']),
+            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+            'periodos' => PeriodoProva::valores(),
+            'anoAtivoId' => $anoAtivo?->id,
         ]);
     }
 
@@ -180,10 +205,10 @@ class PlanificacaoController extends Controller
     public function store(Request $request)
     {
         Log::info('[PLANIFICACAO STORE] Início', [
-            'user_id'        => auth()->id(),
+            'user_id' => auth()->id(),
             'instituicao_id' => $this->getInstituicaoId(),
-            'payload'        => $request->except(['ficheiro']),
-            'ficheiro'       => $request->hasFile('ficheiro') ? [
+            'payload' => $request->except(['ficheiro']),
+            'ficheiro' => $request->hasFile('ficheiro') ? [
                 'name' => $request->file('ficheiro')->getClientOriginalName(),
                 'size' => $request->file('ficheiro')->getSize(),
                 'mime' => $request->file('ficheiro')->getMimeType(),
@@ -194,23 +219,23 @@ class PlanificacaoController extends Controller
 
         $validated = $request->validate([
             'ano_letivo_id' => ['required', 'uuid'],
-            'curso_id'      => ['required', 'uuid', 'exists:curso_tutelado,id'],
+            'curso_id' => ['required', 'uuid', 'exists:curso_tutelado,id'],
             'disciplina_id' => ['required', 'uuid'],
-            'classe_id'     => ['required', 'uuid', 'exists:classes,id'],
-            'periodo'       => ['required', 'string', 'max:50'],
-            'titulo'        => ['nullable', 'string', 'max:255'],
-            'descricao'     => ['nullable', 'string', 'max:2000'],
-            'ficheiro'      => ['required', 'file', 'mimes:pdf,doc,docx', 'max:20480'],
+            'classe_id' => ['required', 'uuid', 'exists:classes,id'],
+            'periodo' => ['required', 'string', 'max:50'],
+            'titulo' => ['nullable', 'string', 'max:255'],
+            'descricao' => ['nullable', 'string', 'max:2000'],
+            'ficheiro' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:20480'],
         ], [
             'ano_letivo_id.required' => 'Selecione o ano letivo.',
-            'curso_id.required'      => 'Selecione o curso.',
-            'curso_id.exists'        => 'O curso selecionado não existe.',
+            'curso_id.required' => 'Selecione o curso.',
+            'curso_id.exists' => 'O curso selecionado não existe.',
             'disciplina_id.required' => 'Selecione a disciplina.',
-            'classe_id.required'     => 'Selecione a classe.',
-            'periodo.required'       => 'Selecione o período.',
-            'ficheiro.required'      => 'Anexe um ficheiro.',
-            'ficheiro.mimes'         => 'Apenas ficheiros PDF, DOC ou DOCX são aceites.',
-            'ficheiro.max'           => 'O ficheiro não pode ter mais de 20 MB.',
+            'classe_id.required' => 'Selecione a classe.',
+            'periodo.required' => 'Selecione o período.',
+            'ficheiro.required' => 'Anexe um ficheiro.',
+            'ficheiro.mimes' => 'Apenas ficheiros PDF, DOC ou DOCX são aceites.',
+            'ficheiro.max' => 'O ficheiro não pode ter mais de 20 MB.',
         ]);
 
         Log::info('[PLANIFICACAO STORE] Validação OK', $validated);
@@ -219,10 +244,10 @@ class PlanificacaoController extends Controller
             $resultado = DB::transaction(function () use ($validated, $instituicaoId, $request) {
                 $planificacao = Planificacao::firstOrNew([
                     'ano_letivo_id' => $validated['ano_letivo_id'],
-                    'curso_id'      => $validated['curso_id'],
+                    'curso_id' => $validated['curso_id'],
                     'disciplina_id' => $validated['disciplina_id'],
-                    'classe_id'     => $validated['classe_id'],
-                    'periodo'       => $validated['periodo'],
+                    'classe_id' => $validated['classe_id'],
+                    'periodo' => $validated['periodo'],
                 ]);
 
                 $primeiraVersao = ! $planificacao->exists;
@@ -230,14 +255,14 @@ class PlanificacaoController extends Controller
                 if ($primeiraVersao) {
                     $planificacao->fill([
                         'instituicao_id' => $instituicaoId,
-                        'titulo'         => $validated['titulo'] ?? null,
-                        'descricao'      => $validated['descricao'] ?? null,
-                        'versao_atual'   => 0,
-                        'created_by'     => auth()->id(),
+                        'titulo' => $validated['titulo'] ?? null,
+                        'descricao' => $validated['descricao'] ?? null,
+                        'versao_atual' => 0,
+                        'created_by' => auth()->id(),
                     ])->save();
                 } else {
                     $planificacao->fill([
-                        'titulo'    => $validated['titulo'] ?? $planificacao->titulo,
+                        'titulo' => $validated['titulo'] ?? $planificacao->titulo,
                         'descricao' => $validated['descricao'] ?? $planificacao->descricao,
                     ])->save();
                 }
@@ -249,17 +274,17 @@ class PlanificacaoController extends Controller
                 );
 
                 Log::info('[PLANIFICACAO STORE] Versão guardada', [
-                    'versao_id'        => $versao->id,
-                    'versao'           => $versao->versao,
-                    'encriptado'       => $versao->encriptado,
-                    'comprimido'       => $versao->comprimido,
+                    'versao_id' => $versao->id,
+                    'versao' => $versao->versao,
+                    'encriptado' => $versao->encriptado,
+                    'comprimido' => $versao->comprimido,
                     'tamanho_original' => $versao->tamanho_original_bytes,
-                    'tamanho_final'    => $versao->tamanho_bytes,
+                    'tamanho_final' => $versao->tamanho_bytes,
                 ]);
 
                 return [
-                    'planificacao'   => $planificacao,
-                    'versao'         => $versao,
+                    'planificacao' => $planificacao,
+                    'versao' => $versao,
                     'primeiraVersao' => $primeiraVersao,
                 ];
             });
@@ -269,14 +294,14 @@ class PlanificacaoController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::error('[PLANIFICACAO STORE] ERRO REAL', [
-                'tipo'     => get_class($e),
+                'tipo' => get_class($e),
                 'mensagem' => $e->getMessage(),
-                'ficheiro' => $e->getFile() . ':' . $e->getLine(),
-                'trace'    => $e->getTraceAsString(),
+                'ficheiro' => $e->getFile().':'.$e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw ValidationException::withMessages([
-                'geral' => 'Erro ao guardar: ' . $e->getMessage(),
+                'geral' => 'Erro ao guardar: '.$e->getMessage(),
             ]);
         }
 
@@ -288,12 +313,12 @@ class PlanificacaoController extends Controller
             );
             Log::info('[PLANIFICACAO STORE] Notificação enviada', [
                 'planificacao_id' => $resultado['planificacao']->id,
-                'versao'          => $resultado['versao']->versao,
+                'versao' => $resultado['versao']->versao,
             ]);
         } catch (\Throwable $e) {
             Log::warning('[PLANIFICACAO STORE] Notificação falhou (save OK)', [
                 'planificacao_id' => $resultado['planificacao']->id,
-                'erro'            => $e->getMessage(),
+                'erro' => $e->getMessage(),
             ]);
         }
 
@@ -319,8 +344,8 @@ class PlanificacaoController extends Controller
 
         return Inertia::render('tenant/planificacoes/show', [
             'planificacao' => $this->formatarParaDetalhe($planificacao),
-            'userRole'     => $this->resolverUserRole($user),
-            'can'          => [
+            'userRole' => $this->resolverUserRole($user),
+            'can' => [
                 'update' => $user->can('update', $planificacao),
                 'delete' => $user->can('delete', $planificacao),
             ],
@@ -342,22 +367,22 @@ class PlanificacaoController extends Controller
         $conteudo = $this->storage->conteudo($versao);
         if ($conteudo === null) {
             Log::warning('[PlanificacaoController] Preview falhou', [
-                'versao_id'  => $versao->id,
+                'versao_id' => $versao->id,
                 'encriptado' => $versao->encriptado,
             ]);
             abort(404, 'Ficheiro não encontrado ou falha na desencriptação.');
         }
 
         Log::info('[PlanificacaoController] Preview', [
-            'versao_id'   => $versao->id,
-            'nome'        => $versao->nome_original,
+            'versao_id' => $versao->id,
+            'nome' => $versao->nome_original,
             'bytes_final' => strlen($conteudo),
         ]);
 
         return response($conteudo, 200, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $versao->nome_original . '"',
-            'X-Frame-Options'     => 'SAMEORIGIN',
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$versao->nome_original.'"',
+            'X-Frame-Options' => 'SAMEORIGIN',
         ]);
     }
 
@@ -372,22 +397,22 @@ class PlanificacaoController extends Controller
         $conteudo = $this->storage->conteudo($versao);
         if ($conteudo === null) {
             Log::warning('[PlanificacaoController] Download falhou', [
-                'versao_id'  => $versao->id,
+                'versao_id' => $versao->id,
                 'encriptado' => $versao->encriptado,
             ]);
             abort(404, 'Ficheiro não encontrado ou falha na desencriptação.');
         }
 
         Log::info('[PlanificacaoController] Download', [
-            'versao_id'     => $versao->id,
+            'versao_id' => $versao->id,
             'nome_original' => $versao->nome_original,
-            'bytes_final'   => strlen($conteudo),
-            'encriptado'    => $versao->encriptado,
-            'comprimido'    => $versao->comprimido,
+            'bytes_final' => strlen($conteudo),
+            'encriptado' => $versao->encriptado,
+            'comprimido' => $versao->comprimido,
         ]);
 
         return response()->streamDownload(
-            fn () => print($conteudo),
+            fn () => print ($conteudo),
             $versao->nome_original,
             ['Content-Type' => $versao->mime_type ?? 'application/octet-stream'],
         );
@@ -407,7 +432,7 @@ class PlanificacaoController extends Controller
 
             Log::info('[PlanificacaoController] Planificação apagada', [
                 'planificacao_id' => $planificacao->id,
-                'user_id'         => auth()->id(),
+                'user_id' => auth()->id(),
             ]);
 
             return redirect()
@@ -416,7 +441,7 @@ class PlanificacaoController extends Controller
         } catch (\Throwable $e) {
             Log::error('[PlanificacaoController] Erro ao apagar', [
                 'planificacao_id' => $planificacao->id,
-                'erro'            => $e->getMessage(),
+                'erro' => $e->getMessage(),
             ]);
 
             return back()->with('error', 'Erro ao apagar planificação.');
@@ -469,61 +494,58 @@ class PlanificacaoController extends Controller
         $versaoAtual = $p->versoes->firstWhere('versao', $p->versao_atual) ?? $p->versoes->first();
 
         return [
-            'id'                 => $p->id,
-            'titulo'             => $p->titulo ?? 'Planificação',
-            'disciplina'         => $p->disciplina?->only(['id', 'nome', 'sigla']),
-            'classe'             => $p->classe?->only(['id', 'nome']),
-            'curso'              => $p->curso?->instituicaoCurso?->curso?->nome,
-            'ano_letivo'         => $p->anoLectivo?->nome,
-            'periodo'            => $p->periodo,
-            'versao'             => $p->versao_atual,
-            'tem_ficheiro'       => $versaoAtual !== null,
-            'eh_pdf'             => $versaoAtual?->eh_pdf ?? false,
-            'tamanho'            => $versaoAtual?->tamanho_formatado,
-            'tamanho_original'   => $versaoAtual?->tamanho_original_formatado,
+            'id' => $p->id,
+            'titulo' => $p->titulo ?? 'Planificação',
+            'disciplina' => $p->disciplina?->only(['id', 'nome', 'sigla']),
+            'classe' => $p->classe?->only(['id', 'nome']),
+            'curso' => $p->curso?->instituicaoCurso?->curso?->nome,
+            'ano_letivo' => $p->anoLectivo?->nome,
+            'periodo' => $p->periodo,
+            'versao' => $p->versao_atual,
+            'tem_ficheiro' => $versaoAtual !== null,
+            'eh_pdf' => $versaoAtual?->eh_pdf ?? false,
+            'tamanho' => $versaoAtual?->tamanho_formatado,
+            'tamanho_original' => $versaoAtual?->tamanho_original_formatado,
             'reducao_percentual' => $versaoAtual?->reducao_percentual,
-            'encriptado'         => $versaoAtual?->encriptado ?? false,
-            'comprimido'         => $versaoAtual?->comprimido ?? false,
-            'atualizada_em'      => $p->updated_at?->format('d/m/Y H:i'),
-            'criada_por'         => $p->criador?->nome,
+            'encriptado' => $versaoAtual?->encriptado ?? false,
+            'comprimido' => $versaoAtual?->comprimido ?? false,
+            'atualizada_em' => $p->updated_at?->format('d/m/Y H:i'),
+            'criada_por' => $p->criador?->nome,
         ];
     }
 
     private function formatarParaDetalhe(Planificacao $p): array
     {
         return [
-            'id'            => $p->id,
-            'titulo'        => $p->titulo,
-            'descricao'     => $p->descricao,
-            'disciplina'    => $p->disciplina?->only(['id', 'nome', 'sigla']),
-            'classe'        => $p->classe?->only(['id', 'nome']),
-            'curso'         => $p->curso?->instituicaoCurso?->curso?->nome,
-            'ano_letivo'    => $p->anoLectivo?->only(['id', 'nome']),
-            'periodo'       => $p->periodo,
-            'versao_atual'  => $p->versao_atual,
-            'criada_por'    => $p->criador?->nome,
-            'criada_em'     => $p->created_at?->format('d/m/Y H:i'),
+            'id' => $p->id,
+            'titulo' => $p->titulo,
+            'descricao' => $p->descricao,
+            'disciplina' => $p->disciplina?->only(['id', 'nome', 'sigla']),
+            'classe' => $p->classe?->only(['id', 'nome']),
+            'curso' => $p->curso?->instituicaoCurso?->curso?->nome,
+            'ano_letivo' => $p->anoLectivo?->only(['id', 'nome']),
+            'periodo' => $p->periodo,
+            'versao_atual' => $p->versao_atual,
+            'criada_por' => $p->criador?->nome,
+            'criada_em' => $p->created_at?->format('d/m/Y H:i'),
             'atualizada_em' => $p->updated_at?->format('d/m/Y H:i'),
             'versoes' => $p->versoes->map(fn (PlanificacaoVersao $v) => [
-                'id'                    => $v->id,
-                'versao'                => $v->versao,
-                'nome_original'         => $v->nome_original,
-                'tamanho'               => $v->tamanho_formatado,
-                'tamanho_original'      => $v->tamanho_original_formatado,
-                'reducao_bytes'         => $v->reducao_bytes,
-                'reducao_percentual'    => $v->reducao_percentual,
-                'extensao'              => $v->extensao,
-                'eh_pdf'                => $v->eh_pdf,
-                'encriptado'            => $v->encriptado,
-                'comprimido'            => $v->comprimido,
+                'id' => $v->id,
+                'versao' => $v->versao,
+                'nome_original' => $v->nome_original,
+                'tamanho' => $v->tamanho_formatado,
+                'tamanho_original' => $v->tamanho_original_formatado,
+                'reducao_bytes' => $v->reducao_bytes,
+                'reducao_percentual' => $v->reducao_percentual,
+                'extensao' => $v->extensao,
+                'eh_pdf' => $v->eh_pdf,
+                'encriptado' => $v->encriptado,
+                'comprimido' => $v->comprimido,
                 'algoritmo_encriptacao' => $v->algoritmo_encriptacao,
-                'uploaded_by'           => $v->autor?->nome,
-                'uploaded_em'           => $v->created_at?->format('d/m/Y H:i'),
-                'is_atual'              => $v->versao === $p->versao_atual,
+                'uploaded_by' => $v->autor?->nome,
+                'uploaded_em' => $v->created_at?->format('d/m/Y H:i'),
+                'is_atual' => $v->versao === $p->versao_atual,
             ])->values(),
         ];
     }
 }
-
-
-

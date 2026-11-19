@@ -1,11 +1,17 @@
 import { Head } from '@inertiajs/react';
-import { Award } from 'lucide-react';
 import { FiltrosQuadrosHonra } from '@/components/tenant/quadro-honra/filtros-quadros-honra';
-import { FormGerarQuadroHonra } from '@/components/tenant/quadro-honra/form-gerar-quadro-honra';
+import { FormCriteriosQuadroHonra } from '@/components/tenant/quadro-honra/form-criterios-quadro-honra';
 import { ListaQuadrosHonra } from '@/components/tenant/quadro-honra/lista-quadros-honra';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import type {
-  AnoLectivoOption,
-  CursoOption,
   FiltroQuadrosHonra,
   Paginacao,
   QuadroHonraResumo,
@@ -13,56 +19,64 @@ import type {
 
 type QuadroHonraIndexProps = {
   quadros: Paginacao<QuadroHonraResumo>;
-  anosLectivos: AnoLectivoOption[];
-  anoAtivoId: string | null;
-  cursos: CursoOption[];
+  criterios: {
+    media_minima: number;
+    limite_alunos: number;
+  };
   filtros: FiltroQuadrosHonra;
   can: {
-    gerarGeral: boolean;
-    gerarCurso: boolean;
+    ajustarCriterios: boolean;
   };
+  userRole: 'aluno' | 'staff';
 };
 
-/** Página Inertia que combina geração, filtros e histórico autorizado. */
+/** Página de consulta pública à instituição e configuração restrita à Direcção. */
 export default function QuadroHonraIndex({
   quadros,
-  anosLectivos,
-  anoAtivoId,
-  cursos,
+  criterios,
   filtros,
   can,
+  userRole,
 }: QuadroHonraIndexProps) {
+  const isAluno = userRole === 'aluno';
+
   return (
     <>
       <Head title="Quadro de Honra" />
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
-        <header className="flex items-start gap-3">
-          <div className="rounded-md bg-primary/10 p-2 text-primary">
-            <Award className="size-5" aria-hidden="true" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Quadro de Honra
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Consulte os quadros gerados ou gere o quadro geral e os quadros
-              por curso.
-            </p>
-          </div>
-        </header>
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 sm:p-6">
+        <Card className="gap-0 pb-0">
+          <CardHeader className="border-b border-foreground/10">
+            <Breadcrumb>
+              <BreadcrumbList className="flex-wrap">
+                <BreadcrumbItem className="min-w-0">
+                  <BreadcrumbLink asChild>
+                    <span className="line-clamp-2 text-sm font-semibold text-primary">
+                      {isAluno ? 'Aluno' : 'Gestão'}
+                    </span>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="min-w-0">
+                  <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                    Quadro de Honra
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <CardDescription>
+              {isAluno
+                ? 'Consulte o Quadro de Honra.'
+                : 'Os quadros de honra são actualizados automaticamente após o fecho das pautas de cada trimestre.'}
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-        {(can.gerarGeral || can.gerarCurso) && (
-          <FormGerarQuadroHonra
-            anosLectivos={anosLectivos}
-            anoAtivoId={anoAtivoId}
-            cursos={cursos}
-            podeGerarGeral={can.gerarGeral}
-            podeGerarCurso={can.gerarCurso}
-          />
+        {can.ajustarCriterios && (
+          <FormCriteriosQuadroHonra criterios={criterios} />
         )}
 
-        <FiltrosQuadrosHonra anosLectivos={anosLectivos} filtros={filtros} />
+        <FiltrosQuadrosHonra filtros={filtros} />
         <ListaQuadrosHonra quadros={quadros} filtros={filtros} />
       </main>
     </>
