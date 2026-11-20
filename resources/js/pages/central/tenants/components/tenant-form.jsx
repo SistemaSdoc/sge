@@ -44,6 +44,7 @@ export function TenantForm({
   can = {},
 }) {
   const canSubmit = Boolean(can.create ?? true);
+  const centralAppUrl = new URL(import.meta.env.VITE_APP_URL);
 
   const tipoOptions = [
     { value: 'colegio', label: 'Colégio' },
@@ -120,7 +121,7 @@ export function TenantForm({
                     <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
                     <InputGroup className="max-w-xs">
                       <InputGroupAddon className="font-normal text-foreground">
-                        https://
+                        {centralAppUrl.protocol}//
                       </InputGroupAddon>
                       <InputGroupInput
                         id="domain"
@@ -133,7 +134,7 @@ export function TenantForm({
                         align="inline-end"
                         className="font-normal text-foreground"
                       >
-                        .sge.localhost
+                        .{centralAppUrl.host}
                       </InputGroupAddon>
                     </InputGroup>
 

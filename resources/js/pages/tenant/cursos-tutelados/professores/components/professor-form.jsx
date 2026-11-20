@@ -10,6 +10,14 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -44,6 +52,10 @@ export default function ProfessorForm({
   courseUrl,
 }) {
   const hasAvailableProfessores = mode !== 'create' || professores.length > 0;
+  const selectedProfessor =
+    professores.find(
+      (professor) => String(professor.id) === String(professorId ?? ''),
+    ) ?? null;
 
   return (
     <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
@@ -88,33 +100,41 @@ export default function ProfessorForm({
               <Field>
                 <FieldLabel htmlFor="professor_id">Professor</FieldLabel>
                 {mode === 'create' ? (
-                  <Select
-                    value={professorId}
-                    onValueChange={setProfessorId}
+                  <Combobox
+                    items={professores}
+                    itemToStringLabel={(professor) =>
+                      professor.user?.nome || `Professor ${professor.id}`
+                    }
+                    itemToStringValue={(professor) => String(professor.id)}
+                    value={selectedProfessor}
+                    onValueChange={(professor) =>
+                      setProfessorId(professor ? String(professor.id) : '')
+                    }
                     disabled={!hasAvailableProfessores}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={
-                          hasAvailableProfessores
-                            ? 'Selecione o professor'
-                            : 'Não há professores disponíveis'
-                        }
-                      />
-                    </SelectTrigger>
-                    {hasAvailableProfessores && (
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Professores</SelectLabel>
-                          {professores.map((p) => (
-                            <SelectItem key={p.id} value={String(p.id)}>
-                              {p.user?.nome || `Professor ${p.id}`}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    )}
-                  </Select>
+                    <ComboboxInput
+                      placeholder={
+                        hasAvailableProfessores
+                          ? 'Pesquisar professor...'
+                          : 'Não há professores disponíveis'
+                      }
+                      showClear
+                      className="w-full"
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>
+                        Nenhum professor encontrado.
+                      </ComboboxEmpty>
+                      <ComboboxList>
+                        {(professor) => (
+                          <ComboboxItem key={professor.id} value={professor}>
+                            {professor.user?.nome ||
+                              `Professor ${professor.id}`}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     {professorNome}
