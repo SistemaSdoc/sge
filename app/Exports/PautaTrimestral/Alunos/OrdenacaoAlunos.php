@@ -2,6 +2,8 @@
 
 namespace App\Exports\PautaTrimestral\Alunos;
 
+use Illuminate\Support\Str;
+
 /**
  * Ordena os alunos por nome antes de os escrever na pauta.
  */
@@ -20,7 +22,7 @@ readonly class OrdenacaoAlunos
     public function ordenar(): array
     {
         return collect($this->alunos)
-            ->sortBy(fn (array $aluno): string => mb_strtolower((string) ($aluno['name'] ?? '')), SORT_NATURAL | SORT_FLAG_CASE)
+            ->sortBy(fn (array $aluno): string => Str::ascii((string) ($aluno['name'] ?? ''), 'pt'), SORT_NATURAL | SORT_FLAG_CASE)
             ->values()
             ->map(fn (array $aluno, int $index): array => [
                 ...$aluno,

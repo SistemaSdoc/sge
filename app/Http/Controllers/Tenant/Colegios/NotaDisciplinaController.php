@@ -123,6 +123,7 @@ class NotaDisciplinaController extends Controller
                 ),
             ])
             ->where('turma_aluno.turma_id', $turma->id)
+            ->where('inscricoes.status', '!=', 'cancelado')
             ->where('turma_aluno.situacao', 'activo')
             ->where('turma_aluno.activo', true)
             ->latest('turma_aluno.created_at')

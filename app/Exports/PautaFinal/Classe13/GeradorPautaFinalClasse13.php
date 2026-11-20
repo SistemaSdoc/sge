@@ -5,6 +5,7 @@ namespace App\Exports\PautaFinal\Classe13;
 use App\Exports\PautaFinal\Shared\Layout\EstilosPautaFinal;
 use App\Exports\PautaFinal\Shared\Resultados\ResultadoPautaFinal;
 use App\Services\Tenant\Pauta\PautaFinalDisciplineMapper;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -35,7 +36,7 @@ final class GeradorPautaFinalClasse13
         }
 
         $alunos = collect($this->alunos)
-            ->sortBy(fn (array $aluno): string => $aluno['name'] ?? '', SORT_NATURAL | SORT_FLAG_CASE)
+            ->sortBy(fn (array $aluno): string => Str::ascii((string) ($aluno['name'] ?? ''), 'pt'), SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
         $linhaModelo = 13;
         $linhasAdicionais = max(0, $alunos->count() - 1);

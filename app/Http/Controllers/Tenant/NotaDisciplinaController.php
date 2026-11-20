@@ -84,6 +84,7 @@ class NotaDisciplinaController extends Controller
                 'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
             ])
             ->where('turma_aluno.turma_id', $turma->id)
+            ->where('inscricoes.status', '!=', 'cancelado')
             ->where(function ($q) {
                 $q->where(function ($q) {
                     $q->where('turma_aluno.situacao', 'activo')
@@ -220,6 +221,7 @@ class NotaDisciplinaController extends Controller
                 'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
             ])
             ->where('turma_aluno.turma_id', $turma->id)
+            ->where('inscricoes.status', '!=', 'cancelado')
             ->where(function ($q) {
                 $q->where(function ($q) {
                     $q->where('turma_aluno.situacao', 'activo')
@@ -370,6 +372,17 @@ class NotaDisciplinaController extends Controller
                 default => 'Não é possível salvar as notas.',
             };
             throw ValidationException::withMessages(['periodo' => $mensagem]);
+        }
+
+        $temInscricaoCancelada = TurmaAluno::query()
+            ->whereIn('id', array_keys($validated['notas']))
+            ->whereHas('aluno.inscricao', fn ($query) => $query->where('status', 'cancelado'))
+            ->exists();
+
+        if ($temInscricaoCancelada) {
+            throw ValidationException::withMessages([
+                'notas' => 'Não é possível lançar notas para alunos com matrícula cancelada.',
+            ]);
         }
 
         $this->notaService->lancarNotas($validated['notas'], $validated['tdp_id'], $periodo);

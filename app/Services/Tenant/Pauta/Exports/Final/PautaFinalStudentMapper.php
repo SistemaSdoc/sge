@@ -5,6 +5,7 @@ namespace App\Services\Tenant\Pauta\Exports\Final;
 use App\Models\Central\Disciplina as CentralDisciplina;
 use App\Services\Tenant\Pauta\PautaFinalDisciplineMapper;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Mapeia alunos, notas actuais e histórico para o template final.
@@ -49,6 +50,11 @@ final class PautaFinalStudentMapper
             );
         }
 
+        usort($alunos, static fn (array $alunoA, array $alunoB): int => strnatcasecmp(
+            Str::ascii($alunoA['name'], 'pt'),
+            Str::ascii($alunoB['name'], 'pt'),
+        ));
+
         return $alunos;
     }
 
@@ -80,6 +86,10 @@ final class PautaFinalStudentMapper
      */
     private function mapearDisciplinasHistoricas(array $historicoNotas): array
     {
+        if ($historicoNotas['disciplinas'] === []) {
+            return [];
+        }
+
         /** @var \Illuminate\Database\Eloquent\Collection<int, CentralDisciplina> $disciplinasEncontradas */
         $disciplinasEncontradas = CentralDisciplina::query()
             ->whereIn('id', array_keys($historicoNotas['disciplinas']))

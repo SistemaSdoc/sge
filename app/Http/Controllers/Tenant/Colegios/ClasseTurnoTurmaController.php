@@ -138,6 +138,7 @@ class ClasseTurnoTurmaController extends Controller
 
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
+            ->inscricaoNaoCancelada()
             ->with([
                 'inscricao.candidato:id,nome',
                 'user:id,email,telefone,avatar',

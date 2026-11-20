@@ -8,6 +8,7 @@ use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 
 /**
  * Prepara disciplinas, alunos e notas para o template trimestral.
@@ -69,10 +70,10 @@ final class PautaTrimestralTemplateDataProvider
             $alunos[] = $this->mapearAluno($turmaAluno, $resultadosPorAluno);
         }
 
-        // A ordenação natural é aplicada antes de o export numerar as linhas.
-        usort($alunos, static fn (array $alunoA, array $alunoB): int => strnatcmp(
-            mb_strtolower($alunoA['name']),
-            mb_strtolower($alunoB['name']),
+        // Remove acentos antes da ordenação natural para manter a ordem alfabética.
+        usort($alunos, static fn (array $alunoA, array $alunoB): int => strnatcasecmp(
+            Str::ascii($alunoA['name'], 'pt'),
+            Str::ascii($alunoB['name'], 'pt'),
         ));
 
         return $alunos;
@@ -92,6 +93,7 @@ final class PautaTrimestralTemplateDataProvider
                 'notas' => fn ($query) => $query->where('periodo', $periodo),
             ])
             ->where('turma_id', $turma->getKey())
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
             ->where('activo', true)
             ->where('situacao', 'activo')
             ->orderBy('created_at')

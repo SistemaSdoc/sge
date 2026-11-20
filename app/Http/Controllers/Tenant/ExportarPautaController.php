@@ -141,10 +141,16 @@ class ExportarPautaController extends Controller
                 ? $q->where('periodo', $periodo)
                 : $q, // final: carrega todos os períodos
         ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->where('situacao', 'activo')
-            ->orderBy('created_at')
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
+            ->where('turma_aluno.activo', true)
+            ->where('turma_aluno.situacao', 'activo')
+            ->orderBy('candidatos.nome')
+            ->orderBy('turma_aluno.id')
             ->get();
 
         $historicoNotas = $isTrimestral

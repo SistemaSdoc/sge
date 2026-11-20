@@ -23,8 +23,8 @@ class PautaRecursoGenerator
         $disciplinas = $this->carregarDisciplinas($turma);
 
         $turmaAlunos = $this->queryAlunosRecurso($turma)
-            ->orderBy('created_at')
-            ->orderBy('id')
+            ->orderBy('candidatos.nome')
+            ->orderBy('turma_aluno.id')
             ->get();
 
         $resultadosCache = [];
@@ -152,7 +152,12 @@ class PautaRecursoGenerator
             'turma.cursoClasseTurno.cursoClasse.classe',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true);
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
+            ->where('turma_aluno.activo', true);
     }
 }

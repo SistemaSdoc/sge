@@ -56,6 +56,7 @@ class NotaDisciplinaRecursoController extends Controller
                 ->whereIn('periodo', [3, 4]),
         ])
             ->where('turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
             ->where('situacao', 'activo')
             ->where('activo', true)
             ->where(function ($query) use ($tdp): void {
@@ -188,6 +189,21 @@ class NotaDisciplinaRecursoController extends Controller
             'lancamentos.*.tdp_id' => ['required', Rule::in([$tdp->id])],
             'lancamentos.*.nota_recurso' => 'nullable|numeric|min:0|max:20',
         ]);
+
+        $idsTurmaAluno = collect($validated['lancamentos'])
+            ->pluck('turma_aluno_id')
+            ->unique();
+        $temInscricaoCancelada = TurmaAluno::query()
+            ->where('turma_id', $turma->id)
+            ->whereIn('id', $idsTurmaAluno)
+            ->whereHas('aluno.inscricao', fn ($query) => $query->where('status', 'cancelado'))
+            ->exists();
+
+        if ($temInscricaoCancelada) {
+            throw ValidationException::withMessages([
+                'lancamentos' => 'Não é possível lançar notas para alunos com matrícula cancelada.',
+            ]);
+        }
 
         if (! $this->notaService->periodoPodeSerLancado($tdp->id, 4)) {
             throw ValidationException::withMessages([

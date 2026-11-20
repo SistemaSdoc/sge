@@ -5,6 +5,7 @@ namespace App\Exports\PautaFinal\Classe10;
 use App\Exports\PautaFinal\Shared\Layout\EstilosPautaFinal;
 use App\Exports\PautaFinal\Shared\Resultados\ResultadoPautaFinal;
 use App\Exports\PautaFinal\Shared\Suporte\CoordenadasPlanilha;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
@@ -35,7 +36,9 @@ final class EscritorAlunosClasse10
         int $colunaHonra,
         array $colunasMediaFinal,
     ): void {
-        $alunos = collect($alunos)->sortBy(fn (array $aluno): string => $aluno['name'] ?? '', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        $alunos = collect($alunos)
+            ->sortBy(fn (array $aluno): string => Str::ascii((string) ($aluno['name'] ?? ''), 'pt'), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
 
         foreach ($alunos as $indice => $aluno) {
             $linha = 15 + $indice;

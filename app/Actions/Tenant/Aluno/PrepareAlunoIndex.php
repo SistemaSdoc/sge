@@ -46,7 +46,7 @@ class PrepareAlunoIndex
             ->whereIn('alunos.situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
             ->search($request->string('search')->toString())
-            ->whereHas('inscricao', fn ($query) => $query->where('status', '!=', 'cancelado'))
+            ->inscricaoNaoCancelada()
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
                 'user:id,avatar',

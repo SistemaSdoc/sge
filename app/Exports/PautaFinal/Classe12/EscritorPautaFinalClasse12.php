@@ -4,6 +4,7 @@ namespace App\Exports\PautaFinal\Classe12;
 
 use App\Exports\PautaFinal\Shared\Layout\EstilosPautaFinal;
 use App\Exports\PautaFinal\Shared\Resultados\ResultadoPautaFinal;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
@@ -27,7 +28,7 @@ final class EscritorPautaFinalClasse12
     {
         $linhaModelo = 21;
         $alunos = collect($this->alunos)
-            ->sortBy(fn (array $aluno): string => $aluno['name'] ?? '', SORT_NATURAL | SORT_FLAG_CASE)
+            ->sortBy(fn (array $aluno): string => Str::ascii((string) ($aluno['name'] ?? ''), 'pt'), SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
         if ($alunos->count() > 1) {

@@ -46,6 +46,18 @@ test('writes previous-class final marks into the 10th-grade columns of the 11th-
     ])->all();
     $grades = array_fill_keys(array_column($disciplines, 'id'), []);
     $grades['discipline-0'] = ['mt1' => 10, 'mt2' => 11, 'mt3' => 8, 'mf' => 10, 'faltas' => 4];
+    $student = fn (string $name): array => [
+        'name' => $name,
+        'grades' => $grades,
+        'previous_grades' => [
+            'discipline-0' => 14,
+            'discipline-1' => 12,
+            'discipline-9' => 16,
+            'discipline-10' => 18,
+        ],
+        'result' => 'transita',
+        'disciplines_recurso' => [],
+    ];
 
     $contents = Excel::raw(new PautaFinalTemplateExcelExport(
         templatePath: $templatePath,
@@ -61,18 +73,7 @@ test('writes previous-class final marks into the 10th-grade columns of the 11th-
             'subdirector' => 'Subdirector de Teste',
         ],
         disciplines: $disciplines,
-        students: [[
-            'name' => 'Aluno Teste',
-            'grades' => $grades,
-            'previous_grades' => [
-                'discipline-0' => 14,
-                'discipline-1' => 12,
-                'discipline-9' => 16,
-                'discipline-10' => 18,
-            ],
-            'result' => 'transita',
-            'disciplines_recurso' => [],
-        ]],
+        students: [$student('Josimar'), $student('José')],
     ), ExcelFormat::XLSX);
 
     $outputPath = tempnam(sys_get_temp_dir(), 'pauta_final_11_');
@@ -82,6 +83,8 @@ test('writes previous-class final marks into the 10th-grade columns of the 11th-
         $sheet = IOFactory::load($outputPath)->getSheetByName('P.FINAL');
 
         expect($sheet)->not->toBeNull()
+            ->and($sheet->getCell('B15')->getValue())->toBe('José')
+            ->and($sheet->getCell('B16')->getValue())->toBe('Josimar')
             ->and($sheet->getCell('C15')->getValue())->toBe(14.0)
             ->and($sheet->getCell('K15')->getValue())->toBe(12.0)
             ->and($sheet->getCell('BH15')->getValue())->toBe(16.0)
@@ -99,10 +102,10 @@ test('writes previous-class final marks into the 10th-grade columns of the 11th-
             ->and($sheet->getCell('AS11')->getValue())->toBe('CURSO: TÉCNICO DE INFORMÁTICA DE GESTÃO')
             ->and($sheet->getCell('BU10')->getValue())->toBe('2025/2026')
             ->and($sheet->getCell('BU11')->getValue())->toBe(7)
-            ->and($sheet->getCell('AA20')->getValue())->toBe('Coordenador do Curso Técnico de Informática de Gestão')
-            ->and($sheet->getCell('AY20')->getValue())->toBe('Subdirector de Teste')
-            ->and($sheet->getMergeCells())->toContain('AA20:AX20')
-            ->and($sheet->getStyle('AA20')->getAlignment()->getShrinkToFit())->toBeTrue()
+            ->and($sheet->getCell('AA21')->getValue())->toBe('Coordenador do Curso Técnico de Informática de Gestão')
+            ->and($sheet->getCell('AY21')->getValue())->toBe('Subdirector de Teste')
+            ->and($sheet->getMergeCells())->toContain('AA21:AX21')
+            ->and($sheet->getStyle('AA21')->getAlignment()->getShrinkToFit())->toBeTrue()
             ->and(count($sheet->getDrawingCollection()))->toBe(1);
     } finally {
         unlink($outputPath);

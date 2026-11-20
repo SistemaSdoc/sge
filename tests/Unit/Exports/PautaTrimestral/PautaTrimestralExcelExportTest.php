@@ -28,13 +28,13 @@ test('fills only the selected quarterly grade cells and preserves the source tem
     $students = [
         [
             'number' => 1,
-            'name' => 'Zuleica de Teste',
+            'name' => 'Josimar',
             'result' => 'N/APTO',
             'grades' => array_combine(array_column($disciplines, 'tdp_id'), [9, 10, 11, 12, 13, 14, 15, 16, 17]),
         ],
         [
             'number' => 2,
-            'name' => 'Alice de Teste',
+            'name' => 'José',
             'result' => 'APTO',
             'grades' => array_fill_keys(array_column($disciplines, 'tdp_id'), null),
         ],
@@ -75,13 +75,13 @@ test('fills only the selected quarterly grade cells and preserves the source tem
             ->and($sheet->getCell('C11')->getValue())->toBe('SIG1')
             ->and($sheet->getCell('AA11')->getValue())->toBe('SIG9')
             ->and($sheet->getCell('A14')->getValue())->toBe(1)
-            ->and($sheet->getCell('B14')->getValue())->toBe('Alice de Teste')
+            ->and($sheet->getCell('B14')->getValue())->toBe('José')
             ->and($sheet->getCell('C14')->getValue())->toBeNull()
             ->and($sheet->getCell('C13')->getValue())->toBe('MT'.$period)
             ->and($sheet->getStyle('C15')->getFont()->getSize())->toBe(12.0)
             ->and($sheet->getStyle('C15')->getFont()->getBold())->toBeTrue()
             ->and($sheet->getCell('A15')->getValue())->toBe(2)
-            ->and($sheet->getCell('B15')->getValue())->toBe('Zuleica de Teste')
+            ->and($sheet->getCell('B15')->getValue())->toBe('Josimar')
             ->and($sheet->getCell('C15')->getValue())->toBe(9)
             ->and($sheet->getStyle('C15')->getFont()->getColor()->getARGB())->toBe('FFFF0000')
             ->and($sheet->getCell('F15')->getValue())->toBe(10)

@@ -22,10 +22,15 @@ class PautaFinalGenerator
             'aluno.inscricao.candidato:id,nome',
             'notas' => fn ($q) => $q->whereIn('periodo', [1, 2, 3]),
         ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->orderBy('created_at')
-            ->orderBy('id');
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
+            ->where('turma_aluno.activo', true)
+            ->orderBy('candidatos.nome')
+            ->orderBy('turma_aluno.id');
 
         $alunosCalculados = $query->get()
             ->values()

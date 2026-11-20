@@ -119,6 +119,7 @@ class ExportarListaAlunosTurmaController extends Controller
 
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
+            ->inscricaoNaoCancelada()
             ->with([
                 'inscricao.candidato:id,nome,genero,data_nascimento,telefone',
                 'user:id,telefone',

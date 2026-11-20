@@ -8,6 +8,7 @@ use App\Models\Central\AnoLectivo;
 use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -195,6 +196,14 @@ class Aluno extends Model implements HasUserCleanup
     public function scopeActivos($query)
     {
         return $query->where('situacao', 'activo');
+    }
+
+    public function scopeInscricaoNaoCancelada(Builder $query): Builder
+    {
+        return $query->whereHas(
+            'inscricao',
+            fn (Builder $inscricaoQuery): Builder => $inscricaoQuery->where('status', '!=', 'cancelado'),
+        );
     }
 
     public function scopeFinalistas($query)

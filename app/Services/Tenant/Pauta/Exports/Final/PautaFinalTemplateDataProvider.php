@@ -33,6 +33,7 @@ final class PautaFinalTemplateDataProvider
     {
         $totalAlunos = TurmaAluno::query()
             ->where('turma_id', $turma->getKey())
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
             ->where('activo', true)
             ->count();
 
