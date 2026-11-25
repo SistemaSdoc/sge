@@ -10,6 +10,7 @@ export function resolvePageLayout(name: string) {
 
   if (
     name === 'central/welcome/index' ||
+    name === 'central/declaracoes-estagio/verificar' ||
     name === 'tenant/certificado/show' ||
     name === 'tenant/access-denied'
   ) {

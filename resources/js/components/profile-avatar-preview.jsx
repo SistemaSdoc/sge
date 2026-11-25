@@ -8,6 +8,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+/**
+ * @param {{ src: string | null, name: string, className?: string }} props
+ */
 export function ProfileAvatarPreview({ src, name, className }) {
   const getInitials = useInitials();
   const imageUrl = src || null;

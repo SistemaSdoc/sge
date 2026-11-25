@@ -32,3 +32,7 @@ Schedule::command(GerarQuadrosHonraAutomaticamente::class)
     ->appendOutputTo(storage_path('logs/quadros-honra-automaticos.log'));
 
 Schedule::command('prazos:verificar')->everyFiveMinutes();
+
+Schedule::command('app:purge-old-stage-declaration-verifications')
+    ->daily()
+    ->withoutOverlapping();

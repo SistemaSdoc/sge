@@ -135,4 +135,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'empresa_site_url' => env('EMPRESA_SITE_URL', 'https://tunganetu.it.ao/'),
+
 ];

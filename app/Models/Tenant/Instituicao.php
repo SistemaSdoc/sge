@@ -114,14 +114,21 @@ class Instituicao extends Model
     protected static function booted(): void
     {
         static::saved(function (Instituicao $instituicao): void {
-            if (! tenant() || ! ($instituicao->wasRecentlyCreated || $instituicao->wasChanged('nome'))) {
+            if (! tenant() || ! (
+                $instituicao->wasRecentlyCreated
+                || $instituicao->wasChanged('nome')
+                || $instituicao->wasChanged('tipo')
+            )) {
                 return;
             }
 
             try {
                 Tenant::query()
                     ->whereKey(tenant('id'))
-                    ->update(['instituicao_nome' => $instituicao->nome]);
+                    ->update([
+                        'instituicao_nome' => $instituicao->nome,
+                        'instituicao_tipo' => $instituicao->tipo,
+                    ]);
             } catch (Throwable $exception) {
                 report($exception);
             }

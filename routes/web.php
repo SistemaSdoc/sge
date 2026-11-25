@@ -8,9 +8,11 @@ use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\CalendarioAnualController;
 use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\DeclaracaoEstagioController;
 use App\Http\Controllers\Central\DisciplinaController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
+use App\Http\Controllers\Central\VerificarDeclaracaoEstagioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +32,10 @@ foreach (config('tenancy.central_domains') as $domain) {
         |--------------------------------------------------------------------------
         */
         Route::inertia('/', 'central/welcome/index')->name('home');
+
+        Route::get('verificar-estagio/{token}', VerificarDeclaracaoEstagioController::class)
+            ->middleware(['throttle:30,1', 'public.stage-declaration'])
+            ->name('central.verificar-estagio');
         /*
         |--------------------------------------------------------------------------
         | Rotas de Autenticação Central
@@ -82,6 +88,15 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->group(function () {
 
                 require base_path('routes/central-settings.php');
+
+                Route::get('declaracoes-estagio', [DeclaracaoEstagioController::class, 'index'])
+                    ->name('declaracoes-estagio.index');
+
+                Route::get('declaracoes-estagio/alunos', [DeclaracaoEstagioController::class, 'alunos'])
+                    ->name('declaracoes-estagio.alunos');
+
+                Route::post('declaracoes-estagio', [DeclaracaoEstagioController::class, 'store'])
+                    ->name('declaracoes-estagio.store');
 
                 /*
                 |--------------------------------------------------------------------------

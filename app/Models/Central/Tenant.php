@@ -35,6 +35,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'admin_user_id',
             'status',
             'instituicao_nome',
+            'instituicao_tipo',
             'provisioning_target_status',
             'provisioning_attempts',
             'provisioning_error',

@@ -4,6 +4,7 @@ namespace App\Services\Central\Menu;
 
 use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\CursoController;
+use App\Http\Controllers\Central\DeclaracaoEstagioController;
 use App\Http\Controllers\Central\DisciplinaController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
@@ -66,6 +67,14 @@ final class SidebarMenuService
                     title: 'Calendários',
                     href: route('central.dashboard.calendario-anual'),
                     icon: 'Calendar1',
+                    can: true,
+                ),
+
+                new MenuItem(
+                    key: 'declaracoes-estagio',
+                    title: 'Declarações de Estágio',
+                    href: action([DeclaracaoEstagioController::class, 'index']),
+                    icon: 'FileCheck',
                     can: true,
                 ),
             ]),

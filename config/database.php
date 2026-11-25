@@ -53,7 +53,7 @@ return [
         | pela trait CentralConnection nos Models de App\Models\Central.
         */
         'central' => [
-            'driver' => 'mysql',
+            'driver' => env('DB_CENTRAL_CONNECTION', 'mysql'),
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
