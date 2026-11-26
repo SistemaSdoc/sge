@@ -23,6 +23,7 @@ import {
   UserCog,
   BellDot,
   BookIcon,
+  MessageSquareWarning,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -51,6 +52,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
   UserCog,
   BellDot,
   BookIcon,
+  MessageSquareWarning,
 };
 
 export function resolveIcon(name: string): LucideIcon {

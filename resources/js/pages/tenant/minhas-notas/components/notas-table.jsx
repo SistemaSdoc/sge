@@ -1,3 +1,19 @@
+import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import { store as storeReclamacao } from '@/actions/App/Http/Controllers/Tenant/ReclamacaoNotaController';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { FieldError } from '@/components/ui/field';
 import {
   Card,
   CardAction,
@@ -55,6 +71,64 @@ export function NotasTable({
   periodo,
   onPeriodoChange,
 }) {
+  const [reclamacao, setReclamacao] = useState(null);
+  const form = useForm({
+    nota_id: '',
+    componente: '',
+    nota_reclamada: '',
+    justificativa: '',
+    anexos: [],
+  });
+
+  const abrirReclamacao = (nota, trimData, disciplina) => {
+    if (!trimData.nota_id) {
+      return;
+    }
+
+    const componentesDisponiveis = trimData.componentes
+      .map((componente, index) => ({
+        componente,
+        notaOriginal: trimData.provas[index],
+      }))
+      .filter(({ componente, notaOriginal }) =>
+        notaOriginal !== null
+        && notaOriginal !== undefined
+        && !trimData.reclamacoes_abertas?.[componente],
+      );
+
+    if (componentesDisponiveis.length === 0) {
+      return;
+    }
+
+    const primeiro = componentesDisponiveis[0];
+
+    form.setData({
+      nota_id: trimData.nota_id,
+      componente: primeiro.componente,
+      nota_reclamada: '',
+      justificativa: '',
+      anexos: [],
+    });
+    form.clearErrors();
+    setReclamacao({
+      disciplina,
+      componentes: componentesDisponiveis,
+      componente: primeiro.componente,
+      notaOriginal: primeiro.notaOriginal,
+    });
+  };
+
+  const enviarReclamacao = () => {
+    form.post(storeReclamacao.url(), {
+      forceFormData: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        setReclamacao(null);
+        form.reset();
+      },
+    });
+  };
+
   const isTrimestral = ['1', '2', '3'].includes(periodo);
   const trimestre = Number(periodo);
   const disciplinasFinais = resultadoFinal?.disciplinas ?? [];
@@ -94,6 +168,7 @@ export function NotasTable({
   };
 
   return (
+    <>
     <Card className="w-full gap-0 pb-0">
       <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
         <div className="min-w-0 md:flex-1">
@@ -171,6 +246,9 @@ export function NotasTable({
                       <TableHead className="min-w-30 px-4 text-center">
                         Classificação
                       </TableHead>
+                      <TableHead className="min-w-30 px-4 text-center">
+                        Reclamação
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -178,6 +256,13 @@ export function NotasTable({
                     {data.map((nota) => {
                       const trimData = nota.trimestres[trimestre];
                       const [prova1, prova2, prova3] = trimData.provas;
+                      const reclamacoesAbertas = trimData.reclamacoes_abertas ?? {};
+                      const componentesReclamaveis = trimData.componentes.filter(
+                        (componente, index) => trimData.provas[index] !== null
+                          && trimData.provas[index] !== undefined
+                          && !reclamacoesAbertas[componente],
+                      );
+                      const reclamacoesAbertasCount = Object.keys(reclamacoesAbertas).length;
 
                       return (
                         <TableRow key={nota.id}>
@@ -185,17 +270,11 @@ export function NotasTable({
                             {nota.disciplina}
                           </TableCell>
 
-                          <TableCell className="px-4 text-center">
-                            {formatarNota(prova1)}
-                          </TableCell>
-
-                          <TableCell className="px-4 text-center">
-                            {formatarNota(prova2)}
-                          </TableCell>
-
-                          <TableCell className="px-4 text-center">
-                            {formatarNota(prova3)}
-                          </TableCell>
+                          {[prova1, prova2, prova3].map((notaComponente, index) => (
+                            <TableCell key={trimData.componentes[index]} className="px-4 text-center">
+                              {formatarNota(notaComponente)}
+                            </TableCell>
+                          ))}
 
                           <TableCell className="px-4 text-center">
                             {trimData.faltas !== null &&
@@ -220,6 +299,26 @@ export function NotasTable({
                                 —
                               </span>
                             )}
+                          </TableCell>
+                          <TableCell className="px-4 text-center">
+                            {reclamacoesAbertasCount > 0 && (
+                              <p className="mb-1 text-xs text-muted-foreground">
+                                {reclamacoesAbertasCount} nota(s) em reclamação
+                              </p>
+                            )}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => abrirReclamacao(nota, trimData, nota.disciplina)}
+                              disabled={!trimData.nota_id || componentesReclamaveis.length === 0}
+                            >
+                              {componentesReclamaveis.length === 0 && reclamacoesAbertasCount > 0
+                                ? 'Reclamação aberta'
+                                : reclamacoesAbertasCount > 0
+                                  ? 'Reclamar outra nota'
+                                  : 'Reclamar'}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -344,5 +443,125 @@ export function NotasTable({
         )}
       </CardContent>
     </Card>
+
+    <Dialog
+      open={reclamacao !== null}
+      onOpenChange={(open) => {
+        if (!open) {
+          setReclamacao(null);
+          form.reset();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Reclamar esta nota</DialogTitle>
+          <DialogDescription>
+            A reclamação será enviada ao professor da disciplina e à direção.
+          </DialogDescription>
+        </DialogHeader>
+
+        {reclamacao && (
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Disciplina: <strong className="text-foreground">{reclamacao.disciplina}</strong>
+            </p>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="componente-reclamacao">Nota a reclamar</Label>
+              <Select
+                value={form.data.componente}
+                onValueChange={(componente) => {
+                  const selecionado = reclamacao.componentes.find((item) => item.componente === componente);
+                  form.setData('componente', componente);
+                  setReclamacao((atual) => ({
+                    ...atual,
+                    componente,
+                    notaOriginal: selecionado?.notaOriginal ?? atual.notaOriginal,
+                  }));
+                }}
+              >
+                <SelectTrigger
+                  id="componente-reclamacao"
+                  aria-invalid={Boolean(form.errors.componente)}
+                >
+                  <SelectValue placeholder="Selecione a nota" />
+                </SelectTrigger>
+                <SelectContent>
+                  {reclamacao.componentes.map((item) => (
+                    <SelectItem key={item.componente} value={item.componente}>
+                      {item.componente === 'mac'
+                        ? `MAC - ${item.notaOriginal}`
+                        : item.componente === 'nota_prova_professor'
+                          ? `Prova do professor - ${item.notaOriginal}`
+                          : `Prova trimestral - ${item.notaOriginal}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError>{form.errors.componente}</FieldError>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Nota atual: <strong className="text-foreground">{reclamacao.notaOriginal}</strong>
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="nota-reclamada">Nota que considera correta</Label>
+                <Input
+                  id="nota-reclamada"
+                  type="number"
+                  min="0"
+                  max="20"
+                  step="0.1"
+                  aria-invalid={Boolean(form.errors.nota_reclamada)}
+                  value={form.data.nota_reclamada}
+                  onChange={(event) => form.setData('nota_reclamada', event.target.value)}
+                />
+                <FieldError>{form.errors.nota_reclamada}</FieldError>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="anexos-reclamacao">Anexos</Label>
+                <Input
+                  id="anexos-reclamacao"
+                  type="file"
+                  multiple
+                  accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                  aria-invalid={Boolean(form.errors.anexos)}
+                  onChange={(event) => form.setData('anexos', Array.from(event.target.files ?? []).slice(0, 5))}
+                />
+                <FieldError>
+                  {form.errors.anexos ?? Object.entries(form.errors).find(([field]) => field.startsWith('anexos.'))?.[1]}
+                </FieldError>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="justificativa-reclamacao">Justificativa</Label>
+              <Textarea
+                id="justificativa-reclamacao"
+                rows={5}
+                maxLength={2000}
+                aria-invalid={Boolean(form.errors.justificativa)}
+                value={form.data.justificativa}
+                onChange={(event) => form.setData('justificativa', event.target.value)}
+                placeholder="Explique a diferença entre a prova e a nota lançada."
+              />
+              <FieldError>{form.errors.justificativa}</FieldError>
+            </div>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => setReclamacao(null)}>Cancelar</Button>
+          <Button type="button" disabled={form.processing} onClick={enviarReclamacao}>
+            {form.processing ? 'A enviar...' : 'Enviar reclamação'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

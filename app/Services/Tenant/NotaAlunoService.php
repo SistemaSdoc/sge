@@ -6,6 +6,7 @@ use App\Helpers\ArredondamentoHelper;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\ReclamacaoNota;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
@@ -110,6 +111,19 @@ class NotaAlunoService
             ->with(['turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get();
 
+        $reclamacoesAbertas = ReclamacaoNota::query()
+            ->whereIn('nota_id', $notas->pluck('id'))
+            ->whereIn('status', ['pendente', 'em_analise', 'aguarda_informacao'])
+            ->get(['nota_id', 'componente', 'status'])
+            ->groupBy('nota_id');
+
+        $notas->each(function (Nota $nota) use ($reclamacoesAbertas): void {
+            $nota->setRelation(
+                'reclamacoesAbertas',
+                $reclamacoesAbertas->get($nota->id, collect()),
+            );
+        });
+
         // Carregar todos os PautaStatus relevantes de uma vez
         $tdpIds = $notas->pluck('turma_disciplina_professor_id')->unique();
         $statusMap = PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
@@ -210,14 +224,22 @@ class NotaAlunoService
     {
         return collect([1, 2, 3])->mapWithKeys(function ($periodo) use ($notasPorDisciplina) {
             $nota = $notasPorDisciplina->firstWhere('periodo', $periodo);
+            $reclamacoesAbertas = $nota?->getRelation('reclamacoesAbertas') ?? collect();
 
             return [
                 $periodo => [
+                    'nota_id' => $nota?->id,
                     'provas' => $nota ? [
                         ArredondamentoHelper::roundToHalf($nota->mac),
                         ArredondamentoHelper::roundToHalf($nota->nota_prova_professor),
                         ArredondamentoHelper::roundToHalf($nota->nota_prova_trimestral),
                     ] : [null, null, null],
+                    'componentes' => ['mac', 'nota_prova_professor', 'nota_prova_trimestral'],
+                    'reclamacoes_abertas' => $reclamacoesAbertas
+                        ->mapWithKeys(fn (ReclamacaoNota $reclamacao): array => [
+                            $reclamacao->componente => $reclamacao->status,
+                        ])
+                        ->all(),
                     'media' => ArredondamentoHelper::roundToHalf($nota?->media_trimestral),
                     'faltas' => $nota?->faltas,
                     'situacao' => $nota?->situacao_trimestral,

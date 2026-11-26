@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 export function useTableSearch(
   initial = '',
-  { only, searchParam = 'search', pageParam = 'page' } = {},
+  { only, reset, searchParam = 'search', pageParam = 'page' } = {},
 ) {
   const [search, setSearch] = useState(initial ?? '');
 
@@ -36,6 +36,7 @@ export function useTableSearch(
       preserveScroll: true,
       replace: true,
       only,
+      reset,
     });
   };
 

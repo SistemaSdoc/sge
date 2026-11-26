@@ -12,6 +12,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\Planificacao;
+use App\Models\Tenant\ReclamacaoNota;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
 use App\Notifications\Channels\InstitutionLogoMailChannel;
@@ -31,6 +32,7 @@ use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
 use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Policies\Tenant\PrazoProvaPolicy;
+use App\Policies\Tenant\ReclamacaoNotaPolicy;
 use App\Policies\Tenant\RolePolicy;
 use App\Policies\Tenant\SubmissaoProvaPolicy;
 use App\Policies\Tenant\UserPolicy;
@@ -106,6 +108,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(GrupoPap::class, GrupoPapPolicy::class);
+        Gate::policy(ReclamacaoNota::class, ReclamacaoNotaPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
 

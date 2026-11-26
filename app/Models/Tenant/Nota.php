@@ -56,6 +56,11 @@ class Nota extends Model
         return $this->belongsTo(TurmaDisciplinaProfessor::class);
     }
 
+    public function reclamacoesNotas()
+    {
+        return $this->hasMany(ReclamacaoNota::class);
+    }
+
     protected function mac(): Attribute
     {
         return Attribute::make(

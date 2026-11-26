@@ -19,6 +19,7 @@ use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
+use App\Http\Controllers\Tenant\ReclamacaoNotaController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
@@ -36,6 +37,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\ReclamacaoNota;
 use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
@@ -182,6 +184,14 @@ final class SidebarMenuService
                     can: fn () => ! $user->isSuperAdmin()
                         && $user->hasRole('Aluno')
                         && $gate->allows('viewAny', Nota::class)
+                ),
+
+                new MenuItem(
+                    key: 'reclamacoes-notas',
+                    title: 'Reclamações de Notas',
+                    href: action([ReclamacaoNotaController::class, 'index']),
+                    icon: 'MessageSquareWarning',
+                    can: fn () => $gate->allows('viewAny', ReclamacaoNota::class),
                 ),
 
                 new MenuItem(
