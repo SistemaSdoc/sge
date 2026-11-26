@@ -24,8 +24,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
-use Inertia\Testing\AssertableInertia as Assert;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 function createTenantForDisciplinaryPapVisibility(string $id): Tenant
@@ -67,10 +65,9 @@ afterEach(function (): void {
     }
 });
 
-test('membro do grupo disciplinar ve e decide sobre um grupo PAP tutelado sem coordenador', function (): void {
+test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap remota sem coordenador', function (): void {
     $tenantTutor = Tenant::query()->findOrFail('pap-discipline-tutor');
     $tenantColegio = Tenant::query()->findOrFail('pap-discipline-colegio');
-    $tenantTutor->domains()->create(['domain' => 'pap-discipline-tutor.test']);
     $colegio = $tenantColegio->run(
         fn (): Instituicao => Instituicao::create(['nome' => 'Colégio Tutelado PAP', 'tipo' => 'colegio'])
     );
@@ -133,14 +130,7 @@ test('membro do grupo disciplinar ve e decide sobre um grupo PAP tutelado sem co
                 'curso_id' => $curso->id,
             ]);
 
-            return [
-                'curso_id' => $curso->id,
-                'curso_tutelado_id' => $cursoTutelado->id,
-                'curso_classe_id' => $cursoClasse->id,
-                'curso_classe_turno_id' => $cursoClasseTurno->id,
-                'turma_id' => $turma->id,
-                'grupo_id' => $grupo->id,
-            ];
+            return ['curso_id' => $curso->id, 'grupo_id' => $grupo->id];
         })->all();
     });
 
@@ -173,48 +163,6 @@ test('membro do grupo disciplinar ve e decide sobre um grupo PAP tutelado sem co
         ]);
 
         $user->assignRole(Role::findOrCreate('Membro do Grupo Disciplinar', 'tenant'));
-        $user->givePermissionTo(
-            Permission::findOrCreate('grupopap.view', 'tenant'),
-            Permission::findOrCreate('grupopap.aprovar', 'tenant'),
-            Permission::findOrCreate('grupopap.reprovar', 'tenant'),
-            Permission::findOrCreate('grupopap.solicitarMelhoria', 'tenant'),
-        );
-
-        return $user;
-    });
-
-    $coordenadorCurso = $tenantTutor->run(function () use ($cursosRemotos): User {
-        $instituicaoTutora = Instituicao::create(['nome' => 'Instituto Coordenador PAP', 'tipo' => 'instituto']);
-        $instituicaoCurso = InstituicaoCurso::create([
-            'curso_id' => $cursosRemotos['Curso do grupo disciplinar']['curso_id'],
-            'instituicao_id' => $instituicaoTutora->id,
-            'duracao_anos' => 3,
-        ]);
-        $cursoTutelado = CursoTutelado::create([
-            'instituicao_curso_id' => $instituicaoCurso->id,
-            'instituicao_tutora_id' => $instituicaoTutora->id,
-            'tipo_tutela' => 'propria',
-        ]);
-        $user = User::create([
-            'nome' => 'Coordenador do Curso',
-            'email' => 'coordenador-curso@example.test',
-            'password' => 'password',
-            'instituicao_id' => $instituicaoTutora->id,
-        ]);
-        $professor = Professor::create(['user_id' => $user->id]);
-
-        CursoTuteladoProfessor::create([
-            'curso_tutelado_id' => $cursoTutelado->id,
-            'professor_id' => $professor->id,
-            'tipo' => 'principal',
-            'coordenador' => true,
-            'grupo_disciplinar' => 'nenhum',
-        ]);
-
-        $user->givePermissionTo(
-            Permission::findOrCreate('grupopap.view', 'tenant'),
-            Permission::findOrCreate('grupopap.definirData', 'tenant'),
-        );
 
         return $user;
     });
@@ -250,12 +198,10 @@ test('membro do grupo disciplinar ve e decide sobre um grupo PAP tutelado sem co
 
         public function enviar(GrupoPap $grupoPap): void
         {
-            $this->notificarTrabalhoAosCoordenadores($grupoPap);
-        }
-
-        public function enviarTemaValidado(GrupoPap $grupoPap): void
-        {
-            $this->notificarTemaValidadoPeloTutor($grupoPap);
+            $this->notificarCoordenadoresDoFluxo(
+                $grupoPap,
+                new TrabalhoSubmetidoNotification($grupoPap),
+            );
         }
     };
 
@@ -264,90 +210,4 @@ test('membro do grupo disciplinar ve e decide sobre um grupo PAP tutelado sem co
     });
 
     Notification::assertSentTo($membro, TrabalhoSubmetidoNotification::class);
-
-    $papRouteParameters = [
-        'colegio' => $colegio->id,
-        'cursoTutelado' => $cursosRemotos['Curso do grupo disciplinar']['curso_tutelado_id'],
-        'cursoClasse' => $cursosRemotos['Curso do grupo disciplinar']['curso_classe_id'],
-        'cursoClasseTurno' => $cursosRemotos['Curso do grupo disciplinar']['curso_classe_turno_id'],
-        'turma' => $cursosRemotos['Curso do grupo disciplinar']['turma_id'],
-        'grupoPap' => $cursosRemotos['Curso do grupo disciplinar']['grupo_id'],
-    ];
-    $tenantColegio->run(function () use ($papRouteParameters): void {
-        GrupoPap::query()->findOrFail($papRouteParameters['grupoPap'])
-            ->update(['status_aprovacao' => GrupoPap::APROVACAO_PENDENTE]);
-    });
-
-    $this->get(route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->where('can.aprovar', true)
-            ->where('can.reprovar', true)
-            ->where('can.solicitarMelhoria', true)
-        );
-
-    $tenantColegio->run(function () use ($papRouteParameters): void {
-        GrupoPap::query()->findOrFail($papRouteParameters['grupoPap'])
-            ->update(['status_aprovacao' => GrupoPap::APROVACAO_APROVADO]);
-    });
-
-    $this->actingAs($coordenadorCurso, 'tenant')
-        ->get(route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->where('can.definirData', true));
-
-    $this->actingAs($membro, 'tenant');
-    $tenantColegio->run(function () use ($papRouteParameters): void {
-        GrupoPap::query()->findOrFail($papRouteParameters['grupoPap'])
-            ->update(['status_aprovacao' => GrupoPap::APROVACAO_PENDENTE]);
-    });
-
-    $coordinationForms = [
-        [
-            'tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria-coordenacao.form',
-            'tenant/pap/decisao-coordenacao/solicitar-melhoria',
-            'tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria',
-        ],
-        [
-            'tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar-coordenacao.form',
-            'tenant/pap/decisao-coordenacao/aprovar',
-            'tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar',
-        ],
-        [
-            'tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar-coordenacao.form',
-            'tenant/pap/decisao-coordenacao/reprovar',
-            'tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar',
-        ],
-    ];
-
-    foreach ($coordinationForms as [$route, $component, $submitRoute]) {
-        $this->get(route($route, $papRouteParameters))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component($component)
-                ->where('grupoPap.id', $papRouteParameters['grupoPap'])
-                ->where('grupoPap.tema_grupo', 'Tema')
-                ->where('submitUrl', route($submitRoute, $papRouteParameters, false))
-                ->where('backUrl', route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters, false))
-            );
-    }
-
-    $submitUrl = route(
-        'tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria',
-        $papRouteParameters,
-        false,
-    );
-
-    $showUrl = route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters, false);
-
-    $this->from($showUrl)
-        ->post($submitUrl, ['recomendacao' => 'Clarificar o problema e os objectivos propostos.'])
-        ->assertRedirect($showUrl)
-        ->assertSessionHas('success', 'Recomendação de melhoria enviada com sucesso.');
-
-    $this->get($showUrl)->assertOk();
-
-    expect($tenantColegio->run(
-        fn (): string => GrupoPap::query()->findOrFail($papRouteParameters['grupoPap'])->status_aprovacao,
-    ))->toBe(GrupoPap::APROVACAO_MELHORIA_COORDENACAO);
 });

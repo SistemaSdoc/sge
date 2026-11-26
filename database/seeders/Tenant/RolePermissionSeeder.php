@@ -177,6 +177,14 @@ class RolePermissionSeeder extends Seeder
                 // Confirmação de Matrícula
                 'confirmacoes.matricula.viewAny',
                 'confirmacoes.matricula.confirmar',
+
+                // Calendários de provas
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
+                'calendario-prova.create',
+                'calendario-prova.update',
+                'calendario-prova.delete',
+                'calendario-prova.toggleAtivo',
             ],
 
             'Subdirector' => [
@@ -339,6 +347,14 @@ class RolePermissionSeeder extends Seeder
                 // Confirmação de Matrícula
                 'confirmacoes.matricula.viewAny',
                 'confirmacoes.matricula.confirmar',
+
+                // Calendários de provas
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
+                'calendario-prova.create',
+                'calendario-prova.update',
+                'calendario-prova.delete',
+                'calendario-prova.toggleAtivo',
             ],
 
             'Secretaria' => [
@@ -450,6 +466,9 @@ class RolePermissionSeeder extends Seeder
                 // Confirmação de Matrícula
                 'confirmacoes.matricula.viewAny',
                 'confirmacoes.matricula.confirmar',
+
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
             ],
 
             'Secretario do Curso' => [
@@ -473,6 +492,9 @@ class RolePermissionSeeder extends Seeder
                 'alunos.view',
                 'pautas.viewAny',
                 'pautas.view',
+
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
             ],
 
             'Coordenador' => [
@@ -562,6 +584,9 @@ class RolePermissionSeeder extends Seeder
                 // Confirmação de Matrícula
                 'confirmacoes.matricula.viewAny',
                 'confirmacoes.matricula.confirmar',
+
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
             ],
 
             'Coordenador do Grupo Disciplinar' => [
@@ -585,6 +610,9 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
 
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
+
             ],
 
             'Membro do Grupo Disciplinar' => [
@@ -605,6 +633,9 @@ class RolePermissionSeeder extends Seeder
 
                 // Sugestões de temas PAP
                 'sugestaotema.gerir',
+
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
             ],
 
             'Professor' => [
@@ -648,6 +679,9 @@ class RolePermissionSeeder extends Seeder
 
                 // Mini-pauta
                 'notas.export',
+
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
             ],
 
             'Aluno' => [
@@ -661,6 +695,9 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.view',
                 'grupopap.corrigirTema',
                 'grupopap.definirTema',
+
+                'calendario-prova.viewAny',
+                'calendario-prova.view',
             ],
         ];
 

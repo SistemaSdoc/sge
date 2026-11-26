@@ -57,6 +57,36 @@ it('shows an aluno their assigned grupo pap without granting listing access', fu
     ]);
 });
 
+it('shows the calendario de provas menu item with its listing destination', function (): void {
+    $user = Mockery::mock(new User(['instituicao_id' => null]))->makePartial();
+    $user->shouldReceive('hasRole')->withAnyArgs()->andReturnFalse();
+    $user->shouldReceive('hasAnyRole')->withAnyArgs()->andReturnFalse();
+    $user->shouldReceive('isSuperAdmin')->andReturnFalse();
+
+    $guard = Mockery::mock();
+    $guard->shouldReceive('user')->once()->andReturn($user);
+    Auth::shouldReceive('guard')->once()->with('tenant')->andReturn($guard);
+
+    $gate = Mockery::mock(GateContract::class);
+    $gate->shouldReceive('allows')->andReturnFalse();
+    Gate::shouldReceive('forUser')->once()->with($user)->andReturn($gate);
+
+    $navigation = Mockery::mock(GrupoPapNavigationService::class);
+    $navigation->shouldReceive('resolve')->once()->with($user)->andReturn([
+        'title' => 'Grupos PAP',
+        'href' => '/dashboard/grupos-pap',
+        'visible' => false,
+    ]);
+
+    $menu = (new SidebarMenuService($navigation))->build();
+    $items = collect($menu)->flatMap(fn (array $group): array => $group['items']);
+
+    expect($items->firstWhere('key', 'calendario-provas'))->toMatchArray([
+        'title' => 'Calendários de provas',
+        'href' => route('tenant.dashboard.calendario-provas.index'),
+    ]);
+});
+
 it('hides student-only menu items from a superadmin even when the account also has the aluno role', function (): void {
     $user = Mockery::mock(new User(['instituicao_id' => null]))->makePartial();
     $user->shouldReceive('hasRole')

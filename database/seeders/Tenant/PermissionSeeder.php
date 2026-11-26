@@ -201,6 +201,14 @@ class PermissionSeeder extends Seeder
             'sugestaotema.gerir' => 'Criar, editar e eliminar sugestões de temas PAP',
             'sugestaotema.aprovar' => 'Aprovar, rejeitar ou solicitar melhoria em sugestões de temas PAP',
 
+            // Calendários de provas
+            'calendario-prova.viewAny' => 'Ver lista de calendários de provas',
+            'calendario-prova.view' => 'Ver detalhes de um calendário de provas',
+            'calendario-prova.create' => 'Criar novo calendário de provas',
+            'calendario-prova.update' => 'Editar calendário de provas',
+            'calendario-prova.delete' => 'Eliminar calendário de provas',
+            'calendario-prova.toggleAtivo' => 'Publicar ou despublicar calendário de provas',
+
         ];
 
         foreach ($permissions as $permission => $label) {

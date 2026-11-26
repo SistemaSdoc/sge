@@ -6,6 +6,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Central\User as CentralUser;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Aula;
+use App\Models\Tenant\CalendarioProva;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
 use App\Models\Tenant\GrupoPap;
@@ -21,6 +22,7 @@ use App\Observers\UserEmailAlteradoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
 use App\Policies\Tenant\AnoLectivoPolicy;
 use App\Policies\Tenant\AulaPolicy;
+use App\Policies\Tenant\CalendarioProvaPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\DocumentoPolicy;
@@ -108,6 +110,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(GrupoPap::class, GrupoPapPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
+        Gate::policy(CalendarioProva::class, CalendarioProvaPolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 

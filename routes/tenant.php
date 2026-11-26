@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\AvaliacaoProvaController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\BancaJuriPapController;
 use App\Http\Controllers\Tenant\CalendarioAnualController;
+use App\Http\Controllers\Tenant\CalendarioProvaController;
 use App\Http\Controllers\Tenant\CertificadoController;
 use App\Http\Controllers\Tenant\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaController;
@@ -334,6 +335,22 @@ Route::middleware([
                 ->name('instituicoes.prazos-lancamento-notas.update');
 
             require base_path('routes/modules/colegios.php');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Calendário de Provas
+            |--------------------------------------------------------------------------
+            */
+            Route::prefix('calendario-provas')->name('calendario-provas.')->group(function () {
+                Route::get('/', [CalendarioProvaController::class, 'index'])->name('index');
+                Route::get('/create', [CalendarioProvaController::class, 'create'])->name('create');
+                Route::post('/', [CalendarioProvaController::class, 'store'])->name('store');
+                Route::get('/{calendarioProva}', [CalendarioProvaController::class, 'show'])->name('show');
+                Route::get('/{calendarioProva}/edit', [CalendarioProvaController::class, 'edit'])->name('edit');
+                Route::put('/{calendarioProva}', [CalendarioProvaController::class, 'update'])->name('update');
+                Route::patch('/{calendarioProva}/toggle-ativo', [CalendarioProvaController::class, 'toggleAtivo'])->name('toggle-ativo');
+                Route::delete('/{calendarioProva}', [CalendarioProvaController::class, 'destroy'])->name('destroy');
+            });
 
             /*
             |--------------------------------------------------------------------------
