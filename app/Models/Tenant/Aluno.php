@@ -139,13 +139,15 @@ class Aluno extends Model
 
     public function scopeDoAnoLectivoActivo($query)
     {
-        return $query->where(function ($q) {
-            $q->whereHas('turmas', function ($q2) {
-                $q2->whereHas('anoLectivo', fn ($q3) => $q3->ativo());
+        $anosLectivosActivosIds = AnoLectivo::query()->ativo()->pluck('id');
+
+        return $query->where(function ($q) use ($anosLectivosActivosIds) {
+            $q->whereHas('turmas', function ($q2) use ($anosLectivosActivosIds) {
+                $q2->whereIn('turmas.ano_lectivo_id', $anosLectivosActivosIds);
             })
-                ->orWhere(function ($q2) {
+                ->orWhere(function ($q2) use ($anosLectivosActivosIds) {
                     $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao.anoLectivo', fn ($q3) => $q3->ativo());
+                        ->whereHas('inscricao', fn ($q3) => $q3->whereIn('ano_lectivo_id', $anosLectivosActivosIds));
                 });
         });
     }

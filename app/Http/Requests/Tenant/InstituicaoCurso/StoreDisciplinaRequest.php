@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Tenant\InstituicaoCurso;
 
+use App\Models\Tenant\Disciplina;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDisciplinaRequest extends FormRequest
 {
@@ -14,7 +16,7 @@ class StoreDisciplinaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'disciplina_id' => ['required', 'exists:disciplinas,id'],
+            'disciplina_id' => ['required', Rule::exists(Disciplina::class, 'id')],
         ];
     }
 

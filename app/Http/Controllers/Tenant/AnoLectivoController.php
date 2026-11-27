@@ -8,6 +8,7 @@ use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivoConsistencyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AnoLectivoController extends Controller
@@ -54,7 +55,7 @@ class AnoLectivoController extends Controller
         $this->authorize('update', $anoLectivo);
 
         $data = $request->validate([
-            'nome' => ['required', 'string', 'max:20', 'unique:ano_lectivos,nome,'.$anoLectivo->id],
+            'nome' => ['required', 'string', 'max:20', Rule::unique(AnoLectivo::class, 'nome')->ignore($anoLectivo->id)],
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['required', 'date', 'after:data_inicio'],
             'activo' => ['boolean'],

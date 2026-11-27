@@ -16,6 +16,7 @@ use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller
@@ -61,7 +62,7 @@ class ClasseTurnoDisciplinaController extends Controller
 
         $request->validate([
             'disciplina_ids' => 'required|array|min:1',
-            'disciplina_ids.*' => 'exists:disciplinas,id',
+            'disciplina_ids.*' => Rule::exists(Disciplina::class, 'id'),
             'carga_horaria' => 'nullable|string|max:255',
             'tem_professor' => 'nullable|boolean',
         ]);

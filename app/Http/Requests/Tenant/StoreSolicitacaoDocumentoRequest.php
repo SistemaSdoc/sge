@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Tenant;
 
+use App\Models\Tenant\AnoLectivo;
 use App\Services\ElegibilidadeDocumentoService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSolicitacaoDocumentoRequest extends FormRequest
 {
@@ -22,7 +24,7 @@ class StoreSolicitacaoDocumentoRequest extends FormRequest
             'curso_id' => ['nullable', 'string', 'exists:'.config('tenancy.database.central_connection').'.cursos,id'],
             'turma_id' => ['nullable', 'string', 'exists:turmas,id'],
             'classe_id' => ['nullable', 'string', 'exists:classes,id'],
-            'ano_lectivo_id' => ['nullable', 'string', 'exists:ano_lectivos,id'],
+            'ano_lectivo_id' => ['nullable', 'string', Rule::exists(AnoLectivo::class, 'id')],
         ];
     }
 

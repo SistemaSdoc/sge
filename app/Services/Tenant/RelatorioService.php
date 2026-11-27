@@ -4,6 +4,7 @@ namespace App\Services\Tenant;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
@@ -208,7 +209,10 @@ class RelatorioService
                 ['label' => 'Total', 'valor' => (clone $base)->count()],
                 ['label' => 'Com turmas atribuídas', 'valor' => (clone $base)->has('turmas')->count()],
                 ['label' => 'Sem turma', 'valor' => (clone $base)->doesntHave('turmas')->count()],
-                ['label' => 'Disciplinas cobertas', 'valor' => Disciplina::whereHas('classeTurnoDisciplinas.turmaDisciplinaProfessores')->count()],
+                ['label' => 'Disciplinas cobertas', 'valor' => ClasseTurnoDisciplina::query()
+                    ->whereHas('turmaDisciplinaProfessores')
+                    ->distinct('disciplina_id')
+                    ->count('disciplina_id')],
             ],
             'tabela' => $query->paginate($filtros['por_pagina'] ?? 15)
                 ->through(fn ($p) => [

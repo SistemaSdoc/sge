@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Helpers\BrowsershotHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -148,6 +149,8 @@ class CertificadoController extends Controller
     // =========================================================================
     public function show(Aluno $aluno)
     {
+        $anosLectivosActivosIds = AnoLectivo::query()->ativo()->pluck('id');
+
         // ✅ CORRIGIDO: Acesso via turmas (relação atual)
         $turmaAluno = $aluno->turmas()
             ->with([
@@ -156,7 +159,7 @@ class CertificadoController extends Controller
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
             ])
-            ->whereHas('anoLectivo', fn ($q) => $q->where('activo', true))
+            ->whereIn('turmas.ano_lectivo_id', $anosLectivosActivosIds)
             ->first();
 
         if (! $turmaAluno) {

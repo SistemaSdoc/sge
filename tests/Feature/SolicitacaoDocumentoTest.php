@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Requests\Tenant\InstituicaoCurso\StoreDisciplinaRequest;
+use App\Http\Requests\Tenant\StoreSolicitacaoDocumentoRequest;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Candidato;
@@ -8,6 +10,7 @@ use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
@@ -19,6 +22,17 @@ use App\Services\Tenant\Dashboards\DashboardDirectorService;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
+
+it('uses the central connection for academic catalog validation', function () {
+    $centralConnection = config('tenancy.database.central_connection');
+    $solicitacaoRules = (new StoreSolicitacaoDocumentoRequest)->rules();
+    $disciplinaRules = (new StoreDisciplinaRequest)->rules();
+
+    expect((new AnoLectivo)->getConnectionName())->toBe($centralConnection)
+        ->and((new Disciplina)->getConnectionName())->toBe($centralConnection)
+        ->and((string) $solicitacaoRules['ano_lectivo_id'][2])->toBe('exists:'.$centralConnection.'.ano_lectivos,id')
+        ->and((string) $disciplinaRules['disciplina_id'][1])->toBe('exists:'.$centralConnection.'.disciplinas,id');
+});
 
 it('aluno can access the document request page', function () {
     $role = Role::firstOrCreate(['name' => 'Aluno']);

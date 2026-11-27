@@ -14,6 +14,7 @@ use App\Services\Tenant\AprovacaoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ProgressaoController extends Controller
@@ -122,7 +123,7 @@ class ProgressaoController extends Controller
     ) {
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo_id' => 'required|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['required', Rule::exists(AnoLectivo::class, 'id')],
         ]);
 
         $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);
@@ -265,7 +266,7 @@ class ProgressaoController extends Controller
 
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo_id' => 'required|exists:ano_lectivos,id',  // ✅ UUID
+            'ano_lectivo_id' => ['required', Rule::exists(AnoLectivo::class, 'id')],
         ]);
 
         $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);

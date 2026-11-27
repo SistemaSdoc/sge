@@ -5,6 +5,7 @@ namespace App\Models\Tenant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 #[Fillable([
     'nome',
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Disciplina extends Model
 {
-    use HasUuid;
+    use CentralConnection, HasUuid;
 
     protected $table = 'disciplinas';
 

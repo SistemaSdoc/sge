@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Tenant\Inscricao;
 
+use App\Models\Tenant\AnoLectivo;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreInscricaoRequest extends FormRequest
 {
@@ -95,7 +97,7 @@ class StoreInscricaoRequest extends FormRequest
             ],
             'ano_lectivo_id' => [
                 'nullable',
-                'exists:ano_lectivos,id',
+                Rule::exists(AnoLectivo::class, 'id'),
             ],
         ];
     }

@@ -13,6 +13,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\Rule;
 
 class DisciplinaController extends Controller // implements HasMiddleware
 {
@@ -43,7 +44,7 @@ class DisciplinaController extends Controller // implements HasMiddleware
     public function store(StoreDisciplinaRequest $request, Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
     {
         $request->validate([
-            'disciplina_id' => 'required|exists:disciplinas,id',
+            'disciplina_id' => ['required', Rule::exists(Disciplina::class, 'id')],
             'classes' => 'required|array',
             'classes.*' => 'required|exists:curso_instituicao_classe,id',
         ]);

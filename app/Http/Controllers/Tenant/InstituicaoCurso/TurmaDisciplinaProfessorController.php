@@ -16,6 +16,7 @@ use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Traits\NotificaProfessor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class TurmaDisciplinaProfessorController extends Controller
@@ -79,7 +80,7 @@ class TurmaDisciplinaProfessorController extends Controller
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
         $request->validate([
-            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['nullable', Rule::exists(AnoLectivo::class, 'id')],
         ]);
 
         $jaExisteNaTurma = TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)

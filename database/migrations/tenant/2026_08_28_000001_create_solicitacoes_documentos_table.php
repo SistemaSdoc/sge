@@ -17,7 +17,8 @@ return new class extends Migration
 
             $table->foreignUuid('turma_id')->nullable()->constrained('turmas');
             $table->foreignUuid('classe_id')->nullable()->constrained('classes');
-            $table->foreignUuid('ano_lectivo_id')->nullable()->constrained('ano_lectivos');
+            // ano_lectivos vive na base central, por isso não pode ter FK nesta base tenant.
+            $table->uuid('ano_lectivo_id')->nullable()->index();
 
             // instituicao_origem_id é o próprio colégio (existe no tenant): mantém a FK
             $table->foreignUuid('instituicao_origem_id')->nullable()->constrained('instituicoes');
