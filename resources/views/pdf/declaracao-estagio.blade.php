@@ -4,16 +4,72 @@
     <meta charset="UTF-8">
     <title>Declaração de Estágio</title>
     <style>
-        @page { margin: 16mm 20mm 26mm; }
+        @page { margin: 24mm 20mm 26mm; }
         body { color: #1f2937; font-family: DejaVu Sans, sans-serif; font-size: 10.5pt; line-height: 1.5; }
+
+        /* ===== MOLDURA DECORATIVA (repete em todas as páginas) ===== */
+        /* Moldura exterior: azul, espessa (a 6 mm da borda da folha) */
+        .moldura-externa {
+            border: 3px solid #163b66;
+            bottom: -20mm;
+            left: -14mm;
+            position: fixed;
+            right: -14mm;
+            top: -18mm;
+        }
+        /* Moldura interior: fio fino dourado (a 9 mm da borda da folha) */
+        .moldura-interna {
+            border: 1px solid #b08d3c;
+            bottom: -17mm;
+            left: -11mm;
+            position: fixed;
+            right: -11mm;
+            top: -15mm;
+        }
+        /* Quadrados ornamentais nos cantos */
+        .canto {
+            background: #163b66;
+            border: 1px solid #b08d3c;
+            height: 4mm;
+            position: fixed;
+            width: 4mm;
+        }
+        .canto-te { left: -12.5mm; top: -16.5mm; }
+        .canto-td { right: -12.5mm; top: -16.5mm; }
+        .canto-be { bottom: -18.5mm; left: -12.5mm; }
+        .canto-bd { bottom: -18.5mm; right: -12.5mm; }
+
+        /* Marca de água discreta (logótipo ou nome da empresa) */
+        .marca-agua {
+            color: #d3dbe6;
+            font-size: 62pt;
+            font-weight: bold;
+            left: 0;
+            letter-spacing: 4px;
+            position: fixed;
+            right: 0;
+            text-align: center;
+            top: 62mm;
+            z-index: -1;
+        }
+        .marca-agua img { height: 55mm; opacity: 0.14; }
 
         .cabecalho { border-bottom: 2px solid #163b66; margin-bottom: 20px; padding-bottom: 10px; text-align: center; }
         .logo { height: 48px; margin-bottom: 4px; }
         .empresa { color: #163b66; font-size: 17pt; font-weight: bold; letter-spacing: 1px; line-height: 1.3; }
         .slogan { font-size: 10pt; }
 
-        h1 { font-size: 14pt; margin: 22px 0; text-align: center; }
-        .texto { margin: 0 0 8px; text-alialar desse historico, não guarda as declaracoes na base de dados mas tem que guardar o historico na base de dadosgn: justify; text-indent: 30px; }
+        h1 {
+            border-bottom: 1px solid #b08d3c;
+            color: #163b66;
+            font-size: 14pt;
+            letter-spacing: 2px;
+            margin: 22px auto;
+            padding-bottom: 8px;
+            text-align: center;
+            width: 55%;
+        }
+        .texto { margin: 0 0 8px; text-align: justify; text-indent: 30px; }
         .dados { font-weight: bold; }
         .data { margin: 18px 0 0; text-align: right; }
 
@@ -27,11 +83,11 @@
 
         .rodape {
             border-top: 1px solid #163b66;
-            bottom: -18mm;
+            bottom: -14mm;
             color: #4b5563;
             font-size: 8pt;
             left: 0;
-            line-height: 1.5;
+            line-height: 1.4;
             padding-top: 6px;
             position: fixed;
             right: 0;
@@ -41,6 +97,21 @@
     </style>
 </head>
 <body>
+    <div class="moldura-externa"></div>
+    <div class="moldura-interna"></div>
+    <div class="canto canto-te"></div>
+    <div class="canto canto-td"></div>
+    <div class="canto canto-be"></div>
+    <div class="canto canto-bd"></div>
+
+    <div class="marca-agua">
+        @if (!empty($logo))
+            <img src="data:image/png;base64,{{ $logo }}" alt="">
+        @else
+            TUNGANETU
+        @endif
+    </div>
+
     <div class="rodape">
         <strong>Tunganetu</strong> &nbsp;|&nbsp; NIF: 5003407764<br>
         Luanda, Maculusso, Rua Luther King, Edifício dos Estudantes, 3º Andar, Apt. nº 12<br>
