@@ -7,6 +7,7 @@ use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Propina;
 use App\Models\Tenant\Turma;
+use App\Rules\CentralAnoLectivoExists;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -26,7 +27,7 @@ class PropinaController extends Controller
             ))
             ->when($request->estado, fn ($q) => $q->where('estado', $request->estado))
             ->when($request->mes, fn ($q) => $q->where('mes', $request->mes))
-            ->orderByDesc('data_vencimento')
+            ->latest('created_at')
             ->paginate(20)
             ->withQueryString()
             ->through(fn (Propina $propina) => [
@@ -68,7 +69,7 @@ class PropinaController extends Controller
 
         $data = $request->validate([
             'aluno_id' => ['required', 'uuid', 'exists:alunos,id'],
-            'ano_lectivo_id' => ['required', 'uuid', Rule::exists(AnoLectivo::class, 'id')],
+            'ano_lectivo_id' => ['required', 'uuid', new CentralAnoLectivoExists],
             'item_pagavel_id' => ['required', 'uuid', 'exists:item_pagaveis,id'],
             'mes' => ['nullable', 'integer', 'between:1,12'],
             'valor_devido' => ['required', 'numeric', 'min:0'],
@@ -89,7 +90,7 @@ class PropinaController extends Controller
 
         $data = $request->validate([
             'turma_id' => ['required', 'uuid', 'exists:turmas,id'],
-            'ano_lectivo_id' => ['required', 'uuid', Rule::exists(AnoLectivo::class, 'id')],
+            'ano_lectivo_id' => ['required', 'uuid', new CentralAnoLectivoExists],
             'item_pagavel_id' => ['required', 'uuid', 'exists:item_pagaveis,id'],
             'mes' => ['required', 'integer', 'between:1,12'],
             'data_vencimento' => ['required', 'date'],

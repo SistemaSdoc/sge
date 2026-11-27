@@ -23,6 +23,7 @@ class ColegioController extends Controller
      */
     public function index(Request $request, Instituicao $instituicao)
     {
+        $search = $request->string('search')->toString();
         $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
         $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', $tenantTutorId)
@@ -31,6 +32,7 @@ class ColegioController extends Controller
 
         $colegios = $shared
             ->groupBy('tenant_tutelado_id')
+            ->sortByDesc(fn ($vinculos) => $vinculos->max(fn ($vinculo) => $vinculo->created_at?->getTimestamp()) ?? 0)
             ->map(function ($vinculos, string $tenantTuteladoId): array {
                 $tenant = Tenant::query()->find($tenantTuteladoId);
                 $colegio = $tenant ? $this->tenantService->getInstituicao($tenant) : null;
@@ -45,7 +47,12 @@ class ColegioController extends Controller
                 ];
             })
             ->filter(fn (array $colegio): bool => $colegio['tipo'] === 'colegio')
-            ->sortBy('nome')
+            ->when(filled($search), function ($items) use ($search) {
+                $term = mb_strtolower($search);
+
+                return $items->filter(fn (array $colegio): bool => str_contains(mb_strtolower($colegio['nome']), $term)
+                    || str_contains(mb_strtolower((string) $colegio['tenant_id']), $term));
+            })
             ->values();
 
         $perPage = 5;
@@ -64,6 +71,7 @@ class ColegioController extends Controller
                 'nome' => $instituicao->nome,
             ],
             'colegios' => $colegios,
+            'filters' => $request->only('search'),
         ]);
     }
 

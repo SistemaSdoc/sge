@@ -29,15 +29,26 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  index,
   show,
   create,
   edit,
 } from '@/actions/App/Http/Controllers/Central/TenantController';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import TablePagination from '@/components/table-pagination';
 import { StatusBadge } from './status-badge';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function TenantTable({
   tenants,
+  filters,
   can = {},
   deleteFn,
   pagination = {},
@@ -45,25 +56,36 @@ export function TenantTable({
   handleToggleStatus,
   recreateDatabaseFn,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['tenants', 'filters'],
+    },
+  );
   const isEmpty = tenants?.length === 0;
+
+  const filtrarTipo = (valor) => {
+    router.get(
+      index().url,
+      {
+        search: filters?.search || undefined,
+        tipo: valor === 'todos' ? undefined : valor,
+      },
+      { preserveState: true, preserveScroll: true, replace: true },
+    );
+  };
 
   const hasActionColumn = tenants.some(
     (tenants) => tenants.can?.edit || tenants.can?.delete || true,
   );
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Card className="gap-0">
         <CardHeader className="border-b">
           <CardTitle>Instituições</CardTitle>
           <CardDescription>Lista de instituições cadastradas</CardDescription>
           <CardAction>
-            {/*{can.create && (
-              <Button asChild>
-                <Link href={create().url}>Adicionar</Link>
-              </Button>
-            )}*/}
-
             <Button asChild>
               <Link href={create().url}>Adicionar Instituição</Link>
             </Button>
@@ -71,12 +93,35 @@ export function TenantTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit}>
+            <Select
+              value={filters?.tipo || 'todos'}
+              onValueChange={filtrarTipo}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="colegio">Colégios</SelectItem>
+                <SelectItem value="instituto">Institutos</SelectItem>
+              </SelectContent>
+            </Select>
+          </TableSearch>
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhuma instituição cadastrada"
-              description="Clique no botão abaixo para cadastrar uma nova instituição"
+              title={
+                applied
+                  ? 'Nenhuma instituição encontrada'
+                  : 'Nenhuma instituição cadastrada'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Clique no botão abaixo para cadastrar uma nova instituição'
+              }
               action={
                 can.create
                   ? {
@@ -123,9 +168,9 @@ export function TenantTable({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
+                            variant="outline"
+                            size="icon-sm"
+                            className="hover:cursor-pointer"
                           >
                             <MoreHorizontalIcon />
                             <span className="sr-only">Open menu</span>
@@ -138,13 +183,14 @@ export function TenantTable({
                               e.stopPropagation();
                               router.visit(edit(tenant.id).url);
                             }}
+                            className="hover:cursor-pointer"
                           >
                             Editar
                           </DropdownMenuItem>
 
                           <DropdownMenuSeparator />
 
-                          {tenant.status !== 'pending' &&
+                          {/* {tenant.status !== 'pending' &&
                             tenant.status !== 'provisioning' && (
                               <>
                                 <DropdownMenuItem
@@ -158,28 +204,30 @@ export function TenantTable({
 
                                 <DropdownMenuSeparator />
                               </>
-                            )}
+                            )} */}
 
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
                               handleToggleStatus(tenant, e);
                             }}
+                            className="hover:cursor-pointer"
                           >
                             Alterar status
                           </DropdownMenuItem>
 
                           <DropdownMenuSeparator />
 
-                          {/* <DropdownMenuItem
+                          <DropdownMenuItem
                             variant="destructive"
                             onClick={(e) => {
                               e.stopPropagation();
                               deleteFn(tenant.id);
                             }}
+                            className="hover:cursor-pointer"
                           >
                             Remover
-                          </DropdownMenuItem> */}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

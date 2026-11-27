@@ -10,6 +10,8 @@ use App\Http\Resources\Central\Tenant\TenantIndexResource;
 use App\Models\Central\Tenant;
 use App\Services\Central\TenantMetricsService;
 use App\Services\Central\TenantService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class TenantController extends Controller
@@ -21,16 +23,18 @@ class TenantController extends Controller
     /**
      * Lista todos os tenants paginados com instituições.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tenants = Tenant::with('domains')->paginate(10);
-
         $tenantsPagineted = TenantIndexResource::collection(
-            $this->tenantService->getTenantsWithInstituicoes($tenants)
+            $this->tenantService->getTenantsWithInstituicoes(
+                $request->string('search')->toString(),
+                $request->string('tipo')->toString(),
+            )
         );
 
         return Inertia::render('central/tenants/index', [
             'tenants' => $tenantsPagineted,
+            'filters' => $request->only('search', 'tipo'),
         ]);
     }
 
@@ -98,7 +102,9 @@ class TenantController extends Controller
         }
 
         $instituicao = $this->tenantService->getInstituicao($tenant);
+
         $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+        $supportUser = $this->tenantService->getTenantCentralSupportUser($tenant);
 
         $metrics = $this->getTenantMetrics($tenant);
 
@@ -107,6 +113,9 @@ class TenantController extends Controller
                 'id' => $tenant->id,
                 'status' => $tenant->status,
                 'domain' => $tenant->domains?->first()?->domain,
+                'canImpersonate' => $tenant->canAccess()
+                    && $supportUser !== null
+                    && $tenant->domains->isNotEmpty(),
                 'instituicao' => [
                     'nome' => $instituicao?->nome,
                     'sigla' => $instituicao?->sigla,
@@ -127,18 +136,19 @@ class TenantController extends Controller
     public function edit(Tenant $tenant)
     {
         $tenant->load('domains');
-        $instituicao = $this->tenantService->getInstituicao($tenant);
-        $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+        $pendingData = $tenant->pendingData()->first();
+        $instituicao = $pendingData ? null : $this->tenantService->getInstituicao($tenant);
+        $adminUser = $pendingData ? null : $this->tenantService->getTenantAdminUser($tenant);
 
         return Inertia::render('central/tenants/edit', [
             'tenant' => [
                 'id' => $tenant->id,
                 'domain' => $tenant->domains?->first()?->domain,
-                'nome' => $instituicao?->nome,
-                'sigla' => $instituicao?->sigla,
-                'tipo' => $instituicao?->tipo,
-                'user_nome' => $adminUser?->nome,
-                'user_email' => $adminUser?->email,
+                'nome' => $pendingData?->nome ?? $instituicao?->nome,
+                'sigla' => $pendingData?->sigla ?? $instituicao?->sigla,
+                'tipo' => $pendingData?->tipo ?? $instituicao?->tipo,
+                'user_nome' => $pendingData?->user_nome ?? $adminUser?->nome,
+                'user_email' => $pendingData?->user_email ?? $adminUser?->email,
             ],
         ]);
     }
@@ -151,10 +161,47 @@ class TenantController extends Controller
         $validated = $request->validated();
 
         $this->tenantService->updateInstituicao($tenant, $validated);
+        $this->tenantService->updateTenantAdminUser($tenant, $validated);
         $this->tenantService->updateTenant($tenant, $validated);
 
         return redirect()->route('central.dashboard.tenants.show', $tenant)
             ->with('success', 'Tenant actualizado!');
+    }
+
+    /**
+     * Inicia uma sessão no tenant como a conta de suporte central.
+     */
+    public function impersonate(Request $request, Tenant $tenant)
+    {
+        if (! $tenant->canAccess()) {
+            return back()->with('error', 'Só é possível aceder a tenants activos ou em período de teste.');
+        }
+
+        $tenant->loadMissing('domains');
+        $domain = $tenant->domains->first()?->domain;
+        $supportUser = $this->tenantService->getTenantCentralSupportUser($tenant);
+
+        if (! $domain || ! $supportUser) {
+            return back()->with('error', 'O tenant ainda não tem a conta de suporte central disponível.');
+        }
+
+        $token = tenancy()->impersonate(
+            $tenant,
+            (string) $supportUser->getKey(),
+            '/dashboard',
+            'tenant',
+        );
+
+        Log::info('Central administrator started tenant impersonation.', [
+            'central_user_id' => $request->user('web')?->getAuthIdentifier(),
+            'tenant_id' => $tenant->getTenantKey(),
+            'tenant_support_user_id' => $supportUser->getAuthIdentifier(),
+            'ip' => $request->ip(),
+        ]);
+
+        $path = route('tenant.login.token', ['token' => $token->token], false);
+
+        return Inertia::location(sprintf('%s://%s%s', $request->getScheme(), $domain, $path));
     }
 
     /**

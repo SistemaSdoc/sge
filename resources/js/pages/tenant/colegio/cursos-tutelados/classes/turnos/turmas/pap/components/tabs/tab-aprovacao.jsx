@@ -1,17 +1,15 @@
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link } from '@inertiajs/react';
+import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
+import {
+  formAprovarTutor,
+  formSolicitarMelhoriaTutor,
+  formSolicitarMelhoriaCoordenacao,
+  formAprovarCoordenacao,
+  formReprovarCoordenacao,
+} from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapAprovacaoController';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/ModalDecisaoAprovacao';
-import {
-  aprovar,
-  reprovar,
-  solicitarMelhoria,
-  aprovarTutor,
-  solicitarMelhoriaComoTutor,
-} from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapAprovacaoController';
 
 const STATUS = {
   rascunho: {
@@ -49,86 +47,6 @@ const STATUS = {
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
 
 export function TabAprovacao({ params, grupoPap, can }) {
-  const [open, setOpen] = useState(false);
-  const [action, setAction] = useState(null);
-  const [comentario, setComentario] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const abrir = (tipo) => {
-    setAction(tipo);
-    setComentario('');
-    setOpen(true);
-  };
-  const fechar = () => {
-    if (loading) return;
-    setOpen(false);
-    setAction(null);
-    setComentario('');
-  };
-
-  const confirmar = () => {
-    if (!action) return;
-    setLoading(true);
-
-    if (action === 'aprovarTutor') {
-      router.post(
-        aprovarTutor.url(params),
-        { comentario: comentario || null },
-        {
-          preserveScroll: true,
-          onSuccess: () => {
-            setLoading(false);
-            fechar();
-            router.reload();
-          },
-          onError: () => setLoading(false),
-        },
-      );
-      return;
-    }
-
-    if (action === 'melhoriaComoTutor') {
-      router.post(
-        solicitarMelhoriaComoTutor.url(params),
-        { recomendacao: comentario },
-        {
-          preserveScroll: true,
-          onSuccess: () => {
-            setLoading(false);
-            fechar();
-            router.reload();
-          },
-          onError: () => setLoading(false),
-        },
-      );
-      return;
-    }
-
-    const rota =
-      action === 'aprovar'
-        ? aprovar
-        : action === 'reprovar'
-          ? reprovar
-          : solicitarMelhoria;
-
-    const body =
-      action === 'aprovar'
-        ? { comentario: comentario || null }
-        : action === 'reprovar'
-          ? { motivo: comentario }
-          : { recomendacao: comentario };
-
-    router.post(rota.url(params), body, {
-      preserveScroll: true,
-      onSuccess: () => {
-        setLoading(false);
-        fechar();
-        router.reload();
-      },
-      onError: () => setLoading(false),
-    });
-  };
-
   const statusAtual = (grupoPap.status_aprovacao || '').toLowerCase();
   const config = getStatus(statusAtual);
   const StatusIcon = config.icon;
@@ -152,15 +70,15 @@ export function TabAprovacao({ params, grupoPap, can }) {
           </p>
           {can?.aprovarComoTutor && (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => abrir('melhoriaComoTutor')}
-                disabled={loading}
-              >
-                <AlertCircle className="size-4" /> Solicitar Melhoria
+              <Button asChild variant="outline">
+                <Link href={formSolicitarMelhoriaTutor.url(params)}>
+                  <AlertCircle className="size-4" /> Solicitar Melhoria
+                </Link>
               </Button>
-              <Button onClick={() => abrir('aprovarTutor')} disabled={loading}>
-                <CheckCircle className="size-4" /> Enviar para coordenação
+              <Button asChild>
+                <Link href={formAprovarTutor.url(params)}>
+                  <CheckCircle className="size-4" /> Enviar para coordenação
+                </Link>
               </Button>
             </div>
           )}
@@ -187,26 +105,24 @@ export function TabAprovacao({ params, grupoPap, can }) {
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (
-              <Button
-                variant="outline"
-                onClick={() => abrir('melhoria')}
-                disabled={loading}
-              >
-                <AlertCircle className="size-4" /> Solicitar Melhoria
+              <Button asChild variant="outline">
+                <Link href={formSolicitarMelhoriaCoordenacao.url(params)}>
+                  <AlertCircle className="size-4" /> Solicitar Melhoria
+                </Link>
               </Button>
             )}
             {can?.reprovar && (
-              <Button
-                variant="destructive"
-                onClick={() => abrir('reprovar')}
-                disabled={loading}
-              >
-                <XCircle className="size-4" /> Reprovar
+              <Button asChild variant="destructive">
+                <Link href={formReprovarCoordenacao.url(params)}>
+                  <XCircle className="size-4" /> Reprovar
+                </Link>
               </Button>
             )}
             {can?.aprovar && (
-              <Button onClick={() => abrir('aprovar')} disabled={loading}>
-                <CheckCircle className="size-4" /> Aprovar
+              <Button asChild>
+                <Link href={formAprovarCoordenacao.url(params)}>
+                  <CheckCircle className="size-4" /> Aprovar
+                </Link>
               </Button>
             )}
           </div>
@@ -234,13 +150,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
         <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Grupo
-              </p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Tema
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -248,15 +158,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Turma
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.turma?.nome ?? '—'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Problema
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -264,19 +166,19 @@ export function TabAprovacao({ params, grupoPap, can }) {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Professor Tutor
+              <p className="text-xs font-bold text-muted-foreground uppercase">
+                Objectivo Geral
               </p>
               <p className="mt-1 text-sm font-medium">
-                {grupoPap.professor?.nome ?? '—'}
+                {grupoPap.objectivo_geral ?? '—'}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Objectivos
+              <p className="text-xs font-bold text-muted-foreground uppercase">
+                Objectivos Específicos
               </p>
               <p className="mt-1 text-sm font-medium">
-                {grupoPap.objectivos ?? '—'}
+                {grupoPap.objectivos_especificos ?? '—'}
               </p>
             </div>
           </div>
@@ -286,17 +188,6 @@ export function TabAprovacao({ params, grupoPap, can }) {
           {renderAreaDecisao()}
         </CardContent>
       </Card>
-
-      <ModalDecisaoAprovacao
-        open={open}
-        onClose={fechar}
-        tema={grupoPap}
-        action={action}
-        comentario={comentario}
-        onComentarioChange={setComentario}
-        onConfirmar={confirmar}
-        loading={loading}
-      />
     </div>
   );
 }

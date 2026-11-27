@@ -13,9 +13,12 @@ export default function Edit({ curso }) {
   return (
     <>
       <Head title="Editar curso" />
+
       <CursoForm
         title="Editar curso"
-        description="Atualize os campos abaixo para editar o curso do catálogo central."
+        description="Actualize os dados do curso no catálogo central."
+        submitLabel="Actualizar"
+        processingLabel="Actualizando"
         data={data}
         setData={setData}
         errors={errors}

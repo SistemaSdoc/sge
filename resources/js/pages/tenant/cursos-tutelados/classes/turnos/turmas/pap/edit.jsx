@@ -1,5 +1,5 @@
 import { Form } from '@inertiajs/react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { update } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import GrupoPapForm from './components/grupo-pap-form';
@@ -14,7 +14,10 @@ export default function Edit() {
     turma,
     form,
     grupoPap,
+    podeAlterarTutor,
   } = usePage().props;
+  console.log({ podeAlterarTutor, grupoPap: form?.grupoPap });
+  const [nomeGrupo, setNomeGrupo] = useState(form.grupoPap.nome_grupo ?? '');
 
   const [professorTutorId, setProfessorTutorId] = useState(
     form.grupoPap.professor_tutor_id,
@@ -36,33 +39,35 @@ export default function Edit() {
       })}
       transform={(data) => ({
         ...data,
+        nome_grupo: nomeGrupo,
         professor_tutor_id: professorTutorId,
         alunos: alunoIds,
       })}
-      onSuccess={() =>
-        router.visit(
-          show({
-            instituicao: instituicao.id,
-            cursoTutelado: cursoTutelado.id,
-            cursoClasse: cursoClasse.id,
-            cursoClasseTurno: cursoClasseTurno.id,
-            turma: turma.id,
-          }),
-        )
-      }
     >
       {({ errors, processing }) => (
         <GrupoPapForm
           title="Editar grupo PAP"
+          turmaUrl={
+            show({
+              instituicao: instituicao.id,
+              cursoTutelado: cursoTutelado.id,
+              cursoClasse: cursoClasse.id,
+              cursoClasseTurno: cursoClasseTurno.id,
+              turma: turma.id,
+            }).url
+          }
           errors={errors}
           processing={processing}
           professores={form.professores}
           alunos={form.alunos}
+          nomeGrupo={nomeGrupo}
+          setNomeGrupo={setNomeGrupo}
           professorTutorId={professorTutorId}
           setProfessorTutorId={setProfessorTutorId}
           alunoIds={alunoIds}
           setAlunoIds={setAlunoIds}
           grupoPap={form.grupoPap}
+          podeAlterarTutor={podeAlterarTutor}
         />
       )}
     </Form>

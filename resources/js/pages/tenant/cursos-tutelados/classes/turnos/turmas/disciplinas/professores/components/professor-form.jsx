@@ -9,6 +9,14 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -28,6 +36,11 @@ export default function ProfessorForm({
   submitFn,
   anosLectivos = [],
 }) {
+  const selectedProfessor =
+    professores.find(
+      (professor) => String(professor.id) === String(data?.professor_id ?? ''),
+    ) ?? null;
+
   return (
     <form
       onSubmit={submitFn}
@@ -98,25 +111,35 @@ export default function ProfessorForm({
 
               <Field>
                 <FieldLabel>Professor</FieldLabel>
-                <Select
-                  name="professor_id"
-                  value={data?.professor_id ?? ''}
-                  onValueChange={(value) => setData('professor_id', value)}
+                <Combobox
+                  items={professores}
+                  itemToStringLabel={(professor) => professor.nome}
+                  itemToStringValue={(professor) => String(professor.id)}
+                  value={selectedProfessor}
+                  onValueChange={(professor) =>
+                    setData(
+                      'professor_id',
+                      professor ? String(professor.id) : '',
+                    )
+                  }
+                  disabled={processing}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione o professor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Professores do curso</SelectLabel>
-                      {professores?.map((professor) => (
-                        <SelectItem key={professor.id} value={professor.id}>
+                  <ComboboxInput
+                    placeholder="Pesquisar professor..."
+                    showClear
+                    className="w-full"
+                  />
+                  <ComboboxContent>
+                    <ComboboxEmpty>Nenhum professor encontrado.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(professor) => (
+                        <ComboboxItem key={professor.id} value={professor}>
                           {professor.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
                 {errors.professor_id && (
                   <FieldError>{errors.professor_id}</FieldError>
                 )}

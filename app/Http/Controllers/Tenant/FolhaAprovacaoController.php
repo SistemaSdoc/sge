@@ -11,7 +11,9 @@ class FolhaAprovacaoController extends Controller
 {
     public function index()
     {
-        $grupos = GrupoPap::with(['professor', 'turma'])->get();
+        $grupos = GrupoPap::with(['professor', 'turma'])
+            ->latest('created_at')
+            ->get();
 
         return view('documentos.folhaAprovacao.index', compact('grupos'));
     }

@@ -168,12 +168,12 @@ php artisan migrate:status
 # Já configurado em REDIS_HOST, REDIS_PORT, etc.
 
 # Cache de rutas e configuração
-php artisan config:cache  # ❌ Não executar se usar .env em runtime
+php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 ```
 
-**⚠️ NOTA**: Em aplicações multi-tenant com `.env` dinâmicas, evitar `config:cache` se as configs variam por tenant.
+**⚠️ NOTA**: Depois de alterar o `.env`, execute novamente `php artisan config:cache`. Use `config()` no código da aplicação; `env()` deve ser usado apenas nos ficheiros de configuração. Valores específicos de tenants devem ficar na configuração do tenant ou na base de dados, não em `.env` dinâmica.
 
 ### 3.2 Otimizar Composer
 

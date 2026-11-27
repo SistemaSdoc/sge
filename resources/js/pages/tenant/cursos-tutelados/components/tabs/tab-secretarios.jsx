@@ -1,0 +1,163 @@
+import { useForm } from '@inertiajs/react';
+import { EmptyState } from '@/components/empty-state';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
+import { UserRoundPlus, UserRoundX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { store as storeSecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
+
+export function TabSecretarios({
+  params,
+  secretarios = [],
+  filters = {},
+  disponiveis = [],
+  canAttach = false,
+  removeFn,
+}) {
+  const {
+    search,
+    onChange,
+    submit: submitSearch,
+    applied,
+  } = useTableSearch(filters.search_secretarios, {
+    only: ['cursoTutelado', 'filters'],
+    searchParam: 'search_secretarios',
+    pageParam: 'page_secretarios',
+  });
+  const { data, setData, post, processing, errors, reset } = useForm({
+    user_id: '',
+  });
+
+  const submit = (event) => {
+    event.preventDefault();
+
+    post(storeSecretario(params).url, {
+      preserveScroll: true,
+      onSuccess: () => reset(),
+    });
+  };
+
+  return (
+    <Card className="gap-0">
+      <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <CardTitle>Secretários do Curso ({secretarios.length})</CardTitle>
+          <CardDescription>
+            A conta deve existir primeiro na aplicação. Ao associá-la, recebe
+            acesso apenas a este curso; os perfis existentes não são alterados.
+          </CardDescription>
+        </div>
+        {canAttach && (
+          <div className="w-full md:w-auto">
+            <form
+              onSubmit={submit}
+              className="flex w-full flex-col items-stretch gap-2 md:w-auto md:flex-row md:items-start"
+            >
+              <div className="w-full md:w-64">
+                <Select
+                  value={data.user_id}
+                  onValueChange={(value) => setData('user_id', value)}
+                  disabled={processing || disponiveis.length === 0}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecionar utilizador" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Contas da aplicação</SelectLabel>
+                      {disponiveis.map((user) => (
+                        <SelectItem key={user.id} value={String(user.id)}>
+                          {user.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.user_id && (
+                  <p className="mt-1 text-sm text-destructive">
+                    {errors.user_id}
+                  </p>
+                )}
+              </div>
+              <Button
+                type="submit"
+                disabled={processing || !data.user_id}
+                className="w-full md:w-auto"
+              >
+                Adicionar
+              </Button>
+            </form>
+          </div>
+        )}
+      </CardHeader>
+
+      <CardContent className="p-0">
+        {secretarios.length === 0 && !applied ? (
+          <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
+            <p className="font-medium">Ainda não há secretários associados</p>
+            <p className="text-sm text-muted-foreground">
+              {canAttach
+                ? disponiveis.length > 0
+                  ? 'Associe uma conta existente da instituição para apoiar a coordenação.'
+                  : 'Não há utilizadores disponíveis com a função Secretário do Curso. Crie a conta, atribua-lhe essa função na gestão de utilizadores e volte para associá-la aqui.'
+                : 'O coordenador ainda não associou ninguém a este curso.'}
+            </p>
+          </div>
+        ) : (
+          <>
+            <TableSearch
+              value={search}
+              onChange={onChange}
+              onSubmit={submitSearch}
+            />
+            {secretarios.length === 0 ? (
+              <EmptyState
+                variant="table"
+                icon={UserRoundX}
+                title="Nenhum secretário encontrado"
+                description="Tente ajustar a pesquisa."
+              />
+            ) : (
+              <ul className="divide-y">
+                {secretarios.map((secretario) => (
+                  <li
+                    key={secretario.id}
+                    className="flex items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <span className="font-medium">{secretario.nome}</span>
+                    {canAttach && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeFn(secretario.id, secretario.nome)}
+                      >
+                        Remover
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

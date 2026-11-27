@@ -2,6 +2,7 @@
 
 namespace App\Actions\Tenant\CursoTutelado;
 
+use App\Jobs\Tenant\Tutela\SincronizarDocumentosPapTutelados;
 use App\Models\Tenant\CursoTutelado;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +32,7 @@ class UploadCursoTuteladoDocumentos
                 if (isset($validated[$campo])) {
                     $caminho = $validated[$campo]->store(
                         "cursos-tutelados/{$cursoTutelado->getKey()}/{$diretorio}",
-                        'public'
+                        config('filesystems.default')
                     );
 
                     if ($caminho === false) {
@@ -56,12 +57,22 @@ class UploadCursoTuteladoDocumentos
 
             foreach ($caminhosAntigos as $campo => $caminhoAntigo) {
                 if (isset($novosCaminhos[$campo]) && $caminhoAntigo) {
-                    Storage::disk('public')->delete($caminhoAntigo);
+                    Storage::disk(config('filesystems.default'))->delete($caminhoAntigo);
                 }
+            }
+
+            // Propaga os documentos para todos os tutelados activos deste curso
+            if (! empty($novosCaminhos) && $cursoTutelado->tipo_tutela === 'propria') {
+                $cursoTutelado->loadMissing('instituicaoCurso');
+
+                SincronizarDocumentosPapTutelados::dispatch(
+                    tenantTutorId: (string) tenancy()->tenant->getTenantKey(),
+                    cursoId: (string) $cursoTutelado->instituicaoCurso->curso_id,
+                )->afterCommit();
             }
         } catch (\Throwable $exception) {
             foreach ($novosCaminhos as $caminho) {
-                Storage::disk('public')->delete($caminho);
+                Storage::disk(config('filesystems.default'))->delete($caminho);
             }
 
             throw $exception;

@@ -7,7 +7,7 @@ export default function NavigationMenu() {
     <nav className="fixed top-0 right-0 left-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-325 items-center justify-between px-4 sm:px-12">
         <div className="flex items-center gap-2.5 font-display text-base font-semibold">
-          SGE
+          Plataforma de Gestão Escolar
         </div>
         <div className="hidden gap-9 min-[820px]:flex">
           <a

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\ElementoGrupoPap\AddElementosGrupoPap;
+use App\Actions\Tenant\ElementoGrupoPap\AssignNotaElementoGrupoPap;
+use App\Actions\Tenant\ElementoGrupoPap\DeleteElementoGrupoPap;
+use App\Actions\Tenant\ElementoGrupoPap\PrepareElementoGrupoPapForm;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\ElementosGrupoPap\ActualizarNotaRequest;
 use App\Http\Requests\Tenant\ElementosGrupoPap\StoreRequest;
-use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -20,6 +23,13 @@ class ElementoGrupoPapController extends Controller
 {
     use NotificaGrupoPap;
 
+    public function __construct(
+        private readonly PrepareElementoGrupoPapForm $prepareElementoGrupoPapForm,
+        private readonly AddElementosGrupoPap $addElementosGrupoPap,
+        private readonly DeleteElementoGrupoPap $deleteElementoGrupoPap,
+        private readonly AssignNotaElementoGrupoPap $assignNotaElementoGrupoPap,
+    ) {}
+
     /**
      * Mostra o formulário para adicionar um novo elemento a um grupo da PAP.
      */
@@ -33,21 +43,7 @@ class ElementoGrupoPapController extends Controller
     ) {
         $this->authorize('create', ElementoGrupoPap::class);
 
-        $alunosEmGrupo = ElementoGrupoPap::where('grupo_pap_id', $grupoPap->id)
-            ->pluck('aluno_id');
-
-        $alunos = Aluno::with('inscricao.candidato:id,nome')
-            ->whereNotIn('id', $alunosEmGrupo)
-            ->whereHas(
-                'turmas',
-                fn ($q) => $q
-                    ->where('turmas.id', $turma->id)
-                    ->where('turma_aluno.activo', true)
-            )->get()
-            ->map(fn ($aluno) => [
-                'id' => $aluno->id,
-                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
-            ])->values();
+        $alunos = $this->prepareElementoGrupoPapForm->handle($turma, $grupoPap);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/elementos/create', [
             'instituicao' => $instituicao->only('id'),
@@ -74,9 +70,11 @@ class ElementoGrupoPapController extends Controller
     ) {
         $this->authorize('create', ElementoGrupoPap::class);
 
-        $grupoPap->elementos()->createMany(
-            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
-        );
+        $validated = $request->validated();
+
+        $this->addElementosGrupoPap->handle($grupoPap, $validated);
+
+        $this->notificarAlunosAdicionadosAoGrupo($grupoPap, $validated['alunos']);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
@@ -117,9 +115,21 @@ class ElementoGrupoPapController extends Controller
     ) {
         $this->authorize('delete', $elementoGrupoPap);
 
-        $elementoGrupoPap->delete();
+        abort_unless(
+            $grupoPap->elementos()->whereKey($elementoGrupoPap->getKey())->exists(),
+            404,
+        );
 
-        return to_route('pap.show', [
+        // Guardar antes de apagar — após delete o aluno já não é acessível
+        $aluno = $elementoGrupoPap->aluno;
+
+        $this->deleteElementoGrupoPap->handle($elementoGrupoPap);
+
+        if ($aluno !== null) {
+            $this->notificarAlunoRemovidoDoGrupo($grupoPap, $aluno);
+        }
+
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -144,19 +154,11 @@ class ElementoGrupoPapController extends Controller
     ) {
         $this->authorize('atualizarNota', $elementoGrupoPap);
 
-        $elementoGrupoPap->update(['nota_individual' => $request->nota_individual]);
-
-        $todosComNota = $grupoPap->elementos()
-            ->whereNull('nota_individual')
-            ->doesntExist();
-
-        if ($todosComNota) {
-            $grupoPap->update(['status' => 'concluido']);
-        }
-
-        // ── Notificação ───────────────────────────────────────
-        $this->notificarNotaAtribuida($grupoPap, $elementoGrupoPap);
-        // ─────────────────────────────────────────────────────
+        $this->assignNotaElementoGrupoPap->handle(
+            $grupoPap,
+            $elementoGrupoPap,
+            $request->validated(),
+        );
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,

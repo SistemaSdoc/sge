@@ -72,7 +72,7 @@ export function usePagination(key = 'page') {
    * @param search
    */
   const handleSearch = (search) => {
-    navigate({ [`search_${key}`]: search, [key]: 1 });
+    navigate({ [`search_${key}`]: search, [`page_${key}`]: 1 });
   };
 
   /**

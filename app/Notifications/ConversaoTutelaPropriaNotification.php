@@ -2,17 +2,22 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Notifica a instituição tutora sobre o pedido de conversão para tutela própria.
  */
-class ConversaoTutelaPropriaNotification extends Notification implements ShouldQueue
+class ConversaoTutelaPropriaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoSolicitante,
@@ -21,9 +26,7 @@ class ConversaoTutelaPropriaNotification extends Notification implements ShouldQ
         public string $sharedId,
         public string $tenantTutorAnteriorId,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -55,10 +58,10 @@ class ConversaoTutelaPropriaNotification extends Notification implements ShouldQ
     {
         return (new MailMessage)
             ->subject('Pedido de conversão para tutela própria')
-            ->markdown('mail.conversao-tutela-propria-notification', [
+            ->view('mail.conversao-tutela-propria-notification', [
                 'nomeInstituicaoSolicitante' => $this->instituicaoSolicitante,
                 'nomeCurso' => $this->cursoNome,
-                'url' => $this->url ?: config('app.url').'/dashboard',
+                'url' => $this->url ?: $this->tenantNotificationUrl('tenant.dashboard'),
             ]);
     }
 }

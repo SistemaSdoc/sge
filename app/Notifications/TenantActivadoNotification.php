@@ -2,13 +2,17 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TenantActivadoNotification extends Notification
+class TenantActivadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     /**
      * Create a new notification instance.
@@ -19,7 +23,8 @@ class TenantActivadoNotification extends Notification
         public string $email,
         public string $subdomain,
         public string $url,
-        public string $sigla
+        public string $sigla,
+        public ?string $password = null,
 
     ) {}
 
@@ -40,13 +45,14 @@ class TenantActivadoNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Conta activada com sucesso!')
-            ->markdown('mail.tenant-activado-notification', [
+            ->view('mail.tenant-activado-notification', [
                 'nomeInstituicao' => $this->nomeInstituicao,
                 'nomeUser' => $this->nomeUser,
                 'email' => $this->email,
                 'sigla' => $this->sigla,
                 'subdomain' => $this->subdomain,
                 'url' => $this->url,
+                'password' => $this->password,
 
             ]);
     }

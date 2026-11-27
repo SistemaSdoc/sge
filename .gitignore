@@ -8,7 +8,6 @@
 /storage/*.key
 /storage/pail
 /storage/app/public
-/storage/*/
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
@@ -31,3 +30,6 @@ yarn-error.log
 /.zed
 /.ai
 /.agents
+# Storage por tenant (uploads de utilizadores)
+/storage/tenant*
+.env.bak

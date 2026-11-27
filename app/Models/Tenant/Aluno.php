@@ -2,10 +2,16 @@
 
 namespace App\Models\Tenant;
 
+use App\Contracts\HasUserCleanup;
+use App\Exceptions\UserRemovalBlockedException;
+use App\Models\Central\AnoLectivo;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 #[Fillable([
@@ -17,13 +23,93 @@ use Illuminate\Support\Facades\DB;
     'situacao',
 ])]
 
-class Aluno extends Model
+class Aluno extends Model implements HasUserCleanup
 {
-    use HasUuid;
+    use HasSearch, HasUuid, SoftDeletes;
+
+    protected array $searchable = [
+        'matricula',
+        'numero_processo',
+        'inscricao.candidato.nome',
+        'inscricao.cursoClasseTurno.turno.nome',
+        'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso.nome',
+        'turmasActivas.nome',
+        'turmasActivas.cursoClasseTurno.cursoClasse.classe.nome',
+    ];
 
     protected $table = 'alunos';
 
     protected $primaryKey = 'id';
+
+    public function cleanupOnUserRemoval(): void
+    {
+        DB::transaction(function (): void {
+            $remocao = $this->podeSerRemovido();
+
+            if (! $remocao['pode_remover']) {
+                throw new UserRemovalBlockedException($remocao['mensagem']);
+            }
+
+            $this->turmas()->detach();
+            $this->forceDelete();
+            Inscricao::query()->whereKey($this->inscricao_id)->delete();
+        });
+    }
+
+    /**
+     * @return array{pode_remover: bool, bloqueios: list<string>, mensagem: ?string}
+     */
+    public function podeSerRemovido(): array
+    {
+        $bloqueios = [];
+
+        if (
+            $this->pagamentos()->withTrashed()->exists()
+            || PagamentoItem::query()->where('aluno_id', $this->getKey())->exists()
+        ) {
+            $bloqueios[] = 'pagamentos';
+        }
+
+        if ($this->propinas()->withTrashed()->exists()) {
+            $bloqueios[] = 'propinas';
+        }
+
+        $historicoTurmas = TurmaAluno::query()
+            ->where('aluno_id', $this->getKey())
+            ->where(function ($query): void {
+                $query->whereHas('notas')
+                    ->orWhere('situacao', '!=', 'activo')
+                    ->orWhere('is_historico', true)
+                    ->orWhereNotNull('resultado');
+            })
+            ->exists();
+
+        if ($historicoTurmas) {
+            $bloqueios[] = 'notas ou histórico de turma';
+        }
+
+        if ($this->elementosGrupoPap()->exists()) {
+            $bloqueios[] = 'PAP';
+        }
+
+        if ($this->confirmacoesMatricula()->withTrashed()->exists()) {
+            $bloqueios[] = 'confirmações de matrícula';
+        }
+
+        if (DB::table('documentos_emitidos')->where('aluno_id', $this->getKey())->exists()) {
+            $bloqueios[] = 'documentos académicos';
+        }
+
+        $podeRemover = $bloqueios === [];
+
+        return [
+            'pode_remover' => $podeRemover,
+            'bloqueios' => $bloqueios,
+            'mensagem' => $podeRemover
+                ? null
+                : 'Não é possível remover este aluno porque existem registos de '.implode(', ', $bloqueios).'. Anule a matrícula em vez de remover.',
+        ];
+    }
 
     // ============================================
     // GERAÇÃO AUTOMÁTICA DO NÚMERO DE PROCESSO
@@ -112,6 +198,14 @@ class Aluno extends Model
         return $query->where('situacao', 'activo');
     }
 
+    public function scopeInscricaoNaoCancelada(Builder $query): Builder
+    {
+        return $query->whereHas(
+            'inscricao',
+            fn (Builder $inscricaoQuery): Builder => $inscricaoQuery->where('status', '!=', 'cancelado'),
+        );
+    }
+
     public function scopeFinalistas($query)
     {
         return $query->where('situacao', 'finalista');
@@ -139,22 +233,12 @@ class Aluno extends Model
 
     public function scopeDoAnoLectivoActivo($query)
     {
-        $anosLectivosActivosIds = AnoLectivo::query()->ativo()->pluck('id');
+        $anoLectivoId = AnoLectivo::activo()?->getKey();
 
-        return $query->where(function ($q) use ($anosLectivosActivosIds) {
-            $q->whereHas('turmas', function ($q2) use ($anosLectivosActivosIds) {
-                $q2->whereIn('turmas.ano_lectivo_id', $anosLectivosActivosIds);
-            })
-                ->orWhere(function ($q2) use ($anosLectivosActivosIds) {
-                    $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao', fn ($q3) => $q3->whereIn('ano_lectivo_id', $anosLectivosActivosIds));
-                });
-        });
+        return $anoLectivoId === null
+            ? $query->whereRaw('1 = 0')
+            : $query->doAnoLectivo($anoLectivoId);
     }
-
-    // ============================================
-    // RELACIONAMENTOS
-    // ============================================
 
     public function user()
     {
@@ -174,14 +258,9 @@ class Aluno extends Model
         return $this->belongsTo(Instituicao::class);
     }
 
-    /**
-     * Relação com as solicitações de documentos feitas pelo aluno.
-     * Retorna um hasMany para App\Models\SolicitacaoDocumento usando a
-     * foreign key padrão `aluno_id`.
-     */
-    public function solicitacoesDocumentos(): HasMany
+    public function pagamentos(): HasMany
     {
-        return $this->hasMany(SolicitacaoDocumento::class);
+        return $this->hasMany(Pagamento::class);
     }
 
     public function turmas()
@@ -190,6 +269,11 @@ class Aluno extends Model
             ->using(TurmaAluno::class)
             ->withPivot('activo', 'situacao', 'is_historico', 'resultado', 'created_at')
             ->withTimestamps();
+    }
+
+    public function turmasActivas()
+    {
+        return $this->turmas()->wherePivot('activo', true);
     }
 
     public function turmaActual()
@@ -272,6 +356,11 @@ class Aluno extends Model
             'id',
             'grupo_pap_id'
         );
+    }
+
+    public function elementosGrupoPap(): HasMany
+    {
+        return $this->hasMany(ElementoGrupoPap::class, 'aluno_id');
     }
 
     public function confirmacoesMatricula()

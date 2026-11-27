@@ -10,12 +10,12 @@ class ClasseTurnoDisciplinaHorarioPolicy
     /**
      * Determina se o utilizador pode criar horários para uma disciplina numa turma.
      *
-     * Apenas Director, Subdirector e Secretaria podem executar esta ação.
+     * Requer a permissão configurável de gestão de horários da disciplina.
      */
     public function create(User $user): bool
     {
         return $user->instituicao_id !== null
-            && $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']);
+            && $user->can('classeturnodisciplina.gerirHorarios');
     }
 
     /**

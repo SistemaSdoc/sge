@@ -78,6 +78,7 @@ export default function Create({
           current_page: data.alunos.current_page,
           last_page: data.alunos.last_page,
         }}
+        onPageChange={alunosPagination.handlePageChange}
         pautaStatus={data?.pauta_status ?? {}}
         dentroDoPrazo={data?.dentro_do_prazo ?? {}}
         onSubmit={handleSubmit}

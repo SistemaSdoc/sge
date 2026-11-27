@@ -1,14 +1,18 @@
 <?php
 
+use App\Actions\Tenant\BancaJuriPap\PrepareBancaJuriPapForm;
 use App\Actions\Tenant\CursoTutelado\CreateCursoTutelado;
 use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Enums\TutelaStatus;
 use App\Http\Controllers\Tenant\ExportarPautaController;
 use App\Http\Controllers\Tenant\NotificacaoController;
+use App\Http\Resources\Tenant\GrupoPap\BancaResource;
+use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
@@ -23,6 +27,7 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification;
 use App\Services\Central\TenantService;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
@@ -31,6 +36,7 @@ use App\Services\Tenant\GrupoPapViewService;
 use App\Services\Tenant\Tutela\Data\InstituicaoTutoraData;
 use App\Services\Tenant\Tutela\TutelaService;
 use App\Services\Tenant\Tutela\TutelaTenantService;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -38,6 +44,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Excel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -173,6 +180,53 @@ test('tutor consegue validar acesso ao colegio com vinculo activo', function ():
 
     expect($tenant->id)->toBe($this->tenantColegio->id)
         ->and($this->vinculo->fresh()->status)->toBe(TutelaStatus::ACTIVO);
+});
+
+test('o colegio usa os documentos do curso tutelado da instituicao tutora quando o curso externo nao tem ficheiros locais', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id, 'aprovado');
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $this->tenantTutor->run(function () use ($fixture): void {
+        $instituicaoTutora = Instituicao::create([
+            'nome' => 'Instituto Tutor PAP',
+            'tipo' => 'instituto',
+        ]);
+        $this->tenantTutor->forceFill(['instituicao_id' => $instituicaoTutora->id])->save();
+
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicaoTutora->id,
+            'duracao_anos' => 3,
+        ]);
+
+        $cursoTuteladoTutor = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicaoTutora->id,
+            'tipo_tutela' => 'propria',
+        ]);
+
+        Storage::disk(config('filesystems.default'))->put('pap/criterios-pap.pdf', 'conteudo-criterios');
+        Storage::disk(config('filesystems.default'))->put('pap/manual-pt.pdf', 'conteudo-manual');
+        Storage::disk(config('filesystems.default'))->put('pap/estrutura-trabalho-pap.pdf', 'conteudo-estrutura');
+
+        $cursoTuteladoTutor->update([
+            'criterios_pap_path' => 'pap/criterios-pap.pdf',
+            'manual_pt_path' => 'pap/manual-pt.pdf',
+            'estrutura_trabalho_pap_path' => 'pap/estrutura-trabalho-pap.pdf',
+        ]);
+    });
+
+    $this->tenantColegio->run(function () use ($fixture): void {
+        $resource = new ShowResource($fixture['grupo']);
+        $data = $resource->toArray(request());
+
+        expect($data['criterios_pap_url'])->not->toBeNull()
+            ->and($data['manual_pt_url'])->not->toBeNull()
+            ->and($data['estrutura_trabalho_pap_url'])->not->toBeNull();
+    });
 });
 
 test('apenas o coordenador do curso central consegue operar no grupo remoto', function (): void {
@@ -1137,6 +1191,86 @@ test('lista cursos tutelados de instituto tutor mescla cursos locais e remotos s
         ->and($result->pluck('id')->all())->toContain((string) $remoteCurso->getKey());
 });
 
+test('banca de tutela externa usa professores principais do curso tutor e apresenta jurados externos', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
+
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $tutorData = $this->tenantTutor->run(function () use ($fixture): array {
+        $instituicao = Instituicao::create(['nome' => 'Instituto Tutor Banca', 'tipo' => 'instituto']);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicao->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicao->id,
+            'tipo_tutela' => 'propria',
+        ]);
+
+        $principalUser = User::create([
+            'nome' => 'Professor Principal Tutor',
+            'email' => 'principal-tutor@example.test',
+            'password' => 'password',
+        ]);
+        $principal = Professor::create(['user_id' => $principalUser->id]);
+        $cursoTutelado->professores()->attach($principal->id, ['tipo' => 'principal', 'coordenador' => false]);
+
+        $secundarioUser = User::create([
+            'nome' => 'Professor Secundário Tutor',
+            'email' => 'secundario-tutor@example.test',
+            'password' => 'password',
+        ]);
+        $secundario = Professor::create(['user_id' => $secundarioUser->id]);
+        $cursoTutelado->professores()->attach($secundario->id, ['tipo' => 'secundario', 'coordenador' => false]);
+
+        return ['principal' => $principal, 'cursoTutelado' => $cursoTutelado];
+    });
+
+    tenancy()->initialize($this->tenantColegio);
+    $cursoTuteladoColegio = $fixture['cursoTutelado']->fresh();
+    $professorLocal = Professor::create([
+        'user_id' => User::create([
+            'nome' => 'Professor do Colégio',
+            'email' => 'professor-colegio@example.test',
+            'password' => 'password',
+        ])->id,
+    ]);
+    $cursoTuteladoColegio->professores()->attach($professorLocal->id, ['tipo' => 'principal', 'coordenador' => false]);
+
+    $professores = app(PrepareBancaJuriPapForm::class)->handle(
+        $fixture['turma'],
+        $cursoTuteladoColegio,
+        $fixture['grupo'],
+    )['professores'];
+
+    $banca = BancaJuriPap::create([
+        'grupo_pap_id' => $fixture['grupo']->id,
+        'professor_externo_id' => $tutorData['principal']->id,
+        'professor_externo_tenant_id' => $this->tenantTutor->id,
+        'funcao' => 'Presidente',
+    ]);
+    $bancaData = (new BancaResource($banca))->toArray(request());
+
+    expect($professores->pluck('id')->all())->toBe([
+        $tutorData['principal']->id,
+        $fixture['grupo']->professor_tutor_id,
+    ])
+        ->and($professores->pluck('nome')->all())->toBe([
+            'Professor Principal Tutor',
+            'Professor B',
+        ])
+        ->and($professores->pluck('tenant_id')->all())->toBe([$this->tenantTutor->id, null])
+        ->and($bancaData['professor_id'])->toBe($tutorData['principal']->id)
+        ->and($bancaData['nome'])->toBe('Professor Principal Tutor')
+        ->and($bancaData['email'])->toBe('principal-tutor@example.test')
+        ->and($bancaData['can_view'])->toBeFalse();
+});
+
 test('publicarEAssociar nao perde o contexto da conexao do tenant', function (): void {
     $tutorData = $this->tenantTutor->run(function (): array {
         $instituicao = Instituicao::create(['nome' => 'Instituto Tutor', 'tipo' => 'instituto']);
@@ -1198,4 +1332,74 @@ test('publicarEAssociar nao perde o contexto da conexao do tenant', function ():
     ))->handle(app(TutelaTenantService::class));
 
     expect($cursoTutelado->fresh()->curso_tutelado_shared_id)->toBe($shared->id);
+});
+
+test('a submissao PAP remota notifica membros do grupo disciplinar do instituto tutor', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $tutorData = $this->tenantTutor->run(function () use ($fixture): array {
+        $instituicao = Instituicao::create([
+            'nome' => 'Instituto Tutor PAP',
+            'tipo' => 'instituto',
+        ]);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicao->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicao->id,
+            'tipo_tutela' => 'propria',
+        ]);
+        $coordenador = User::create([
+            'nome' => 'Coordenadora do Curso',
+            'email' => 'coordenadora@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicao->id,
+        ]);
+        $professor = Professor::create(['user_id' => $coordenador->id]);
+        $cursoTutelado->professores()->attach($professor->id, ['coordenador' => true]);
+
+        $membro = User::create([
+            'nome' => 'Membro Disciplinar',
+            'email' => 'membro-disciplinar@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicao->id,
+        ]);
+        $membro->assignRole(Role::findOrCreate(
+            'Membro do Grupo Disciplinar',
+            'tenant',
+        ));
+
+        return ['coordenador' => $coordenador, 'membro' => $membro];
+    });
+
+    Notification::fake();
+
+    $notificador = new class
+    {
+        use NotificaGrupoPap;
+
+        public function enviar(GrupoPap $grupoPap): void
+        {
+            $this->notificarCoordenadoresDoFluxo(
+                $grupoPap,
+                new TemaSubmetidoCoordenacaoNotification($grupoPap),
+            );
+        }
+    };
+
+    $this->tenantColegio->run(function () use ($fixture, $notificador): void {
+        $notificador->enviar(GrupoPap::query()->findOrFail($fixture['grupo']->id));
+    });
+
+    Notification::assertSentTo(
+        $tutorData['membro'],
+        TemaSubmetidoCoordenacaoNotification::class,
+    );
 });

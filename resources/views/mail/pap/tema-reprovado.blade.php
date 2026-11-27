@@ -178,11 +178,12 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         {{-- Header --}}
-        <div class="header">
+        {{-- <div class="header">
             <h1>Tema reprovado no PAP</h1>
-        </div>
+        </div> --}}
 
         <hr class="divider">
 

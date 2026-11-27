@@ -7,10 +7,10 @@ use App\Models\Tenant\User;
 class GrelhaCurricularPolicy
 {
     /**
-     * Determina se o utilizador pode ver a sua grelha curricular.
+     * Determina se o usuário pode consultar a própria grelha curricular.
      *
-     * Exclusivo de alunos. O controller filtra os dados
-     * pelo aluno autenticado via query.
+     * A operação é exclusiva de alunos e os dados devem ser filtrados pelo
+     * aluno autenticado no controller ou serviço responsável.
      */
     public function viewAny(User $user): bool
     {

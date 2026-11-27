@@ -1,5 +1,4 @@
-import { Link } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { Link, usePage } from '@inertiajs/react';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -8,6 +7,8 @@ export default function AuthSimpleLayout({
   title,
   description,
 }: AuthLayoutProps) {
+  const { instituicao } = usePage().props as any;
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -17,9 +18,17 @@ export default function AuthSimpleLayout({
               href={home()}
               className="flex flex-col items-center gap-2 font-medium"
             >
-              {/* <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                <AppLogoIcon className="size-9 fill-current text-foreground dark:text-white" />
-              </div>*/}
+              {instituicao?.logo_url ? (
+                <img
+                  src={instituicao.logo_url}
+                  alt={instituicao.nome}
+                  className="w-46 object-contain"
+                />
+              ) : (
+                <span className="text-lg font-semibold">
+                  {instituicao?.nome}
+                </span>
+              )}
               <span className="sr-only">{title}</span>
             </Link>
 
@@ -33,6 +42,17 @@ export default function AuthSimpleLayout({
           {children}
         </div>
       </div>
+      <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+        {/*<span className="font-medium">Desenvolvido por Tunganetu</span>*/}
+        <img
+          src="/images/tunganetu-02.jpg.jpeg"
+          alt="Tunganetu"
+          className="h-16 w-auto object-contain"
+        />
+      </div>
+      <span className="text-[10px] opacity-70">
+        © {new Date().getFullYear()} Tunganetu · Todos os direitos reservados
+      </span>
     </div>
   );
 }

@@ -6,8 +6,8 @@ use App\Actions\Tenant\Pagamento\GerarRecibo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Tenant\Pagamento\UpdatePagamentoRequest;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\PagamentoItem;
@@ -42,8 +42,9 @@ class PagamentoController extends Controller
 
         $pagamentos = Pagamento::query()
             ->where('instituicao_id', $instituicaoId)
+            ->search($request->string('search')->toString())
             ->with(['aluno.user:id,nome,instituicao_id'])
-            ->orderByDesc('data_pagamento')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString()
             ->through(function (Pagamento $p) use ($request) {
@@ -56,6 +57,10 @@ class PagamentoController extends Controller
                     ->implode(', ');
 
                 $podeApagar = $request->user()->can('delete', $p);
+                $aluno = $p->aluno;
+                $nomeAluno = $aluno?->trashed()
+                    ? 'Aluno removido'
+                    : ($aluno?->user?->nome ?? 'Aluno removido');
 
                 Log::debug('PagamentoController@index - verificação can.delete', [
                     'pagamento_id' => $p->id,
@@ -69,7 +74,7 @@ class PagamentoController extends Controller
 
                 return [
                     'id' => $p->id,
-                    'aluno' => $p->aluno->user->nome,
+                    'aluno' => $nomeAluno,
                     'valor_total' => $p->valor_total,
                     'metodo' => $p->metodo,
                     'referencia' => $p->referencia,
@@ -104,6 +109,7 @@ class PagamentoController extends Controller
 
         return Inertia::render('tenant/pagamentos/index', [
             'pagamentos' => $pagamentos,
+            'filters' => $request->only('search'),
             'turmas' => $turmas,
             'can' => [
                 'create' => Auth::guard('tenant')->user()->can('create', Pagamento::class),
@@ -471,6 +477,10 @@ class PagamentoController extends Controller
         Log::info('PagamentoController@show - início', ['pagamento_id' => $pagamento->id]);
 
         $pagamento->load(['aluno.user:id,nome', 'registadoPor:id,nome']);
+        $aluno = $pagamento->aluno;
+        $nomeAluno = $aluno?->trashed()
+            ? 'Aluno removido'
+            : ($aluno?->user?->nome ?? 'Aluno removido');
 
         $itens = $pagamento->itens()
             ->with('itemPagavel:id,nome,frequencia,valor')
@@ -508,7 +518,7 @@ class PagamentoController extends Controller
         return Inertia::render('tenant/pagamentos/show', [
             'pagamento' => [
                 'id' => $pagamento->id,
-                'aluno' => $pagamento->aluno->user->nome,
+                'aluno' => $nomeAluno,
                 'registado_por' => $pagamento->registadoPor->nome,
                 'data_pagamento' => $pagamento->data_pagamento->format('d/m/Y'),
                 'valor_total' => $pagamento->valor_total,

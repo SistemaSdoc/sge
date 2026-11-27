@@ -23,12 +23,16 @@ class StoreRequest extends FormRequest
      */
     public function rules(): array
     {
+        $professorRules = ['required', 'uuid'];
+
+        if (! $this->route('colegio')) {
+            $professorRules[] = 'exists:professores,id';
+            $professorRules[] = new ProfessorNaoNaBanca($this->route('grupoPap'));
+        }
+
         return [
-            'professor_id' => [
-                'required',
-                'exists:professores,id',
-                new ProfessorNaoNaBanca($this->route('grupoPap')),
-            ],
+            'professor_id' => $professorRules,
+            'professor_externo_tenant_id' => ['nullable', 'string'],
             'funcao' => 'required|string|in:Presidente,Vogal 1,Vogal 2',
         ];
     }

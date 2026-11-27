@@ -1,5 +1,6 @@
 import { CircleAlert } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { challenge } from '@/routes/tenant/dashboard/notes/two-factor';
 import { Button } from '@/components/ui/button';
 import {
   Item,
@@ -13,7 +14,7 @@ import {
 export function HistoricoPendenteAlert({
   aluno,
   pendentes = [],
-  abrirSelecaoFn,
+  iniciarHistoricoFn,
 }) {
   const nomes = pendentes.map((p) => p.classe).join(', ');
   const emCurso = pendentes.filter((p) => p.em_curso); // pode haver vários
@@ -54,7 +55,19 @@ export function HistoricoPendenteAlert({
           <Button
             size="sm"
             variant="outline"
-            onClick={(e) => abrirSelecaoFn(aluno, e, semTurma[0])}
+            onClick={() => {
+              const returnTo = new URL(window.location.href);
+              returnTo.searchParams.set('iniciar_historico', '1');
+
+              iniciarHistoricoFn(
+                challenge.url({
+                  query: {
+                    scope: 'history',
+                    return_to: `${returnTo.pathname}${returnTo.search}`,
+                  },
+                }),
+              );
+            }}
           >
             Iniciar lançamento
             {semTurma.length > 1

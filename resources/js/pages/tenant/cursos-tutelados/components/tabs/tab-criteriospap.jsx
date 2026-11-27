@@ -120,7 +120,7 @@ export function TabCriteriosPap({
 
   return (
     <>
-      <Card className="gap-0">
+      <Card className="gap-0 pb-0">
         <CardHeader className="border-b">
           <CardTitle>Critérios PAP</CardTitle>
           <CardDescription>

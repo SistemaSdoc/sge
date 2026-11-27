@@ -22,7 +22,8 @@ class HistoricoAprovacaoPap extends Model
         'utilizador_nome',
         'tema',
         'problema',
-        'objectivos',
+        'objectivo_geral',
+        'objectivos_especificos',
         'estado_anterior',
         'estado_novo',
         'comentario',
@@ -41,6 +42,6 @@ class HistoricoAprovacaoPap extends Model
         return $this->belongsTo(
             User::class,
             'utilizador_id'
-        );
+        )->withTrashed();
     }
 }

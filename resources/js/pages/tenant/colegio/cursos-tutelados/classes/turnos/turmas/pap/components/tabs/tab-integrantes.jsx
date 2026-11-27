@@ -26,7 +26,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import TablePagination from '@/components/table-pagination';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 
 export function TabIntegrantes({
   params,
@@ -37,6 +39,7 @@ export function TabIntegrantes({
   pagination,
   onPageChange,
   can,
+  currentUserId,
 }) {
   const [editando, setEditando] = useState({});
   const elementos = pagination?.data ?? [];
@@ -78,7 +81,6 @@ export function TabIntegrantes({
           <TableHeader>
             <TableRow className="bg-muted/72">
               <TableHead className="px-4">Nome</TableHead>
-              <TableHead>Matrícula</TableHead>
               <TableHead>Nota individual</TableHead>
               {hasActionsColumn && (
                 <TableHead className="px-4 text-right">Acções</TableHead>
@@ -89,16 +91,26 @@ export function TabIntegrantes({
             {elementos.map((el) => (
               <TableRow
                 key={el.id}
-                className="hover:cursor-pointer"
+                className={el.can_view ? 'hover:cursor-pointer' : undefined}
                 onClick={() =>
-                  router.visit(showAluno.url({ aluno: el.aluno_id }))
+                  el.can_view &&
+                  router.visit(
+                    String(currentUserId) === String(el.user_id)
+                      ? showUser.url({ user: el.user_id })
+                      : showAluno.url({ aluno: el.aluno_id }),
+                  )
                 }
               >
-                <TableCell className="px-4 font-medium">{el.nome}</TableCell>
-                <TableCell>
-                  {el.matricula ?? (
-                    <Minus size={15} className="text-muted-foreground" />
-                  )}
+                <TableCell className="px-4 font-medium">
+                  <div className="flex items-center gap-3">
+                    <ProfileAvatarPreview src={el.avatar} name={el.nome} />
+                    <div className="flex min-w-0 flex-col">
+                      <span className="min-w-0 wrap-anywhere">{el.nome}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        Matrícula: {el.matricula ?? '—'}
+                      </span>
+                    </div>
+                  </div>
                 </TableCell>
 
                 <TableCell onClick={(e) => e.stopPropagation()}>
@@ -130,14 +142,16 @@ export function TabIntegrantes({
                         Salvar
                       </Button>
                     </div>
-                  ) : (
+                  ) : el.nota_individual != null ? (
                     <span className="text-sm font-medium tabular-nums">
-                      {el.nota_individual != null
-                        ? Number(el.nota_individual) % 1 === 0
-                          ? Number(el.nota_individual).toFixed(0)
-                          : Number(el.nota_individual)
-                        : '—'}
+                      {Number(el.nota_individual) % 1 === 0
+                        ? Number(el.nota_individual).toFixed(0)
+                        : Number(el.nota_individual)}
                     </span>
+                  ) : (
+                    <div className="flex justify-center">
+                      <Minus size={15} className="text-muted-foreground" />
+                    </div>
                   )}
                 </TableCell>
 

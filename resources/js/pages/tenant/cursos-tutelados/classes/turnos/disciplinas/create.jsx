@@ -1,4 +1,4 @@
-import { Form, router, usePage } from '@inertiajs/react';
+import { Form, usePage } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import DisciplinaForm from './components/disciplina-form';
 import { useState } from 'react';
@@ -11,6 +11,7 @@ export default function Create() {
     cursoClasseTurno,
     disciplinas,
     anosLectivos,
+    anoLectivoId: initialAnoLectivoId,
   } = usePage().props;
   const [disciplinaIds, setDisciplinaIds] = useState([]);
 
@@ -21,12 +22,19 @@ export default function Create() {
     cursoClasseTurno,
   };
 
+  const [anoLectivoId, setAnoLectivoId] = useState(initialAnoLectivoId ?? '');
+
+  function handleAnoLectivo(val) {
+    setAnoLectivoId(val);
+  }
+
   return (
     <Form
       {...store.form(params)}
       transform={(data) => ({
         ...data,
         disciplina_ids: disciplinaIds,
+        ano_lectivo_id: anoLectivoId,
       })}
     >
       {({ errors, processing }) => (
@@ -34,6 +42,9 @@ export default function Create() {
           params={params}
           disciplinas={disciplinas}
           disciplinaIds={disciplinaIds}
+          anoLectivoId={anoLectivoId}
+          setAnoLectivoId={handleAnoLectivo}
+          anosLectivos={anosLectivos}
           setDisciplinaIds={setDisciplinaIds}
           errors={errors}
           processing={processing}

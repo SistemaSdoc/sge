@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
-use App\Exports\MiniPautaExport;
+use App\Exports\MiniPauta\MiniPautaExcelExport;
 use App\Helpers\ArredondamentoHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\ClasseTurnoDisciplina;
@@ -52,6 +52,7 @@ class ExportarMiniPautaController extends Controller
             ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
             ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
             ->where('turma_aluno.turma_id', $turma->id)
+            ->where('inscricoes.status', '!=', 'cancelado')
             ->where('turma_aluno.situacao', 'activo')
             ->where('turma_aluno.activo', true)
             ->orderBy('candidatos.nome')
@@ -67,7 +68,7 @@ class ExportarMiniPautaController extends Controller
             ],
         ];
 
-        $export = new MiniPautaExport(
+        $export = new MiniPautaExcelExport(
             disciplinas: $disciplinas,
             curso: $cursoTutelado->instituicaoCurso?->curso?->nome ?? '',
             turma: $turma->nome ?? '',
@@ -111,6 +112,7 @@ class ExportarMiniPautaController extends Controller
                 ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
                 ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
                 ->where('turma_aluno.turma_id', $turma->id)
+                ->where('inscricoes.status', '!=', 'cancelado')
                 ->where('turma_aluno.situacao', 'activo')
                 ->where('turma_aluno.activo', true)
                 ->orderBy('candidatos.nome')
@@ -123,7 +125,7 @@ class ExportarMiniPautaController extends Controller
             ];
         })->toArray();
 
-        $export = new MiniPautaExport(
+        $export = new MiniPautaExcelExport(
             disciplinas: $disciplinas,
             curso: $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome ?? '',
             turma: $turma->nome ?? '',

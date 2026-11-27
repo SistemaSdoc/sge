@@ -8,6 +8,7 @@ use App\Services\Tenant\VerificadorPropinaService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -180,11 +181,22 @@ class RelatorioPropinaController extends Controller
 
         $dadosInstituicao = null;
         if ($instituicao) {
-            $logoPath = $instituicao->logo ? public_path('storage/'.$instituicao->logo) : null;
             $logoBase64 = null;
-            if ($logoPath && file_exists($logoPath)) {
-                $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
-                $logoBase64 = 'data:image/'.$extension.';base64,'.base64_encode(file_get_contents($logoPath));
+            if ($instituicao->logo && Storage::disk(config('filesystems.default'))->exists($instituicao->logo)) {
+                $extension = strtolower(pathinfo($instituicao->logo, PATHINFO_EXTENSION));
+                $mime = match ($extension) {
+                    'jpg', 'jpeg' => 'image/jpeg',
+                    'png' => 'image/png',
+                    'gif' => 'image/gif',
+                    'webp' => 'image/webp',
+                    default => null,
+                };
+
+                if ($mime) {
+                    $logoBase64 = 'data:'.$mime.';base64,'.base64_encode(
+                        Storage::disk(config('filesystems.default'))->get($instituicao->logo)
+                    );
+                }
             }
 
             $dadosInstituicao = [

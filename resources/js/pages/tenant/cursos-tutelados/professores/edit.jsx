@@ -8,20 +8,28 @@ import { show } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoControl
 import ProfessorForm from './components/professor-form';
 
 export default function Edit() {
-  const { vinculo, professores, instituicaoId, cursoTuteladoId } =
-    usePage().props;
+  const { vinculo, instituicaoId, cursoTuteladoId } = usePage().props;
 
-  const [professorId] = useState(vinculo.professor_id);
   const [tipo, setTipo] = useState(vinculo.tipo);
   const [coordenador, setCoordenador] = useState(vinculo.coordenador ?? false);
+  const [opap, setOpap] = useState(vinculo.opap ?? false);
+  const [grupo_disciplinar, setGrupoDisciplinar] = useState(
+    vinculo.grupo_disciplinar ?? 'nenhum',
+  );
 
   return (
     <Form
-      {...update(vinculo.id).form()}
+      {...update.form({
+        instituicao: instituicaoId,
+        cursoTutelado: cursoTuteladoId,
+        professor: vinculo.id,
+      })}
       transform={(data) => ({
         ...data,
         tipo,
         coordenador,
+        opap,
+        grupo_disciplinar,
       })}
       onSuccess={() =>
         router.visit(
@@ -34,16 +42,24 @@ export default function Edit() {
     >
       {({ errors, processing }) => (
         <ProfessorForm
-          professores={professores}
-          professorId={professorId}
-          setProfessorId={() => {}}
+          mode="edit"
+          courseUrl={
+            show({
+              instituicao: instituicaoId,
+              cursoTutelado: cursoTuteladoId,
+            }).url
+          }
+          professorNome={vinculo.nome}
           tipo={tipo}
           setTipo={setTipo}
           coordenador={coordenador}
           setCoordenador={setCoordenador}
+          opap={opap}
+          setOpap={setOpap}
+          grupo_disciplinar={grupo_disciplinar}
+          setGrupoDisciplinar={setGrupoDisciplinar}
           errors={errors}
           processing={processing}
-          disableProfessor
         />
       )}
     </Form>

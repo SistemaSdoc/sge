@@ -9,9 +9,9 @@ use App\Models\Tenant\User;
 class NotaPolicy
 {
     /**
-     * Determina se o utilizador pode listar notas.
+     * Determina se o usuário pode listar as próprias notas.
      *
-     * Apenas o próprio aluno pode ver as suas notas.
+     * Apenas usuários com o perfil de Aluno podem consultar as suas notas.
      */
     public function viewAny(User $user): bool
     {
@@ -20,64 +20,16 @@ class NotaPolicy
     }
 
     /**
-     * Determina se o utilizador pode lançar notas.
+     * Determina se o usuário pode lançar notas numa disciplina da sua instituição.
      *
-     * Professor, Director e Subdirector podem lançar notas.
+     * Director, Subdirector e Secretaria podem lançar notas em qualquer disciplina
+     * da instituição. Professor só pode lançar notas na disciplina que lecciona.
      */
     public function create(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
     {
-        if (! $user->can('notas.create') || $user->instituicao_id === null) {
-            return false;
-        }
-
-        if ($user->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])) {
-            return true; // já garantido pelo instituicao_id acima, se aplicável ao teu modelo
-        }
-
-        if ($user->hasRole('Professor')) {
-            return $tdp !== null
-                && $tdp->professor_id === $user->professor?->id;
-        }
-
-        return false;
-    }
-
-    /**
-     * Determina se o utilizador pode editar uma nota.
-     *
-     * Director e Subdirector podem editar qualquer nota da sua instituição
-     *
-     * Professor só pode editar notas que ele próprio lançou,
-     *
-     * Bloqueio por período fechado será implementado futuramente.
-     */
-    public function update(User $user, Nota $nota): bool
-    {
-        if (! $user->can('notas.update')) {
-            return false;
-        }
-
-        $nota->loadMissing('turmaDisciplinaProfessor.professor.user');
-
-        if ($user->hasAnyRole(['Director', 'Subdirector'])) {
-            return $nota->turmaDisciplinaProfessor
-                ?->professor
-                ?->user
-                ?->instituicao_id === $user->instituicao_id;
-        }
-
-        return $nota->turmaDisciplinaProfessor?->professor_id === $user->professor?->id;
-    }
-
-    /**
-     * Determina se o utilizador pode exportar a mini pauta.
-     *
-     * Staff (Director, Subdirector, Secretaria) pode exportar qualquer disciplina da sua instituição.
-     * Professor só pode exportar a pauta da disciplina que ele próprio lecciona.
-     */
-    public function export(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
-    {
-        if (! $user->can('notas.export') || $user->instituicao_id === null) {
+        if ($user->hasRole('Secretario do Curso')
+            || ! $user->can('notas.create')
+            || $user->instituicao_id === null) {
             return false;
         }
 
@@ -94,9 +46,62 @@ class NotaPolicy
     }
 
     /**
-     * Determina se o utilizador pode apagar uma nota.
+     * Determina se o usuário pode actualizar uma nota.
      *
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Director e Subdirector podem actualizar qualquer nota da sua instituição.
+     *
+     * Professor só pode actualizar notas da disciplina que lecciona.
+     *
+     * O bloqueio por período fechado deve ser validado por uma regra própria.
+     */
+    public function update(User $user, Nota $nota): bool
+    {
+        if ($user->hasRole('Secretario do Curso') || ! $user->can('notas.update')) {
+            return false;
+        }
+
+        $nota->loadMissing('turmaDisciplinaProfessor.professor.user');
+
+        if ($user->hasAnyRole(['Director', 'Subdirector'])) {
+            return $nota->turmaDisciplinaProfessor
+                ?->professor
+                ?->user
+                ?->instituicao_id === $user->instituicao_id;
+        }
+
+        return $nota->turmaDisciplinaProfessor?->professor_id === $user->professor?->id;
+    }
+
+    /**
+     * Determina se o usuário pode exportar a mini-pauta.
+     *
+     * Director, Subdirector e Secretaria podem exportar qualquer disciplina da
+     * sua instituição. Professor só pode exportar a disciplina que lecciona.
+     */
+    public function export(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
+    {
+        if ($user->hasRole('Secretario do Curso')
+            || ! $user->can('notas.export')
+            || $user->instituicao_id === null) {
+            return false;
+        }
+
+        if ($user->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])) {
+            return true;
+        }
+
+        if ($user->hasRole('Professor')) {
+            return $tdp !== null
+                && $tdp->professor_id === $user->professor?->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determina se o usuário pode eliminar uma nota.
+     *
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function delete(User $user, Nota $nota): bool
     {
@@ -104,7 +109,9 @@ class NotaPolicy
     }
 
     /**
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Determina se o usuário pode restaurar uma nota.
+     *
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function restore(User $user, Nota $nota): bool
     {
@@ -112,7 +119,9 @@ class NotaPolicy
     }
 
     /**
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Determina se o usuário pode eliminar permanentemente uma nota.
+     *
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function forceDelete(User $user, Nota $nota): bool
     {

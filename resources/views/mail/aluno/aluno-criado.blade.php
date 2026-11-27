@@ -252,6 +252,7 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         {{-- Header --}}
         <div class="header">
@@ -283,25 +284,37 @@
         </p>
 
         @if (!empty($email))
-            <div class="credential-item">
+        <div class="credential-item">
 
-                <div class="item-text">
-                    <div class="label">Email de acesso</div>
-                    <div class="sublabel">{{ $email }}</div>
-                </div>
-
+            <div class="item-text">
+                <div class="label">Email de acesso</div>
+                <div class="sublabel">{{ $email }}</div>
             </div>
+
+        </div>
         @endif
 
         @if (!empty($password))
-            <div class="credential-item">
+        <div class="credential-item">
 
-                <div class="item-text">
-                    <div class="label">Password de acesso</div>
-                    <div class="sublabel">{{ $password }}</div>
-                </div>
-
+            <div class="item-text">
+                <div class="label">Password de acesso</div>
+                <div class="sublabel">{{ $password }}</div>
             </div>
+
+        </div>
+        @endif
+
+        @if ($perfilIncompleto)
+        <div class="warning-banner"
+            style="margin:20px 24px; background:#fef7e0; border:1px solid #f9ab00; border-radius:8px; padding:14px 16px;">
+            <div class="title" style="font-size:13px; font-weight:500; color:#b06000; margin-bottom:4px;">
+                Complete o seu perfil
+            </div>
+            <p style="font-size:12px; color:#5f6368; line-height:1.5;">
+                Preencha os dados obrigatórios da sua conta para concluir a configuração do perfil.
+            </p>
+        </div>
         @endif
 
         {{-- Password Recommendation --}}
@@ -331,20 +344,6 @@
             </a>
 
         </div>
-
-        {{-- Access Link --}}
-        <p class="access-link">
-
-            Se o botão acima não funcionar, copie e cole o seguinte endereço
-            no seu navegador:
-
-            <br><br>
-
-            <a href="{{ $url }}" target="_blank">
-                {{ $url }}
-            </a>
-
-        </p>
 
         {{-- Footer --}}
         <div class="footer">

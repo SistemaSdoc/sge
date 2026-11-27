@@ -13,7 +13,10 @@ class ElementoGrupoPapPolicy
         $instituicaoId = $user->instituicao_id;
 
         return $instituicaoId !== null
-            && $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicao_tutora_id === $instituicaoId;
+            && (
+                $grupoPap->instituicao()?->id === $instituicaoId
+                || $grupoPap->instituicaoTutora()?->id === $instituicaoId
+            );
     }
 
     /**
@@ -38,7 +41,8 @@ class ElementoGrupoPapPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('elementogrupopap.create');
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('elementogrupopap.create');
     }
 
     /**
@@ -46,12 +50,17 @@ class ElementoGrupoPapPolicy
      */
     public function update(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
-        return $user->can('elementogrupopap.update')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('elementogrupopap.update')
             && $this->pertenceAoGrupoOuTutela($user, $elementoGrupoPap->grupoPap);
     }
 
     public function atualizarNota(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         $grupoPap = $elementoGrupoPap->grupoPap;
 
         // Data de defesa tem de estar definida e já ter chegado
@@ -73,7 +82,8 @@ class ElementoGrupoPapPolicy
      */
     public function delete(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
-        return $user->can('elementogrupopap.delete')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('elementogrupopap.delete')
             && $this->pertenceAoGrupoOuTutela($user, $elementoGrupoPap->grupoPap);
     }
 

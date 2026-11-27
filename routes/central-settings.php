@@ -5,13 +5,17 @@ use App\Http\Controllers\Central\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:web'])->group(function () {
-    Route::redirect('settings', '/settings/profile')->name('settings');
+    Route::get('settings', fn () => to_route('central.dashboard.profile.edit'))
+        ->name('settings')
+        ->withoutMiddleware('verified');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+        ->name('profile.edit')
+        ->withoutMiddleware('verified');
 
     Route::patch('settings/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
+        ->name('profile.update')
+        ->withoutMiddleware('verified');
 });
 
 Route::middleware(['auth:web', 'verified'])->group(function () {
@@ -26,5 +30,6 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'tenant/settings/appearance')
-        ->name('appearance.edit');
+        ->name('appearance.edit')
+        ->withoutMiddleware('verified');
 });

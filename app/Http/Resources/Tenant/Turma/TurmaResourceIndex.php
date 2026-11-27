@@ -19,6 +19,7 @@ class TurmaResourceIndex extends JsonResource
         return [
             'id' => $this->id,
             'nome' => $this->nome,
+            'sala' => $this->sala,
             'instituicao' => [
                 'id' => $this->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao->id,
             ],

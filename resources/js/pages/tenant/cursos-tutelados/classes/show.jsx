@@ -31,16 +31,20 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { BookOpenIcon, UsersIcon, Haze } from 'lucide-react';
+import { BookOpenIcon, Haze, Trash2, UsersIcon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
-import { destroy } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
+import { destroy as destroyDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import {
   show as showTurma,
   create as createTurma,
+  destroy as destroyTurma,
   edit as editTurma,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
+import {
+  create,
+  edit as editTurno,
+} from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 import { cn } from '@/lib/utils';
 import { Header } from './components/classe-header';
 
@@ -116,7 +120,7 @@ export default function Show({
       confirmLabel: 'Remover',
       confirmFn: () =>
         router.delete(
-          destroy[
+          destroyDisciplina[
             '/dashboard/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/disciplinas/{classeTurnoDisciplina}'
           ]({
             ...params,
@@ -136,6 +140,20 @@ export default function Show({
             },
           },
         ),
+    });
+  };
+
+  const handleRemoverTurma = (turma) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'A turma só pode ser removida se não tiver alunos associados.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(destroyTurma({ ...params, turma: turma.id }).url, {
+          onError: (errors) =>
+            toast.error(errors.turma ?? 'Não foi possível remover a turma.'),
+        }),
     });
   };
 
@@ -162,13 +180,16 @@ export default function Show({
   )?.nome;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-4 p-4 md:p-6">
       {/* Header com Breadcrumb */}
       <Header
         can={can}
         turnos={turnos}
         params={params}
         anoLectivoAtualNome={anoLectivoAtualNome}
+        instituicao={instituicao}
+        cursoTutelado={cursoTutelado}
+        cursoClasse={cursoClasse}
       />
 
       {turnos.length > 0 ? (
@@ -196,10 +217,16 @@ export default function Show({
                       !isLastInRow && 'border-r border-foreground/10',
                     )}
                   >
-                    <h3 className="mb-1 text-sm font-medium">{turno.nome}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {isActive ? 'A visualizar' : 'Clique aqui para ver'}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="mb-1 text-sm font-medium">
+                          {turno.nome}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {isActive ? 'A visualizar' : 'Clique aqui para ver'}
+                        </p>
+                      </div>
+                    </div>
                   </button>
                 );
               })}
@@ -234,31 +261,38 @@ export default function Show({
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* DISCIPLINAS */}
                 <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
-                  <CardHeader className="border-b">
-                    <CardTitle className="flex! gap-2">
-                      Disciplinas ({disciplinas?.total ?? 0})
-                    </CardTitle>
+                  <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <CardTitle className="flex! gap-2">
+                        Disciplinas ({disciplinas?.total ?? 0})
+                      </CardTitle>
 
-                    <CardDescription>
-                      Disciplinas do turno da{' '}
-                      <span>
-                        {
-                          turnos.find((turno) => turno.id === selectedTurnoId)
-                            ?.nome
-                        }
-                      </span>
-                    </CardDescription>
+                      <CardDescription>
+                        Disciplinas do turno da{' '}
+                        <span>
+                          {
+                            turnos.find((turno) => turno.id === selectedTurnoId)
+                              ?.nome
+                          }
+                        </span>
+                      </CardDescription>
+                    </div>
 
                     {can.disciplina.create && (
-                      <CardAction>
-                        <Button asChild size="sm">
+                      <CardAction className="w-full sm:w-auto">
+                        <Button asChild size="sm" className="w-full sm:w-auto">
                           <Link
                             data={{ redirect_to: window.location.href }}
-                            href={`${
-                              createDisciplina({
-                                ...params,
-                              }).url
-                            }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
+                            href={
+                              createDisciplina(
+                                { ...params },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoSelecionado,
+                                  },
+                                },
+                              ).url
+                            }
                           >
                             Adicionar Disciplina
                           </Link>
@@ -278,11 +312,14 @@ export default function Show({
                           can.disciplina.create
                             ? {
                                 label: 'Adicionar Disciplina',
-                                href: `${
-                                  createDisciplina({
-                                    ...params,
-                                  }).url
-                                }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
+                                href: createDisciplina(
+                                  { ...params },
+                                  {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoSelecionado,
+                                    },
+                                  },
+                                ).url,
                                 variant: 'outline',
                               }
                             : undefined
@@ -299,9 +336,11 @@ export default function Show({
                               <TableHead className="text-center">
                                 Nome
                               </TableHead>
-                              <TableHead className="px-4 text-right">
-                                Acções
-                              </TableHead>
+                              {can.disciplina.delete && (
+                                <TableHead className="px-4 text-right">
+                                  Acções
+                                </TableHead>
+                              )}
                             </TableRow>
                           </TableHeader>
 
@@ -309,26 +348,34 @@ export default function Show({
                             {disciplinas.data.map((disc) => (
                               <TableRow key={disc.id}>
                                 <TableCell className="px-4 font-medium">
-                                  {disc.disciplina.sigla}
+                                  {disc.disciplina?.sigla ?? '—'}
                                 </TableCell>
 
-                                <TableCell className="text-center">
-                                  {disc.disciplina.nome}
+                                <TableCell className="flex items-center justify-center gap-2 text-center">
+                                  {disc.disciplina?.nome ??
+                                    'Disciplina arquivada'}
+                                  {disc.disciplina?.deleted_at && (
+                                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                                      Arquivada
+                                    </span>
+                                  )}
                                 </TableCell>
 
-                                <TableCell className="px-4 text-right">
-                                  <Button
-                                    size="xs"
-                                    variant="destructive"
-                                    className="text-[10px]"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteDisciplina(disc.id);
-                                    }}
-                                  >
-                                    Remover
-                                  </Button>
-                                </TableCell>
+                                {can.disciplina.delete && (
+                                  <TableCell className="px-4 text-right">
+                                    <Button
+                                      size="xs"
+                                      variant="destructive"
+                                      className="text-[10px] hover:cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteDisciplina(disc.id);
+                                      }}
+                                    >
+                                      Remover
+                                    </Button>
+                                  </TableCell>
+                                )}
                               </TableRow>
                             ))}
                           </TableBody>
@@ -348,29 +395,38 @@ export default function Show({
 
                 {/* TURMAS */}
                 <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
-                  <CardHeader className="border-b">
-                    <CardTitle className="flex! gap-2">
-                      Turmas ({turmas?.total ?? 0})
-                    </CardTitle>
+                  <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <CardTitle className="flex! gap-2">
+                        Turmas ({turmas?.total ?? 0})
+                      </CardTitle>
 
-                    <CardDescription>
-                      Turmas do turno da{' '}
-                      <span>
-                        {
-                          turnos.find((turno) => turno.id === selectedTurnoId)
-                            ?.nome
-                        }
-                      </span>
-                    </CardDescription>
+                      <CardDescription>
+                        Turmas do turno da{' '}
+                        <span>
+                          {
+                            turnos.find((turno) => turno.id === selectedTurnoId)
+                              ?.nome
+                          }
+                        </span>
+                      </CardDescription>
+                    </div>
 
                     {can.turma.create && (
-                      <CardAction>
-                        <Button asChild size="sm">
+                      <CardAction className="w-full sm:w-auto">
+                        <Button asChild size="sm" className="w-full sm:w-auto">
                           <Link
                             href={
-                              createTurma({
-                                ...params,
-                              }).url
+                              createTurma(
+                                {
+                                  ...params,
+                                },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoSelecionado,
+                                  },
+                                },
+                              ).url
                             }
                           >
                             Adicionar Turma
@@ -391,9 +447,14 @@ export default function Show({
                           can.turma.create
                             ? {
                                 label: 'Adicionar Turma',
-                                href: createTurma({
-                                  ...params,
-                                }).url,
+                                href: createTurma(
+                                  { ...params },
+                                  {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoSelecionado,
+                                    },
+                                  },
+                                ).url,
                                 variant: 'outline',
                               }
                             : undefined
@@ -407,6 +468,7 @@ export default function Show({
                           <TableHeader>
                             <TableRow className="bg-muted/72">
                               <TableHead className="px-4">Nome</TableHead>
+                              <TableHead className="px-4">Sala</TableHead>
                               <TableHead className="text-center">
                                 Alunos
                               </TableHead>
@@ -425,16 +487,28 @@ export default function Show({
                                 onClick={() => {
                                   if (turma.can?.view) {
                                     router.visit(
-                                      showTurma({
-                                        ...params,
-                                        turma: turma.id,
-                                      }).url,
+                                      showTurma(
+                                        {
+                                          ...params,
+                                          turma: turma.id,
+                                        },
+                                        {
+                                          query: {
+                                            ano_lectivo_id:
+                                              anoLectivoSelecionado,
+                                          },
+                                        },
+                                      ).url,
                                     );
                                   }
                                 }}
                               >
                                 <TableCell className="px-4 font-medium">
                                   {turma.nome}
+                                </TableCell>
+
+                                <TableCell className="px-4 font-medium">
+                                  {turma.sala || 'Por definir'}
                                 </TableCell>
 
                                 <TableCell className="text-center">
@@ -446,18 +520,40 @@ export default function Show({
                                     <Button
                                       variant="outline"
                                       size="xs"
-                                      className="text-[10px]"
+                                      className="text-[10px] hover:cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         router.visit(
-                                          editTurma({
-                                            ...params,
-                                            turma: turma.id,
-                                          }).url + '?origem=classe',
+                                          editTurma(
+                                            {
+                                              ...params,
+                                              turma: turma.id,
+                                            },
+                                            {
+                                              query: {
+                                                origem: 'classe',
+                                                ano_lectivo_id:
+                                                  anoLectivoSelecionado,
+                                              },
+                                            },
+                                          ).url,
                                         );
                                       }}
                                     >
                                       Editar
+                                    </Button>
+                                  )}
+                                  {turma?.can?.delete && (
+                                    <Button
+                                      variant="destructive"
+                                      size="xs"
+                                      className="ml-2 text-[10px] hover:cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoverTurma(turma);
+                                      }}
+                                    >
+                                      Remover
                                     </Button>
                                   )}
                                 </TableCell>

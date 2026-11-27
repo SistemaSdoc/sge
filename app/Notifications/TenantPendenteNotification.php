@@ -2,13 +2,17 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TenantPendenteNotification extends Notification
+class TenantPendenteNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     /**
      * Create a new notification instance.
@@ -38,7 +42,7 @@ class TenantPendenteNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Registo recebido — aguarda aprovação')
-            ->markdown('mail.tenant-pendente-notification', [
+            ->view('mail.tenant-pendente-notification', [
                 'nomeInstituicao' => $this->nomeInstituicao,
                 'nomeUser' => $this->nomeUser,
                 'subdomain' => $this->subdomain,

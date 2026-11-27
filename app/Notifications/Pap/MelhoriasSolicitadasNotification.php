@@ -3,13 +3,19 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MelhoriasSolicitadasNotification extends Notification
+class MelhoriasSolicitadasNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public GrupoPap $grupoPap,
@@ -31,7 +37,7 @@ class MelhoriasSolicitadasNotification extends Notification
         $cursoTutelado = $classe->cursoTutelado;
         $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
-        $url = route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+        $url = $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $classe->id,
@@ -61,7 +67,7 @@ class MelhoriasSolicitadasNotification extends Notification
         $cursoTutelado = $classe->cursoTutelado;
         $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
-        $url = route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+        $url = $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $classe->id,

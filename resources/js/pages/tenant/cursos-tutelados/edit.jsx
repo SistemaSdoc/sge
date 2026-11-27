@@ -15,6 +15,14 @@ export default function Edit({
     classes: Array.isArray(cursoTutelado?.classes) ? cursoTutelado.classes : [],
   });
 
+  const herancaInicial = cursoTutelado?.tenant_tutor_id
+    ? {
+        nivel_ensino_id: cursoTutelado.nivel_ensino_id,
+        nivel_ensino_nome: cursoTutelado.nivel_ensino_nome,
+        classes: cursoTutelado.classes_detalhes ?? [],
+      }
+    : null;
+
   const parms = {
     instituicao,
     cursoTutelado,
@@ -27,7 +35,7 @@ export default function Edit({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
+    <div className="mx-auto w-full max-w-5xl">
       <CursoForm
         title="Editar curso tutelado"
         instituicao={instituicao}
@@ -40,6 +48,9 @@ export default function Edit({
         processing={processing}
         onSubmit={handleSubmit}
         tutelaPendente={cursoTutelado?.tutela_pendente}
+        cursoId={cursoTutelado.curso_id}
+        herancaInicial={herancaInicial}
+        classesDetalhes={cursoTutelado.classes_detalhes ?? []}
       />
     </div>
   );

@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Http\Requests\Tenant\User;
+
+use App\Models\Tenant\User;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
+
+class UpdateUserRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        /** @var User|null $actor */
+        $actor = $this->user('tenant');
+        $target = $this->route('user');
+
+        return $actor instanceof User
+            && $target instanceof User
+            && $actor->can('update', $target);
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        $user = $this->route('user');
+
+        return [
+            'nome' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user)],
+            'telefone' => ['nullable', 'string', 'max:15'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'roles' => ['sometimes', 'nullable', 'array'],
+            'roles.*' => [Rule::in($this->allowedRoles())],
+        ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var User|null $actor */
+            $actor = $this->user('tenant');
+            $target = $this->route('user');
+            $hasRoleErrors = collect($validator->errors()->keys())
+                ->contains(fn (string $key): bool => $key === 'roles' || str_starts_with($key, 'roles.'));
+
+            if (
+                ! $actor instanceof User
+                || ! $target instanceof User
+                || ! $actor->is($target)
+                || ! $target->isDirector()
+                || ! $this->exists('roles')
+                || $hasRoleErrors
+            ) {
+                return;
+            }
+
+            $requestedRoles = collect($this->input('roles'))
+                ->filter(fn ($role): bool => is_string($role))
+                ->sort()
+                ->values()
+                ->all();
+
+            if (! in_array('Director', $requestedRoles, true)) {
+                $validator->errors()->add(
+                    'roles',
+                    'Não pode remover o papel Director da própria conta.'
+                );
+            }
+        });
+    }
+
+    private function allowedRoles(): array
+    {
+        /** @var User $actor */
+        $actor = auth()->guard('tenant')->user();
+        $user = $this->route('user');
+
+        $query = Role::query()
+            ->where('guard_name', 'tenant')
+            ->whereNotIn('name', ['SuperAdmin']);
+
+        if ($actor?->isSubdirector()) {
+            $query->whereNotIn('name', ['Director', 'Subdirector']);
+        }
+
+        $currentRoleNames = $user->roles->pluck('name')->all();
+
+        return $query->pluck('name')
+            ->merge($currentRoleNames)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'nome.required' => 'Insira o nome do usuário.',
+            'nome.string' => 'O nome do usuário deve ser um texto válido.',
+            'nome.max' => 'O nome do usuário não pode ultrapassar 255 caracteres.',
+            'email.required' => 'Insira o e-mail do usuário.',
+            'email.email' => 'Insira um e-mail válido.',
+            'email.max' => 'O e-mail não pode ultrapassar 255 caracteres.',
+            'email.unique' => 'Este e-mail já está associado a outro usuário.',
+            'telefone.string' => 'O telefone deve ser um texto válido.',
+            'telefone.max' => 'O telefone não pode ultrapassar 15 caracteres.',
+            'password.string' => 'A palavra-passe deve ser um texto válido.',
+            'password.min' => 'A palavra-passe deve ter pelo menos 8 caracteres.',
+            'password.confirmed' => 'A confirmação da palavra-passe não corresponde.',
+            'roles.array' => 'A lista de roles deve ser válida.',
+            'roles.*.exists' => 'Uma das roles selecionadas não existe.',
+        ];
+    }
+}

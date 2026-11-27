@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+import { ArrowLeft, ArrowUpLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -9,6 +11,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { index } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 export function ProfessorForm({
   title,
@@ -20,7 +23,7 @@ export function ProfessorForm({
   submitFn,
 }) {
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-2xl">
       <form onSubmit={submitFn}>
         <Card>
           <CardHeader className="border-b">
@@ -129,8 +132,19 @@ export function ProfessorForm({
                 </div>
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
+                  <Button
+                    type="submit"
+                    disabled={processing}
+                    className="hover:cursor-pointer"
+                  >
                     {processing ? 'Cadastrando...' : submitLabel}
+                  </Button>
+
+                  <Button asChild variant="outline">
+                    <Link href={index().url}>
+                      <ArrowUpLeft aria-hidden="true" />
+                      Voltar à lista de professores
+                    </Link>
                   </Button>
                 </Field>
               </FieldSet>

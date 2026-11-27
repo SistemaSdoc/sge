@@ -1,9 +1,7 @@
 <?php
 
-use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\ExportarMiniPautaController;
 use App\Http\Controllers\Tenant\ExportarPautaController;
-use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,43 +15,30 @@ use Illuminate\Support\Facades\Route;
 */
 
 /**
- * Mostra a lista de cursos tutelados da instituição do user logado
- */
-Route::get('pautas/cursos', [PautaController::class, 'indexCursos'])
-    ->name('pautas.cursos');
-
-/**
- * Mostra a lista de turmas de um curso tutelado
- */
-Route::get('pautas/cursos/{cursoTutelado}/turmas', [PautaController::class, 'indexTurmas'])
-    ->name('pautas.cursos.turmas');
-
-/**
- * Mostra a pauta de uma turma de um curso tutelado
- */
-Route::get('pautas/cursos/{cursoTutelado}/turmas/{turma}/pauta', [PautaController::class, 'pauta'])
-    ->name('pautas.cursos.turmas.pauta');
-
-/**
  * Exporta a mini-pauta de uma disciplina de uma turma.
  */
 Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina'])
+    ->middleware('notes.two-factor:discipline')
     ->name('exportar.mini-pauta.disciplina');
 
 /**
- * Exporta a pauta completa de uma turma.
+ * Exporta a pauta de uma turma específica curso.
  */
 Route::get('pautas/cursos/{cursoTutelado}/turmas/{turma}/exportar-pauta/excel', [ExportarPautaController::class, 'exportarExcel'])
+    ->middleware('notes.two-factor:pauta')
     ->name('exportar.pauta');
 
-Route::post('pautas/solicitar-edicao', [SolicitacaoEdicaoPautaController::class, 'store'])
-    ->name('pautas.solicitar-edicao');
-
-Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
-    ->name('pauta');
-
+/**
+ * Mostra a lista de solicitações de edição de pautas.
+ */
 Route::get('pautas/solicitacoes', [SolicitacaoEdicaoPautaController::class, 'index'])
     ->name('pautas.solicitacoes.index');
+
+/**
+ * Salva
+ */
+Route::post('pautas/solicitar-edicao', [SolicitacaoEdicaoPautaController::class, 'store'])
+    ->name('pautas.solicitar-edicao');
 
 Route::post('pautas/solicitacoes/{solicitacao}/decidir', [SolicitacaoEdicaoPautaController::class, 'decidir'])
     ->name('pautas.solicitacoes.decidir');

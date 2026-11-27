@@ -1,19 +1,16 @@
-import { useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { TabBanca } from './components/tabs/tab-banca';
-//import { TabAprovacao } from './components/tabs/tab-aprovacao';
-import { TabHistorico } from './components/tabs/tab-historico';
-import { Card, CardContent } from '@/components/ui/card';
 import { Minus, MoreHorizontalIcon, FileText } from 'lucide-react';
-import { TabIntegrantes } from './components/tabs/tab-integrantes';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
+import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/Colegios/ElementoGrupoPapController';
+import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
+import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController'; // ajustar o import real
+import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+//import { TabAprovacao } from './components/tabs/tab-aprovacao';
 import {
   Dialog,
   DialogContent,
@@ -21,21 +18,23 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
-import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
-import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
-import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
-import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/Colegios/ElementoGrupoPapController';
-import { FieldError } from '@/components/ui/field';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePagination } from '@/hooks/use-pagination';
 // Adicionar no topo dos imports
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController'; // ajustar o import real
 import { TabAprovacao } from './components/tabs/tab-aprovacao';
-import { TabTrabalho } from './components/tabs/tab-trabalho';
+import { TabBanca } from './components/tabs/tab-banca';
+import { TabHistorico } from './components/tabs/tab-historico';
+import { TabIntegrantes } from './components/tabs/tab-integrantes';
+import { TabTrabalho } from './components/tabs/tab-trabalho/tab-trabalho';
 
 export default function Show({
   instituicao,
@@ -45,6 +44,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  currentUserId,
   trabalho,
   historico,
   banca,
@@ -98,10 +98,13 @@ export default function Show({
   const submeterDataDefesa = () => {
     if (!data.data_defesa) {
       setError('data_defesa', 'A data da defesa é obrigatória.');
+
       return;
     }
+
     if (!data.hora_defesa) {
       setError('hora_defesa', 'A hora da defesa é obrigatória.');
+
       return;
     }
 
@@ -264,6 +267,24 @@ export default function Show({
               </a>
             </div>
           )}
+
+          {grupoPap?.sugestoes_temas_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Sugestões de Temas PAP
+              </p>
+
+              <a
+                href={grupoPap.sugestoes_temas_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -272,7 +293,10 @@ export default function Show({
         open={dialogDataAberto}
         onOpenChange={(aberto) => {
           setDialogDataAberto(aberto);
-          if (!aberto) reset();
+
+          if (!aberto) {
+            reset();
+          }
         }}
       >
         <DialogContent className="sm:max-w-md">
@@ -416,6 +440,7 @@ export default function Show({
             pagination={elementos}
             onPageChange={elementosPagination.handlePageChange}
             can={can}
+            currentUserId={currentUserId}
           />
         </TabsContent>
         {can?.verBanca && (
@@ -427,6 +452,7 @@ export default function Show({
               pagination={banca}
               onPageChange={bancaPagination.handlePageChange}
               can={can}
+              currentUserId={currentUserId}
             />
           </TabsContent>
         )}
@@ -439,7 +465,6 @@ export default function Show({
           <TabsContent value="trabalho">
             <TabTrabalho
               params={params}
-              grupoPap={grupoPap}
               trabalho={trabalho}
               can={can}
               errors={pageErrors}

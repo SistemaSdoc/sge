@@ -10,19 +10,31 @@ use App\Notifications\Aluno\AlunoCriadoNotification;
 use App\Notifications\Aluno\AlunoTransferidoTurmaNotification;
 use App\Notifications\Aluno\PagamentoRegistadoNotification;
 use App\Notifications\Aluno\PropinaEmAtrasoNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 
 trait NotificaAluno
 {
+    use TenantNotificationUrl;
+
+    /**
+     * Notifica o aluno com as credenciais da conta recém-criada.
+     */
     protected function notificarAlunoCriado(
         User $user,
-        string $passwordPlain
+        string $passwordPlain,
+        bool $perfilIncompleto = false,
     ): void {
         $user->notify(new AlunoCriadoNotification(
             $user,
-            $passwordPlain
+            $passwordPlain,
+            $this->tenantNotificationUrl('tenant.login'),
+            $perfilIncompleto,
         ));
     }
 
+    /**
+     * Informa o aluno sobre a transferência para uma nova turma.
+     */
     protected function notificarAlunoTransferidoTurma(
         Aluno $aluno,
         Turma $turma
@@ -37,6 +49,9 @@ trait NotificaAluno
         }
     }
 
+    /**
+     * Envia ao aluno o aviso de propina em atraso.
+     */
     protected function notificarPropinaEmAtraso(
         User $user,
         int $totalMeses,
@@ -52,6 +67,9 @@ trait NotificaAluno
         ));
     }
 
+    /**
+     * Confirma ao utilizador o registo de um pagamento.
+     */
     protected function notificarPagamentoRegistado(
         User $user,
         Pagamento $pagamento

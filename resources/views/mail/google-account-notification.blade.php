@@ -248,14 +248,13 @@
 </head>
 <body>
 <div class="email-wrapper">
-
     {{-- Header --}}
     <div class="header">
         {{-- Substitui pela logo da tua aplicação --}}
         <img
             class="logo"
             src="{{ $logoUrl ?? asset('images/logo.png') }}"
-            alt="{{ config('app.name') }}"
+            alt="{{ $institutionLogoAlt ?? config('app.name') }}"
         >
 
         <h1>{{ $title ?? 'Acompanhe os dados da sua Conta' }}</h1>

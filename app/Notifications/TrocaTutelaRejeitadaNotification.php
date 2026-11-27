@@ -2,17 +2,22 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Informa o colégio de que a instituição tutora rejeitou a troca.
  */
-class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQueue
+class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoRejeitou,
@@ -20,9 +25,7 @@ class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQue
         public string $cursoNome,
         public string $sharedId,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>
@@ -57,12 +60,11 @@ class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $defaultUrl = config('app.url').'/dashboard';
-        $finalUrl = $this->url ?: $defaultUrl;
+        $finalUrl = $this->url ?: $this->tenantNotificationUrl('tenant.dashboard');
 
         return (new MailMessage)
             ->subject('Troca de tutela rejeitada')
-            ->markdown('mail.troca-tutela-rejeitada-notification', [
+            ->view('mail.troca-tutela-rejeitada-notification', [
                 'nomeInstituicaoRejeitou' => $this->instituicaoRejeitou,
                 'nomeInstituicaoProposta' => $this->instituicaoProposta,
                 'nomeCurso' => $this->cursoNome,

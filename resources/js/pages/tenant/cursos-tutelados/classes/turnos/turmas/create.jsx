@@ -8,11 +8,14 @@ export default function Create({
   cursoClasse,
   cursoClasseTurno,
   anosLectivos = [],
+  anoLectivoId = null,
   can = {},
 }) {
   const { data, setData, post, processing, errors } = useForm({
     nome: '',
+    sala: '',
     max_alunos: '',
+    ano_lectivo_id: anoLectivoId,
   });
 
   const params = {
@@ -37,6 +40,7 @@ export default function Create({
       setData={setData}
       errors={errors}
       processing={processing}
+      anosLectivos={anosLectivos}
       can={can}
       onSubmit={handleSubmit}
     />

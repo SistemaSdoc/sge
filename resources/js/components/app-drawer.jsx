@@ -13,7 +13,9 @@ import { Button } from '@/components/ui/button';
 
 /**
  * Componente visual global do drawer.
+ *
  * Lê o estado do store e renderiza o drawer com o conteúdo fornecido.
+ *
  * Deve ser montado uma única vez no AppLayout.
  */
 export function AppDrawer() {
@@ -46,10 +48,11 @@ export function AppDrawer() {
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               aria-label="Fechar drawer"
+              className="hover:cursor-pointer"
             >
-              <X className="size-4" />
+              <X />
             </Button>
           </DrawerClose>
         </DrawerHeader>

@@ -15,6 +15,7 @@ export default function Edit({
 }) {
   const { data, setData, put, processing, errors } = useForm({
     nome: turma?.nome ?? '',
+    sala: turma?.sala ?? '',
     max_alunos: turma?.max_alunos ?? '',
     origem: origem,
     ano_lectivo_id: anoLectivoId,

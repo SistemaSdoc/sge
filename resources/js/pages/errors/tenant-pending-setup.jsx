@@ -9,7 +9,7 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Spinner } from '@/components/spinner';
-import { Sparkles } from 'lucide-react';
+import { Settings, Sparkles } from 'lucide-react';
 
 const states = {
   pending: {
@@ -45,7 +45,7 @@ export default function Page() {
       <Empty className="gap-6 p-0">
         <EmptyHeader className="max-w-xl gap-4">
           <EmptyMedia variant="icon">
-            <Sparkles aria-hidden="true" />
+            <Settings aria-hidden="true" />
           </EmptyMedia>
           <EmptyTitle>{current.title}</EmptyTitle>
           <EmptyDescription>{current.description}</EmptyDescription>

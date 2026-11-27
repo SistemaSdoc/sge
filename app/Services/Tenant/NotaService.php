@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
@@ -100,10 +100,12 @@ class NotaService
                 $dados
             );
 
-            $this->recalcularFinal(
-                $turmaAlunoId,
-                $tdpId
-            );
+            if ($periodo !== 4) {
+                $this->recalcularFinal(
+                    $turmaAlunoId,
+                    $tdpId
+                );
+            }
         }
     }
 
@@ -200,6 +202,7 @@ class NotaService
 
         $notas = Nota::where('turma_aluno_id', $turmaAlunoId)
             ->where('turma_disciplina_professor_id', $tdpId)
+            ->whereIn('periodo', [1, 2, 3])
             ->get()
             ->keyBy('periodo');
 
@@ -207,7 +210,7 @@ class NotaService
         $temTresTrimestres = collect([1, 2, 3])
             ->every(
                 fn ($p) => isset($notas[$p]) &&
-                ! is_null($notas[$p]->media_trimestral)
+                    ! is_null($notas[$p]->media_trimestral)
             );
 
         if (! $temTresTrimestres) {
@@ -235,26 +238,6 @@ class NotaService
         $situacaoAnual = $this->situacaoAnual($mediaFinal, $temEEF);
 
         // ──────────────────────────────────────────────
-        // RECURSO (PERÍODO 4)
-        // ──────────────────────────────────────────────
-
-        $mediaFinalEfectiva = $mediaFinal;
-
-        if (
-            isset($notas[4]) &&
-            ! is_null($notas[4]->media_trimestral)
-        ) {
-            $mediaRecurso = (float) $notas[4]->media_trimestral;
-
-            $situacaoAnual = $mediaRecurso >= Nota::NOTA_MINIMA_APTO
-                ? 'APTO'
-                : 'N/APTO';
-
-            // media_final passa a reflectir a nota do recurso
-            $mediaFinalEfectiva = $mediaRecurso;
-        }
-
-        // ──────────────────────────────────────────────
         // ACTUALIZAR TODOS OS REGISTOS
         // ──────────────────────────────────────────────
 
@@ -264,7 +247,7 @@ class NotaService
             }
 
             $nota->fill([
-                'media_final' => $mediaFinalEfectiva,
+                'media_final' => $mediaFinal,
                 'situacao_anual' => $nota->periodo === 3
                     ? $situacaoAnual
                     : null,
@@ -384,10 +367,12 @@ class NotaService
         $nota->save();
 
         // Recalcular final
-        $this->recalcularFinal(
-            $nota->turma_aluno_id,
-            $nota->turma_disciplina_professor_id
-        );
+        if ($nota->periodo !== 4) {
+            $this->recalcularFinal(
+                $nota->turma_aluno_id,
+                $nota->turma_disciplina_professor_id
+            );
+        }
     }
 
     // ──────────────────────────────────────────────
@@ -473,7 +458,7 @@ class NotaService
         if (in_array($status->status, ['finalizada', 'expirada'])) {
             $temAutorizacao = SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdpId)
                 ->where('periodo', $periodo)
-                ->where('tipo', 'edicao')
+                ->whereIn('tipo', ['reabertura_edicao', 'extensao_prazo']) // ← corrigido
                 ->where('status', 'aprovada')
                 ->whereNull('usada_em')
                 ->where('prazo_edicao_ate', '>', now())

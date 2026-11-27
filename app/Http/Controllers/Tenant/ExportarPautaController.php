@@ -2,22 +2,35 @@
 
 namespace App\Http\Controllers\Tenant;
 
-use App\Exports\PautaExport;
-use App\Exports\PautaFinalExport;
+use App\Actions\Tenant\Pauta\PreparePautaFinalTemplateExport;
+use App\Actions\Tenant\Pauta\PreparePautaTrimestralTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Disciplina as CentralDisciplina;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\User;
+use App\Services\Tenant\Core\RegraAcademicaService;
+use App\Services\Tenant\Pauta\NotasClasseAnterior;
+use App\Services\Tenant\Pauta\ResolvePautaTemplatePath;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportarPautaController extends Controller
 {
+    public function __construct(
+        private readonly RegraAcademicaService $regraAcademicaService,
+        private readonly NotasClasseAnterior $notasClasseAnterior,
+        private readonly PreparePautaTrimestralTemplateExport $preparePautaTrimestralTemplateExport,
+        private readonly PreparePautaFinalTemplateExport $preparePautaFinalTemplateExport,
+        private readonly ResolvePautaTemplatePath $resolvePautaTemplatePath,
+    ) {}
+
     public function exportarExcel(
         string $cursoTutelado,
         string $turma,
@@ -37,6 +50,16 @@ class ExportarPautaController extends Controller
                 ->first();
 
             if ($shared) {
+                if ($user?->hasRole('Secretario do Curso')) {
+                    abort_unless(
+                        $user->instituicao?->tipo === 'instituto'
+                            && $user->cursosSecretariados()
+                                ->whereHas('instituicaoCurso', fn ($query) => $query->where('curso_id', $shared->curso_id))
+                                ->exists(),
+                        404,
+                    );
+                }
+
                 abort_unless($user?->can('pautas.view'), 403);
 
                 return Tenant::findOrFail($shared->tenant_tutelado_id)
@@ -49,10 +72,31 @@ class ExportarPautaController extends Controller
 
         if (! $remoteTutor) {
             $this->authorize('pauta.view', $turma);
+        } elseif ($user?->hasRole('Secretario do Curso')) {
+            abort_unless(
+                (string) $turma->cursoClasseTurno?->cursoClasse?->curso_tutelado_id === (string) $cursoTutelado->getKey(),
+                404,
+            );
         }
 
         $periodo = $request->query('periodo'); // '1', '2', '3' ou null (final)
         $isTrimestral = in_array($periodo, ['1', '2', '3'], true);
+        $isFinal = $periodo === null || $periodo === 'final';
+        $templatePath = match (true) {
+            $isTrimestral => $this->resolvePautaTemplatePath->resolveTrimestral($turma),
+            $isFinal => $this->resolvePautaTemplatePath->resolveFinal($turma),
+            default => null,
+        };
+
+        if ($templatePath !== null && TurmaDisciplinaProfessor::query()->where('turma_id', $turma->getKey())->exists()) {
+            $export = $isTrimestral
+                ? $this->preparePautaTrimestralTemplateExport->handle($turma, (int) $periodo)
+                : $this->preparePautaFinalTemplateExport->handle($turma);
+            $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
+            $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.xlsx';
+
+            return Excel::download($export, $filename);
+        }
 
         // ── Contexto da turma ──────────────────────────────────
         $turma->loadMissing([
@@ -97,65 +141,53 @@ class ExportarPautaController extends Controller
                 ? $q->where('periodo', $periodo)
                 : $q, // final: carrega todos os períodos
         ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->where('situacao', 'activo')
-            ->orderBy('created_at')
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
+            ->where('turma_aluno.activo', true)
+            ->where('turma_aluno.situacao', 'activo')
+            ->orderBy('candidatos.nome')
+            ->orderBy('turma_aluno.id')
             ->get();
+
+        $historicoNotas = $isTrimestral
+            ? ['disciplinas' => [], 'alunos' => []]
+            : $this->notasClasseAnterior->obterTodas(
+                $turma,
+                $turmaAlunos->pluck('aluno_id')->map(fn ($id): string => (string) $id)->all(),
+            );
+        $disciplinasHistoricas = CentralDisciplina::query()
+            ->whereIn('id', array_keys($historicoNotas['disciplinas']))
+            ->get(['id', 'nome', 'sigla'])
+            ->map(fn (CentralDisciplina $disciplina): array => [
+                'id' => (string) $disciplina->getKey(),
+                'nome' => $disciplina->nome,
+                'sigla' => $disciplina->sigla,
+            ]);
 
         // ── Montar dados dos alunos ────────────────────────────
         $alunos = $turmaAlunos
             ->values()
-            ->map(fn ($ta, $index) => $this->montarDadosAluno(
-                ta: $ta,
-                index: $index,
-                disciplinas: $disciplinas,
-                isTrimestral: $isTrimestral,
-            ))
+            ->map(function (TurmaAluno $turmaAluno, int $index) use ($disciplinas, $isTrimestral, $historicoNotas): array {
+                $aluno = $this->montarDadosAluno(
+                    ta: $turmaAluno,
+                    index: $index,
+                    disciplinas: $disciplinas,
+                    isTrimestral: $isTrimestral,
+                );
+
+                if (! $isTrimestral) {
+                    $aluno['notas_historicas'] = $historicoNotas['alunos'][(string) $turmaAluno->aluno_id] ?? [];
+                }
+
+                return $aluno;
+            })
             ->toArray();
 
-        // ── Exportar ───────────────────────────────────────────────────
-        if ($isTrimestral) {
-            $export = new PautaExport(
-                disciplinas: $disciplinas->map(fn ($d) => [
-                    'nome' => $d['nome'],
-                    'sigla' => $d['sigla'] ?? mb_substr($d['nome'], 0, 6),
-                ])->toArray(),
-                alunos: $alunos,
-                curso: $nomeCurso,
-                turma: $turma->nome,
-                anoLetivo: $nomeAnoLectivo,
-                instituicao: $nomeInstituicao,
-                sala: $turma->sala ?? '',
-                classe: $nomeClasse,
-                periodo: (string) $periodo,
-                areaFormacao: $nomeCurso,
-                director: $nomeDirector,
-                logoPath: public_path('images/insignia_angola.png'),
-            );
-        } else {
-            $export = new PautaFinalExport(
-                disciplinas: $disciplinas->map(fn ($d) => [
-                    'nome' => $d['nome'],
-                    'sigla' => $d['sigla'] ?? mb_substr($d['nome'], 0, 4), // fallback
-                ])->toArray(),
-                alunos: $alunos,
-                curso: $nomeCurso,
-                turma: $turma->nome,
-                anoLetivo: $nomeAnoLectivo,
-                instituicao: $nomeInstituicao,
-                sala: '',
-                classe: $nomeClasse,
-                areaFormacao: $nomeCurso,
-                director: $nomeDirector,
-                logoPath: public_path('images/insignia_angola.png'),
-            );
-        }
-
-        $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
-        $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.xlsx';
-
-        return Excel::download($export, $filename);
+        abort(404, 'Não existe um template Excel válido para esta pauta.');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -180,7 +212,10 @@ class ExportarPautaController extends Controller
 
         $resultado = $isTrimestral
             ? $this->resolverResultadoTrimestral($notas)
-            : $this->resolverResultadoFinal($notas);
+            : $this->resolverResultadoFinal(
+                $this->regraAcademicaService->resolverSituacaoAcademica($ta),
+                $disciplinas,
+            );
 
         return [
             'numero' => $index + 1,
@@ -224,12 +259,14 @@ class ExportarPautaController extends Controller
         $t2 = $p(2);
         $t3 = $p(3);
 
-        // media_final vem de qualquer linha não-nula (é a mesma em todas)
-        $mf = collect([$t1, $t2, $t3])
-            ->filter()
-            ->whereNotNull('media_final')
-            ->first()
-            ?->media_final;
+        $mediasTrimestrais = collect([
+            $t1?->media_trimestral,
+            $t2?->media_trimestral,
+            $t3?->media_trimestral,
+        ]);
+        $mf = $mediasTrimestrais->contains(fn ($media): bool => $media === null)
+            ? null
+            : round($mediasTrimestrais->avg(), 1, PHP_ROUND_HALF_UP);
 
         return [
             $disc['nome'] => [
@@ -269,23 +306,56 @@ class ExportarPautaController extends Controller
     }
 
     /**
-     * Resultado final — lido da situacao_anual.
-     * EEF tem prioridade sobre N/APTO.
+     * Resolve o resultado final sem depender do estado alterado pelas notas de recurso.
      */
-    private function resolverResultadoFinal(array $notas): string
+    private function resolverResultadoFinal(array $resultadoAcademico, Collection $disciplinas): string
     {
-        $lancadas = collect($notas)->filter(
-            fn ($n) => $n && $n['situacao_anual'] !== null
-        );
+        $detalhes = collect($resultadoAcademico['detalhes'] ?? []);
 
-        if ($lancadas->isEmpty()) {
-            return 'INCOMPLETO';
-        }
-
-        return match (true) {
-            $lancadas->contains(fn ($n) => $n['situacao_anual'] === 'EEF') => 'EEF',
-            $lancadas->contains(fn ($n) => $n['situacao_anual'] === 'N/APTO') => 'N/TRANSITA',
-            default => 'TRANSITA',
+        return match ($resultadoAcademico['situacao'] ?? 'incompleto') {
+            'transita' => 'TRANSITA',
+            'transita_com_deficiencia' => $this->resultadoComDisciplinas(
+                'TRANSITA COM DEFICIÊNCIA',
+                $detalhes,
+                $disciplinas,
+                'transita_com_deficiencia',
+            ),
+            'recurso' => $this->resultadoComDisciplinas(
+                'RECURSO',
+                $detalhes,
+                $disciplinas,
+                'recurso',
+            ),
+            'EEF' => 'EEF',
+            'reprovado', 'reprovado_negativas' => 'N/TRANSITA',
+            default => 'INCOMPLETO',
         };
+    }
+
+    private function resultadoComDisciplinas(
+        string $resultado,
+        Collection $detalhes,
+        Collection $disciplinas,
+        string $situacaoDisciplina,
+    ): string {
+        $siglasDisciplinas = $detalhes
+            ->where('situacao', $situacaoDisciplina)
+            ->pluck('disciplina_id')
+            ->map(function (string $disciplinaId) use ($disciplinas): ?string {
+                $disciplina = $disciplinas->firstWhere('id', $disciplinaId);
+
+                if (! $disciplina) {
+                    return null;
+                }
+
+                return mb_strtoupper($disciplina['sigla'] ?? mb_substr($disciplina['nome'], 0, 4));
+            })
+            ->filter(fn (?string $sigla): bool => $sigla !== null && $sigla !== '')
+            ->unique()
+            ->implode(', ');
+
+        return $siglasDisciplinas === ''
+            ? $resultado
+            : "{$resultado}: {$siglasDisciplinas}";
     }
 }

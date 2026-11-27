@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -22,7 +23,8 @@ use Illuminate\Database\Eloquent\Model;
     'data_aprovacao',
     'comentario_aprovacao',
     'estudo_caso',
-    'objectivos',
+    'objectivo_geral',
+    'objectivos_especificos',
     'problema',
     'trabalho_grupo',
     'status',
@@ -34,7 +36,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class GrupoPap extends Model
 {
-    use HasUuid;
+    use HasSearch, HasUuid;
+
+    protected array $searchable = [
+        'nome_grupo',
+        'tema_grupo',
+    ];
 
     protected $table = 'grupo_pap';
 

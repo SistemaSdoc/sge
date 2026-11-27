@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -16,15 +15,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Minus, Users2Icon } from 'lucide-react';
+import { ChevronDown, Download, Users2Icon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Link } from '@inertiajs/react';
-import { usePagination } from '@/hooks/use-pagination';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
 } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import exportarListaGruposPap from '@/actions/App/Actions/Tenant/Turma/ExportarListaGruposPap';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 //import {create} from '@/routes/cursos-tutelados/classes/turnos/turmas/disciplinas/professores'
 //import {create} from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController'
 
@@ -33,47 +42,123 @@ export function TabGruposPAP({
   grupos,
   pagination,
   onPageChange,
+  search = '',
   can,
   params,
 }) {
-  const turmaId = turma.id;
+  const {
+    search: searchTerm,
+    onChange,
+    submit,
+    applied,
+  } = useTableSearch(search, {
+    searchParam: 'search_grupos',
+    pageParam: 'page_grupos',
+  });
   const isEmpty = grupos.length === 0;
-
-  const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
     <Card className="gap-0 pb-0">
-      <CardHeader className="border-b">
-        <CardTitle>Grupos para PAP</CardTitle>
-        <CardDescription>
-          Grupos de aptidão profissional desta turma
-        </CardDescription>
-        {can?.create && (
-          <CardAction>
-            <Button asChild>
-              <Link
-                href={create({
-                  instituicao: params.instituicao.id,
-                  cursoTutelado: params.cursoTutelado.id,
-                  cursoClasse: params.cursoClasse.id,
-                  cursoClasseTurno: params.cursoClasseTurno.id,
-                  turma: params.turma,
-                })}
-              >
-                Criar grupo
-              </Link>
-            </Button>
-          </CardAction>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <CardTitle>Grupos para PAP</CardTitle>
+          <CardDescription>
+            Grupos de aptidão profissional desta turma
+          </CardDescription>
+        </div>
+        {(can?.create || can?.exportar) && (
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            {can?.exportar && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="hover:cursor-pointer">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    Exportar
+                    <ChevronDown />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild className="hover:cursor-pointer">
+                    <a
+                      href={
+                        exportarListaGruposPap({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma,
+                        }).url
+                      }
+                    >
+                      Exportar PDF
+                    </a>
+                  </DropdownMenuItem>
+
+                  <Separator />
+
+                  <DropdownMenuItem asChild className="hover:cursor-pointer">
+                    <a
+                      href={
+                        exportarListaGruposPap(
+                          {
+                            instituicao: params.instituicao.id,
+                            cursoTutelado: params.cursoTutelado.id,
+                            cursoClasse: params.cursoClasse.id,
+                            cursoClasseTurno: params.cursoClasseTurno.id,
+                            turma: params.turma,
+                          },
+                          { query: { formato: 'excel' } },
+                        ).url
+                      }
+                    >
+                      Exportar Excel
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {can?.create && (
+              <Button size={'sm'} className="w-full sm:w-auto" asChild>
+                <Link
+                  href={create({
+                    instituicao: params.instituicao.id,
+                    cursoTutelado: params.cursoTutelado.id,
+                    cursoClasse: params.cursoClasse.id,
+                    cursoClasseTurno: params.cursoClasseTurno.id,
+                    turma: params.turma,
+                  })}
+                >
+                  Criar grupo
+                </Link>
+              </Button>
+            )}
+          </div>
         )}
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch
+          value={searchTerm}
+          onChange={onChange}
+          onSubmit={submit}
+          placeholder="Pesquisar por grupo ou tema..."
+        />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={Users2Icon}
-            title="Nenhum grupo criado, ainda"
-            description="Comece adicionando grupos"
+            title={
+              applied ? 'Nenhum grupo encontrado' : 'Nenhum grupo criado, ainda'
+            }
+            description={
+              applied
+                ? 'Tente ajustar a pesquisa.'
+                : 'Comece adicionando grupos'
+            }
             action={
               can?.create
                 ? {
@@ -101,38 +186,51 @@ export function TabGruposPAP({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grupos.map((grupo) => (
-                <TableRow
-                  key={grupo.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                        cursoClasse: params.cursoClasse.id,
-                        cursoClasseTurno: params.cursoClasseTurno.id,
-                        turma: params.turma,
-                        grupoPap: grupo.id,
-                      }),
-                    )
-                  }
-                >
-                  <TableCell className="px-4 font-medium">
-                    {grupo.nome}
-                  </TableCell>
+              {grupos.map((grupo) => {
+                const canView = Boolean(grupo.can?.view);
+                return (
+                  <TableRow
+                    key={grupo.id}
+                    className={canView ? 'hover:cursor-pointer' : 'opacity-70'}
+                    aria-disabled={!canView}
+                    onClick={() => {
+                      if (!canView) {
+                        return;
+                      }
 
-                  <TableCell>{grupo.tema}</TableCell>
+                      router.visit(
+                        show({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma,
+                          grupoPap: grupo.id,
+                        }),
+                      );
+                    }}
+                  >
+                    <TableCell className="px-4 font-medium">
+                      {grupo.nome}
+                    </TableCell>
 
-                  <TableCell>{grupo.status}</TableCell>
+                    <TableCell>{grupo.tema}</TableCell>
 
-                  <TableCell className="text-end">
-                    <Button variant="outline" size="xs" className="text-[10px]">
-                      Ver detalhes
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell>{grupo.status}</TableCell>
+
+                    <TableCell className="text-end">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="text-[10px]"
+                        disabled={!canView}
+                      >
+                        Ver detalhes
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}

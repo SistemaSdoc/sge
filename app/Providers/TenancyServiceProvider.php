@@ -8,6 +8,7 @@ use App\Events\TenantActivated;
 use App\Jobs\ProvisionTenantJob;
 use App\Listeners\ResetPermissionCache;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -34,11 +35,17 @@ class TenancyServiceProvider extends ServiceProvider
             Events\TenantUpdated::class => [],
             Events\DeletingTenant::class => [],
             Events\TenantDeleted::class => [
-                JobPipeline::make([
-                    Jobs\DeleteDatabase::class,
-                ])->send(function (Events\TenantDeleted $event) {
-                    return $event->tenant;
-                })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
+                function (Events\TenantDeleted $event): void {
+                    $deleteDatabase = JobPipeline::make([
+                        Jobs\DeleteDatabase::class,
+                    ])->send(static fn (Events\TenantDeleted $event) => $event->tenant)
+                        ->shouldBeQueued(false)
+                        ->toListener();
+
+                    DB::afterCommit(function () use ($deleteDatabase, $event): void {
+                        $deleteDatabase($event);
+                    });
+                },
             ],
             TenantActivated::class => [
                 function (TenantActivated $event): void {

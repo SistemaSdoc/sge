@@ -2,26 +2,13 @@
 
 namespace App\Models\Tenant;
 
-use App\Traits\HasUuid;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Model;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
+use App\Models\Central\Disciplina as CentralDisciplina;
 
-#[Fillable([
-    'nome',
-    'sigla',
-    'componente',
-    'carga_horaria',
-])]
-
-class Disciplina extends Model
+/**
+ * Compatibilidade para código tenant legado; os dados vivem na conexão central.
+ */
+class Disciplina extends CentralDisciplina
 {
-    use CentralConnection, HasUuid;
-
-    protected $table = 'disciplinas';
-
-    protected $primaryKey = 'id';
-
     public function classeTurnoDisciplinas()
     {
         return $this->hasMany(ClasseTurnoDisciplina::class);

@@ -8,20 +8,8 @@ use Illuminate\Foundation\Http\FormRequest;
 class InstituicoesRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuario pode executar a operação.
      */
-    protected function prepareForValidation(): void
-    {
-        \Log::info('DEBUG Instituicao Request', [
-            'method' => $this->method(),
-            'all' => $this->all(),
-            'files' => $this->allFiles(),
-            'content_length_header' => $this->header('Content-Length'),
-            'content_type' => $this->header('Content-Type'),
-            'raw_body_length' => strlen($this->getContent()),
-        ]);
-    }
-
     public function authorize(): bool
     {
         return true;
@@ -40,7 +28,7 @@ class InstituicoesRequest extends FormRequest
             'nome' => 'required|string|max:255',
             'sigla' => 'nullable|string|max:50',
             'tipo' => 'required|in:instituto,colegio',
-            'email' => 'required|email|max:255|unique:instituicoes,email,'.$id,
+            'email' => 'nullable|email|max:255|unique:instituicoes,email,'.$id,
             'telefone' => 'nullable|max:20',
             'provincia' => 'nullable|string|max:100',
             'endereco' => 'nullable|string|max:255',
@@ -57,7 +45,6 @@ class InstituicoesRequest extends FormRequest
             'nome.required' => 'O nome da instituição é obrigatório.',
             'tipo.required' => 'O tipo da instituição é obrigatório.',
             'tipo.in' => 'O tipo da instituição deve ser "instituto" ou "colegio".',
-            'email.required' => 'O email é obrigatório.',
             'email.email' => 'O email deve ser um endereço de email válido.',
             'email.unique' => 'O email já está em uso.',
             'logo.image' => 'O logo deve ser uma imagem.',

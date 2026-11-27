@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\AnoLectivo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -60,7 +61,7 @@ class ConfirmacaoMatricula extends Model
 
     public function confirmadoPor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'confirmado_por');
+        return $this->belongsTo(User::class, 'confirmado_por')->withTrashed();
     }
 
     // ═══════════════════════════════════════════════════════════════

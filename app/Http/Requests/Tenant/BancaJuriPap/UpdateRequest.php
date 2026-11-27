@@ -18,12 +18,16 @@ class UpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $professorRules = ['required', 'uuid'];
+
+        if (! $this->route('colegio')) {
+            $professorRules[] = 'exists:professores,id';
+            $professorRules[] = new ProfessorNaoNaBanca($this->route('grupoPap'), $this->route('bancaJuriPap'));
+        }
+
         return [
-            'professor_id' => [
-                'required',
-                'exists:professores,id',
-                new ProfessorNaoNaBanca($this->route('grupoPap'), $this->route('bancaJuriPap')),
-            ],
+            'professor_id' => $professorRules,
+            'professor_externo_tenant_id' => ['nullable', 'string'],
             'funcao' => 'required|string|in:Presidente,Vogal 1,Vogal 2',
         ];
     }
@@ -31,7 +35,7 @@ class UpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'professor_id.required' => 'Seleciona um professor.',
+            'professor_id.required' => 'Selecione um professor.',
             'professor_id.exists' => 'O professor selecionado não existe.',
             'funcao.required' => 'Seleciona uma função.',
             'funcao.in' => 'A função deve ser Presidente, Vogal 1 ou Vogal 2.',

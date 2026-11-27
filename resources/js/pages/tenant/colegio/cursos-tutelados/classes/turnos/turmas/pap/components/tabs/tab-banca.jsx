@@ -25,6 +25,7 @@ import { MoreHorizontalIcon, Minus, Users2Icon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { EmptyState } from '@/components/empty-state';
 import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import {
   create as adicionarJurado,
   edit,
@@ -38,6 +39,7 @@ export function TabBanca({
   onPageChange,
   removerJuradoFn,
   can,
+  currentUserId,
 }) {
   const jurados = pagination?.data ?? [];
   const isEmpty = jurados.length === 0;
@@ -92,10 +94,13 @@ export function TabBanca({
               {jurados.map((j) => (
                 <TableRow
                   key={j.id}
-                  className="hover:cursor-pointer"
+                  className={j.can_view ? 'hover:cursor-pointer' : undefined}
                   onClick={() =>
+                    j.can_view &&
                     router.visit(
-                      showProfessor.url({ professor: j.professor_id }),
+                      String(currentUserId) === String(j.user_id)
+                        ? showUser.url({ user: j.user_id })
+                        : showProfessor.url({ professor: j.professor_id }),
                     )
                   }
                 >

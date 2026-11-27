@@ -1,7 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import {
   Card,
-  CardAction,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -19,13 +18,13 @@ import { BookOpen } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { pauta } from '@/actions/App/Http/Controllers/Tenant/PautaController';
 
-export default function Index({
+export default function TurmasCurso({
   cursoTutelado,
-  turmas = [],
+  turmas = { data: [] },
   anosLectivos = [],
   anoLectivoActual,
 }) {
-  const isEmpty = !turmas || turmas.length === 0;
+  const listaTurmas = turmas.data ?? turmas;
 
   const handleAnoLectivoChange = (value) => {
     router.visit(window.location.pathname, {
@@ -39,7 +38,7 @@ export default function Index({
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-xl font-bold">
-            {cursoTutelado ? `Pautas — ${cursoTutelado.curso?.nome}` : 'Pautas'}
+            Pautas — {cursoTutelado?.curso?.nome}
           </h1>
           <p className="text-muted-foreground">
             Selecione uma turma para visualizar a pauta
@@ -47,7 +46,7 @@ export default function Index({
         </div>
 
         <Select
-          value={anoLectivoActual ?? ''}
+          value={String(anoLectivoActual ?? '')}
           onValueChange={handleAnoLectivoChange}
         >
           <SelectTrigger id="ano-lectivo" className="w-48">
@@ -56,8 +55,8 @@ export default function Index({
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Anos Lectivos</SelectLabel>
-              {anosLectivos?.map((ano) => (
-                <SelectItem key={ano.id} value={ano.id}>
+              {anosLectivos.map((ano) => (
+                <SelectItem key={ano.id} value={String(ano.id)}>
                   {ano.nome}
                 </SelectItem>
               ))}
@@ -66,49 +65,28 @@ export default function Index({
         </Select>
       </div>
 
-      {isEmpty ? (
+      {listaTurmas.length === 0 ? (
         <EmptyState
           icon={BookOpen}
           title="Nenhuma pauta disponível"
-          description="Não tem acesso a nenhuma turma com pautas"
+          description="Não existem turmas neste curso para o ano lectivo seleccionado"
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {turmas.map((turma) => {
-            const podeVer = turma.can?.view_pauta;
-
-            const card = (
-              <Card
-                aria-disabled={!podeVer}
-                className="h-full hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-              >
+          {listaTurmas.map((turma) => (
+            <Link key={turma.id} href={pauta({ turma: turma.id })}>
+              <Card className="h-full hover:cursor-pointer">
                 <CardHeader>
                   <CardTitle>
                     {turma.nome} - {turma.classe} - {turma.turno}
                   </CardTitle>
                   <CardDescription>
-                    {podeVer
-                      ? 'Clique para ver a pauta'
-                      : 'Sem acesso a esta turma'}
+                    Clique para consultar a pauta
                   </CardDescription>
                 </CardHeader>
               </Card>
-            );
-
-            return podeVer ? (
-              <Link
-                key={turma.id}
-                href={
-                  pauta({ cursoTutelado: cursoTutelado.id, turma: turma.id })
-                    .url
-                }
-              >
-                {card}
-              </Link>
-            ) : (
-              <div key={turma.id}>{card}</div>
-            );
-          })}
+            </Link>
+          ))}
         </div>
       )}
     </div>

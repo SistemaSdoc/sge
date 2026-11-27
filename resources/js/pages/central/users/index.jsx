@@ -6,7 +6,7 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/Central/UserController';
 
-export default function Index({ users, can }) {
+export default function Index({ users, can, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (userId) => {
@@ -21,17 +21,21 @@ export default function Index({ users, can }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Head title="Usuários" />
       <UserTable
         can={can}
         users={users.data}
+        filters={filters}
         deleteFn={handleDelete}
         pagination={{
           current_page: users.current_page,

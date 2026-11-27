@@ -1,0 +1,180 @@
+import { Link } from '@inertiajs/react';
+import { Users } from 'lucide-react';
+import {
+  edit,
+  create,
+} from '@/actions/App/Http/Controllers/Tenant/UserController';
+import { create as managePermissions } from '@/actions/App/Http/Controllers/Tenant/UserPermissionController';
+import { EmptyState } from '@/components/empty-state';
+import TablePagination from '@/components/table-pagination';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
+export function UserTable({
+  users,
+  filters,
+  pagination,
+  onPageChange,
+  deleteFn,
+}) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['users', 'filters'],
+    },
+  );
+  const isEmpty = !users?.data?.length;
+  return (
+    <Card className="mx-auto w-full max-w-7xl gap-0">
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Usuários</CardTitle>
+          <CardDescription>Lista de usuários cadastrados</CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={create().url}>Adicionar usuário</Link>
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+        {isEmpty ? (
+          <EmptyState
+            variant="table"
+            icon={Users}
+            title={
+              applied
+                ? 'Nenhum usuário encontrado'
+                : 'Nenhum usuário cadastrado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Clique no botão abaixo para adicionar um usuário.'
+            }
+            action={{
+              label: 'Adicionar usuário',
+              href: create().url,
+              variant: 'outline',
+            }}
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/72">
+                <TableHead className="px-4">Nome</TableHead>
+                <TableHead className="px-4">Funções</TableHead>
+                <TableHead className="px-4 text-right">Acções</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.data.map((user) => {
+                const visibleRoles = user.roles.slice(0, 3);
+                const hiddenRolesCount = Math.max(
+                  user.roles.length - visibleRoles.length,
+                  0,
+                );
+                const canEditUser = Boolean(user.can?.update);
+                const canDeleteUser = Boolean(user.can?.delete);
+                const canManagePermissions = Boolean(
+                  user.can?.manage_permissions,
+                );
+                return (
+                  <TableRow key={user.id}>
+                    <TableCell className="px-4 font-medium">
+                      <div className="flex items-center gap-3">
+                        <ProfileAvatarPreview
+                          src={user.avatar}
+                          name={user.nome}
+                        />
+
+                        <div className="flex flex-col">
+                          <span className="text-xs">{user.nome}</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {user.email}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="px-4">
+                      <div
+                        className="flex flex-wrap items-center gap-1"
+                        title={user.roles.join(', ')}
+                      >
+                        {visibleRoles.length ? (
+                          <>
+                            <span>{visibleRoles.join(', ')}</span>
+                            {hiddenRolesCount > 0 && (
+                              <Badge className="text-[10px]">
+                                +{hiddenRolesCount}
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            Sem funções atribuídas
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="px-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {canManagePermissions && (
+                          <Button variant="outline" size="xs">
+                            <Link href={managePermissions(user.id).url}>
+                              Gerir permissões
+                            </Link>
+                          </Button>
+                        )}
+
+                        {canEditUser && (
+                          <Button variant="outline" size="xs">
+                            <Link href={edit(user.id).url}>Editar</Link>
+                          </Button>
+                        )}
+
+                        {canDeleteUser && (
+                          <Button
+                            variant="destructive"
+                            size="xs"
+                            onClick={() => deleteFn(user)}
+                            className="hover:cursor-pointer"
+                          >
+                            Remover
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
+    </Card>
+  );
+}

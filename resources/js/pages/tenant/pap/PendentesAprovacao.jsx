@@ -1,11 +1,11 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
-import InfoGrupoBox from './components/InfoGrupoBox';
-import ModalDecisaoAprovacao from './components/ModalDecisaoAprovacao';
+import InfoGrupoBox from './components/aprovacao/InfoGrupoBox';
+import ModalDecisaoAprovacao from './components/aprovacao/ModalDecisaoAprovacao';
 
 export default function PendentesAprovacao({
   temasPendentes = [],
@@ -31,7 +31,9 @@ export default function PendentesAprovacao({
    * Fechar modal
    */
   const fecharModal = () => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     setSelectedTema(null);
     setAction(null);
@@ -42,7 +44,9 @@ export default function PendentesAprovacao({
    * Aprovar tema
    */
   const handleAprovar = () => {
-    if (!selectedTema) return;
+    if (!selectedTema) {
+      return;
+    }
 
     setLoading(true);
 
@@ -68,7 +72,9 @@ export default function PendentesAprovacao({
    * Reprovar tema
    */
   const handleReprovar = () => {
-    if (!selectedTema) return;
+    if (!selectedTema) {
+      return;
+    }
 
     if (comentario.trim().length < 10) {
       return;
@@ -98,7 +104,9 @@ export default function PendentesAprovacao({
    * Solicitar melhoria
    */
   const handleMelhoria = () => {
-    if (!selectedTema) return;
+    if (!selectedTema) {
+      return;
+    }
 
     if (comentario.trim().length < 10) {
       return;

@@ -13,26 +13,27 @@ class PermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            // Tenants
-            'tenants.viewAny',
-            'tenants.view',
-            'tenants.create',
-            'tenants.update',
-            'tenants.delete',
+            'tenants.viewAny' => 'Ver inquilinos',
+            'tenants.view' => 'Ver inquilino',
+            'tenants.create' => 'Criar inquilino',
+            'tenants.update' => 'Editar inquilino',
+            'tenants.delete' => 'Eliminar inquilino',
 
-            // Users
-            'users.viewAny',
-            'users.view',
-            'users.create',
-            'users.update',
-            'users.delete',
+            'users.viewAny' => 'Ver utilizadores',
+            'users.view' => 'Ver utilizador',
+            'users.create' => 'Criar utilizador',
+            'users.update' => 'Editar utilizador',
+            'users.delete' => 'Eliminar utilizador',
         ];
 
-        foreach ($permissions as $permission) {
+        foreach ($permissions as $permission => $label) {
             Permission::firstOrCreate(
-                ['name' => $permission],
-                ['guard_name' => 'web']
+                ['name' => $permission, 'guard_name' => 'web'],
             );
+
+            Permission::where('name', $permission)
+                ->where('guard_name', 'web')
+                ->update(['label' => null]);
         }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Tenant\InstituicaoCurso;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Rules\CentralAnoLectivoExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +17,7 @@ class StoreProfessorRequest extends FormRequest
     {
         return [
             'professor_id' => ['required', 'exists:professores,id'],
-            'ano_lectivo_id' => ['nullable', Rule::exists(AnoLectivo::class, 'id')],
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ];
     }
 

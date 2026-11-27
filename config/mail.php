@@ -79,10 +79,19 @@ return [
             'transport' => 'array',
         ],
 
+        // 'failover' => [
+        //     'transport' => 'failover',
+        //     'mailers' => [
+        //         'smtp',
+        //         'log',
+        //     ],
+        //     'retry_after' => 60,
+        // ],
+
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
+                'resend',
                 'log',
             ],
             'retry_after' => 60,

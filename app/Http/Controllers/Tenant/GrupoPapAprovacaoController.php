@@ -3,13 +3,25 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
+use App\Rules\EstudoCasoPapUnico;
+use App\Rules\TemaPapUnico;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Traits\NotificaGrupoPap;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class GrupoPapAprovacaoController extends Controller
 {
@@ -19,16 +31,26 @@ class GrupoPapAprovacaoController extends Controller
         private AprovacaoTemaService $service
     ) {}
 
+    private function autorizarDecisaoPap(): User
+    {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
+
+        return $user;
+    }
+
     /**
      * Listar temas PAP pendentes de aprovação
      * para o coordenador do curso.
      */
     public function pendentes()
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
         // O utilizador precisa estar associado a um professor
-        if (! $user->professor) {
+        if ($user->hasAnyRole(['Director', 'Subdirector']) || ! $user->professor) {
             return inertia('tenant/pap/PendentesAprovacao', [
                 'temasPendentes' => [],
                 'rotaAprovar' => null,
@@ -55,9 +77,147 @@ class GrupoPapAprovacaoController extends Controller
         ]);
     }
 
-    public function aprovarTutor(Request $request, GrupoPap $grupoPap)
-    {
-        $this->authorize('aprovarComoTutor', $grupoPap);
+    public function formSolicitarMelhoriaCoordenacao(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('solicitarMelhoria', $grupoPap);
+
+        $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+
+        return Inertia::render('tenant/pap/decisao-coordenacao/solicitar-melhoria', [
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivo_geral', 'objectivos_especificos'),
+            'turma' => $turma->only('nome'),
+            'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria', [
+                'grupoPap' => $grupoPap->id,
+            ]),
+            'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function formAprovarCoordenacao(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovar', $grupoPap);
+
+        return $this->renderFormularioCoordenacao(
+            'tenant/pap/decisao-coordenacao/aprovar',
+            $instituicao,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            'tenant.dashboard.grupo-pap-aprovacao.aprovar',
+        );
+    }
+
+    public function formReprovarCoordenacao(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('reprovar', $grupoPap);
+
+        return $this->renderFormularioCoordenacao(
+            'tenant/pap/decisao-coordenacao/reprovar',
+            $instituicao,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            'tenant.dashboard.grupo-pap-aprovacao.reprovar',
+        );
+    }
+
+    private function renderFormularioCoordenacao(
+        string $component,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+        string $submitRoute,
+    ): Response {
+        $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+
+        return Inertia::render($component, [
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivo_geral', 'objectivos_especificos'),
+            'turma' => $turma->only('nome'),
+            'submitUrl' => route($submitRoute, ['grupoPap' => $grupoPap->id]),
+            'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function formAprovarTutor(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovarComoTutor', $grupoPap);
+
+        $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+
+        return Inertia::render('tenant/pap/decisao-tutor/enviar-para-coordenacao', [
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivo_geral', 'objectivos_especificos'),
+            'turma' => $turma->only('nome'),
+            'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.aprovar-tutor', $params),
+            'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function formSolicitarMelhoriaTutor(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoriaComoTutor', $grupoPap);
+
+        $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+
+        return Inertia::render('tenant/pap/decisao-tutor/solicitar-melhoria', [
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivo_geral', 'objectivos_especificos'),
+            'turma' => $turma->only('nome'),
+            'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-tutor', $params),
+            'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function aprovarTutor(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): RedirectResponse {
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([
             'comentario' => 'nullable|string|max:2000',
@@ -75,7 +235,8 @@ class GrupoPapAprovacaoController extends Controller
                 'estado_novo' => GrupoPap::APROVACAO_PENDENTE,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
-                'objectivos' => $grupoPap->objectivos,
+                'objectivo_geral' => $grupoPap->objectivo_geral,
+                'objectivos_especificos' => $grupoPap->objectivos_especificos,
                 'comentario' => $validated['comentario'] ?? 'Aprovado pelo professor tutor.',
             ]);
         });
@@ -84,7 +245,14 @@ class GrupoPapAprovacaoController extends Controller
         $this->notificarTemaValidadoPeloTutor($grupoPap);
         // ──────────────────────────────────────────────────────
 
-        return back()->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        ))->with('toast', [
             'type' => 'success',
             'message' => 'Tema enviado para a coordenação.',
         ]);
@@ -93,9 +261,16 @@ class GrupoPapAprovacaoController extends Controller
     /**
      * Solicitar melhoria no tema PAP como tutor.
      */
-    public function solicitarMelhoriaComoTutor(Request $request, GrupoPap $grupoPap)
-    {
-        $this->authorize('solicitarMelhoriaComoTutor', $grupoPap);
+    public function solicitarMelhoriaComoTutor(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): RedirectResponse {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoriaComoTutor', $grupoPap);
 
         $validated = $request->validate([
             'recomendacao' => 'required|string|min:10|max:2000',
@@ -114,7 +289,8 @@ class GrupoPapAprovacaoController extends Controller
                 'estado_novo' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
-                'objectivos' => $grupoPap->objectivos,
+                'objectivo_geral' => $grupoPap->objectivo_geral,
+                'objectivos_especificos' => $grupoPap->objectivos_especificos,
                 'comentario' => $validated['recomendacao'],
             ]);
         });
@@ -122,7 +298,14 @@ class GrupoPapAprovacaoController extends Controller
         $grupoPap->load('alunos.user');
         $this->notificarMelhoriasSolicitadas($grupoPap, 'tutor');
 
-        return back()->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        ))->with('toast', [
             'type' => 'warning',
             'message' => 'Melhoria solicitada aos alunos.',
         ]);
@@ -133,7 +316,8 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function aprovar(Request $request, GrupoPap $grupoPap)
     {
-        $this->authorize('aprovar', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovar', $grupoPap);
 
         // Verificar se pode ser aprovado
         if (! $grupoPap->podeSerAprovado()) {
@@ -148,7 +332,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->aprovar(
             $grupoPap,
-            Auth::guard('tenant')->user(),
+            $user,
             $validated['comentario'] ?? null
         );
 
@@ -172,7 +356,8 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('reprovar', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('reprovar', $grupoPap);
 
         // O motivo da reprovação é obrigatório
         $validated = $request->validate([
@@ -187,7 +372,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar reprovação
         $resultado = $this->service->reprovar(
             $grupoPap,
-            Auth::guard('tenant')->user(),
+            $user,
             $validated['motivo']
         );
 
@@ -209,12 +394,36 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function atualizar(Request $request, GrupoPap $grupoPap)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('atualizarTema', $grupoPap);
+
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
-            'tema_grupo' => 'required|string|max:500',
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:500',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                ),
+            ],
             'problema' => 'nullable|string|max:2000',
-            'objectivos' => 'nullable|string|max:2000',
-            'estudo_caso' => 'nullable|string|max:2000',
+            'objectivo_geral' => 'nullable|string|max:2000',
+            'objectivos_especificos' => 'nullable|string|max:2000',
+            'estudo_caso' => [
+                'nullable',
+                'string',
+                'max:2000',
+                new EstudoCasoPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    $request->input('tema_grupo', $grupoPap->tema_grupo),
+                    (string) $grupoPap->getKey(),
+                ),
+            ],
         ]);
 
         $grupoPap->update($validated);
@@ -229,7 +438,8 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('solicitarMelhoria', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('solicitarMelhoria', $grupoPap);
 
         // A recomendação é obrigatória
         $validated = $request->validate([
@@ -244,7 +454,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar solicitação de melhoria
         $resultado = $this->service->solicitarMelhoria(
             $grupoPap,
-            Auth::guard('tenant')->user(),
+            $user,
             $validated['recomendacao']
         );
 
@@ -268,15 +478,28 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function reenviar(Request $request, GrupoPap $grupoPap)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('reenviarTema', $grupoPap);
+
         if (! $grupoPap->podeSerReenviado()) {
             return back()->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
         }
 
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
-            'tema_grupo' => 'required|string|max:500',
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:500',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                ),
+            ],
             'problema' => 'nullable|string|max:2000',
-            'objectivos' => 'nullable|string|max:2000',
+            'objectivo_geral' => 'nullable|string|max:2000',
+            'objectivos_especificos' => 'nullable|string|max:2000',
         ]);
 
         $resultado = $this->service->reenviar($grupoPap, Auth::guard('tenant')->user(), $validated);
@@ -313,6 +536,8 @@ class GrupoPapAprovacaoController extends Controller
     {
         $user = Auth::guard('tenant')->user();
 
+        Gate::forUser($user)->authorize('viewMelhorias', GrupoPap::class);
+
         $temas = GrupoPap::query()
             ->whereIn('status_aprovacao', [
                 GrupoPap::APROVACAO_MELHORIA_TUTOR,
@@ -320,11 +545,10 @@ class GrupoPapAprovacaoController extends Controller
             ])
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                function ($query) {
-                    // Aqui deve ser aplicada a regra
-                    // para garantir que o grupo pertence
-                    // ao colégio do utilizador.
-                }
+                fn ($query) => $query->whereHas(
+                    'instituicaoCurso',
+                    fn ($institutionQuery) => $institutionQuery->where('instituicao_id', $user->instituicao_id)
+                )
             )
             ->with([
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
@@ -345,10 +569,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function editar(GrupoPap $grupoPap)
     {
-        /* $this->authorize(
-             'editarTema',
-             $grupoPap
-         );*/
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('atualizarTema', $grupoPap);
 
         $grupoPap->load([
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
@@ -369,10 +590,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function historico(GrupoPap $grupoPap)
     {
-        /* $this->authorize(
-             'verHistorico',
-             $grupoPap
-         );*/
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewHistorico', $grupoPap);
 
         $grupoPap->load([
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',

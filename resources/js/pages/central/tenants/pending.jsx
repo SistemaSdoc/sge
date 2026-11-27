@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Clock3 } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, Clock3 } from 'lucide-react';
 import { index } from '@/actions/App/Http/Controllers/Central/TenantController';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,11 +52,15 @@ export default function Pending({ tenant }) {
           <div className="flex w-full max-w-xl flex-col gap-2 sm:flex-row sm:justify-center">
             <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={index().url}>
-                <ArrowLeft />
+                <ArrowUpLeft />
                 Voltar à lista
               </Link>
             </Button>
-            <Button onClick={handleActivate} className="w-full sm:w-auto">
+
+            <Button
+              onClick={handleActivate}
+              className="w-full hover:cursor-pointer sm:w-auto"
+            >
               Activar tenant
             </Button>
           </div>

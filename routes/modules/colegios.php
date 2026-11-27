@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\Colegios\CursoClasseController;
 use App\Http\Controllers\Tenant\Colegios\CursoTuteladoController;
 use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
+use App\Http\Controllers\Tenant\Colegios\ExportarListaAlunosTurmaController;
 use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
 use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
 use App\Http\Controllers\Tenant\Colegios\NotaDisciplinaController;
@@ -50,8 +51,23 @@ Route::prefix('colegios')->group(function () {
                 Route::post('/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
                     ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria');
 
+                Route::get('/solicitar-melhoria-coordenacao', [GrupoPapAprovacaoController::class, 'formSolicitarMelhoriaCoordenacao'])
+                    ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria-coordenacao.form');
+
+                Route::get('/aprovar-coordenacao', [GrupoPapAprovacaoController::class, 'formAprovarCoordenacao'])
+                    ->name('colegio.grupo-pap-aprovacao.aprovar-coordenacao.form');
+
+                Route::get('/reprovar-coordenacao', [GrupoPapAprovacaoController::class, 'formReprovarCoordenacao'])
+                    ->name('colegio.grupo-pap-aprovacao.reprovar-coordenacao.form');
+
+                Route::get('/aprovar-tutor', [GrupoPapAprovacaoController::class, 'formAprovarTutor'])
+                    ->name('colegio.grupo-pap-aprovacao.aprovar-tutor.form');
+
                 Route::post('/aprovar-tutor', [GrupoPapAprovacaoController::class, 'aprovarTutor'])
                     ->name('colegio.grupo-pap-aprovacao.aprovar-tutor');
+
+                Route::get('/solicitar-melhoria-tutor', [GrupoPapAprovacaoController::class, 'formSolicitarMelhoriaTutor'])
+                    ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria-tutor.form');
 
                 Route::post('/solicitar-melhoria-tutor', [GrupoPapAprovacaoController::class, 'solicitarMelhoriaComoTutor'])
                     ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria-tutor');
@@ -100,7 +116,11 @@ Route::prefix('colegios')->group(function () {
         Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
             ->name('colegios.cursos.classes.turnos.turmas.show');
 
+        Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/alunos/exportar', [ExportarListaAlunosTurmaController::class, 'exportar'])
+            ->name('colegios.cursos.classes.turnos.turmas.alunos.exportar');
+
         Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index'])
+            ->middleware('notes.two-factor:discipline')
             ->name('colegios.cursos.classes.turnos.turmas.disciplinas.notas.index');
 
         // Melhorias e edição — sem grupoPap no prefixo

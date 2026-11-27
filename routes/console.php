@@ -1,9 +1,14 @@
 <?php
 
 use App\Console\Commands\FinalizarPautasVencidas;
+use App\Services\Tenant\PrazoNotificacaoService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+
+Schedule::call(fn () => app(PrazoNotificacaoService::class)->notificarAExpirar())
+    ->dailyAt('08:00')
+    ->name('notificar-prazos-a-expirar');
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -12,19 +17,16 @@ Artisan::command('inspire', function () {
 Schedule::command('anoletivo:sincronizar')
     ->everyMinute()
     ->name('ano-lectivo:sincronizar')
-    ->withoutOverlapping();
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/ano-lectivo.log'));
 
-// Corre todos os dias às 23:55, só em produção
-// Schedule::command(FinalizarPautasVencidas::class)
-//     ->dailyAt('23:55')
-//     ->environments(['production'])
-//     ->withoutOverlapping()         // evita correr duas vezes em simultâneo
-//     ->onOneServer()                // se tiveres múltiplos servidores
-//     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
+Schedule::command('tenants:sync-nomes')->daily();
 
-// Corre local em Desenvolvimento
 Schedule::command(FinalizarPautasVencidas::class)
     ->everyFifteenMinutes()
     ->withoutOverlapping()
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
+
+Schedule::command('prazos:verificar')->everyFiveMinutes();

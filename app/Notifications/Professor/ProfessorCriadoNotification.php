@@ -3,6 +3,7 @@
 namespace App\Notifications\Professor;
 
 use App\Models\Tenant\User;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -10,6 +11,7 @@ use Illuminate\Notifications\Notification;
 class ProfessorCriadoNotification extends Notification
 {
     use Queueable;
+    use TenantNotificationUrl;
 
     public function __construct(
         public User $user,
@@ -34,7 +36,7 @@ class ProfessorCriadoNotification extends Notification
                 'nome' => $this->user->nome,
                 'email' => $this->user->email,
                 'password' => $this->passwordPlain,
-                'url' => route('tenant.login'),
+                'url' => $this->tenantNotificationUrl('tenant.login'),
                 'instituicao' => $this->user->instituicao,
                 'artigoInstituicao' => match ($this->user->instituicao->tipo) {
                     'instituto' => 'ao',
@@ -53,6 +55,7 @@ class ProfessorCriadoNotification extends Notification
             'tipo' => 'professor_criado',
             'titulo' => 'Conta criada com sucesso',
             'mensagem' => 'A sua conta de professor foi criada. Verifique o email para as suas credenciais.',
+            'url' => $this->tenantNotificationUrl('tenant.login'),
         ];
     }
 }

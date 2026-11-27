@@ -8,6 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
+import { Spinner } from '@/components/spinner';
 
 export default function Provisioning({ tenant }) {
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function Provisioning({ tenant }) {
         <Empty className="gap-6 p-0">
           <EmptyHeader className="max-w-xl gap-4">
             <EmptyMedia variant="icon">
-              <LoaderCircle className="animate-spin" aria-hidden="true" />
+              <Spinner />
             </EmptyMedia>
             <EmptyTitle>Tenant em configuração</EmptyTitle>
             <EmptyDescription>

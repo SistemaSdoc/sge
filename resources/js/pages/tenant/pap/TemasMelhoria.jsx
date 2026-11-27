@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-import InfoGrupoBox from './components/InfoGrupoBox';
-import RecomendacaoBox from './components/RecomendacaoBox';
+import InfoGrupoBox from './components/aprovacao/InfoGrupoBox';
+import RecomendacaoBox from './components/aprovacao/RecomendacaoBox';
 
 const STATUS_CONFIG = {
   reprovado: {

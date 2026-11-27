@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Services\Tenant\Users;
+
+use App\Models\Tenant\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Spatie\Permission\Models\Role;
+
+class UserManagementService
+{
+    public function index(User $actor, ?string $search = null): LengthAwarePaginator
+    {
+        return User::query()
+            ->visibleInTenantUserLists()
+            ->with([
+                'roles:id,name',
+                'roles.permissions:id,name',
+                'permissions:id,name',
+                'aluno:id,user_id,matricula',
+            ])
+            ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
+            ->search($search)
+            ->latest('created_at')
+            ->paginate(15)
+            ->withQueryString()
+            ->through(function (User $user) use ($actor): array {
+                return [
+                    'id' => $user->getKey(),
+                    'nome' => $user->nome,
+                    'email' => $user->email,
+                    'telefone' => $user->telefone,
+                    'avatar' => $user->avatar_url,
+                    'instituicao_id' => $user->instituicao_id,
+                    'aluno_matricula' => $user->aluno?->matricula,
+                    'roles' => $user->getRoleNames()->values()->all(),
+                    'directPermissions' => $user->permissions->pluck('name')->values()->all(),
+                    'inheritedPermissions' => $user->roles
+                        ->flatMap(fn ($role) => $role->permissions)
+                        ->pluck('name')
+                        ->unique()
+                        ->values()
+                        ->all(),
+                    'can' => [
+                        'update' => $actor->can('update', $user),
+                        'delete' => $actor->can('delete', $user),
+                        'manage_permissions' => $actor->can('managePermissions', $user),
+                    ],
+                ];
+            });
+    }
+
+    /** @return array<int, array{id: int, name: string}> */
+    public function roles(?User $actor = null, ?User $target = null): array
+    {
+        $query = Role::query()
+            ->where('guard_name', 'tenant')
+            ->whereNotIn('name', ['SuperAdmin', 'Aluno', 'Candidato']);
+
+        if ($actor?->isSubdirector()) {
+            $query->whereNotIn('name', ['Director', 'Subdirector']);
+        }
+
+        // garante que os roles actuais do target aparecem sempre
+        $targetRoleIds = $target?->roles->pluck('id')->all() ?? [];
+
+        return Role::query()
+            ->where('guard_name', 'tenant')
+            ->where(function ($q) use ($query, $targetRoleIds) {
+                $q->whereIn('id', $targetRoleIds)
+                    ->orWhereIn('id', $query->pluck('id'));
+            })
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn ($role) => ['id' => $role->id, 'name' => $role->name])
+            ->all();
+    }
+}

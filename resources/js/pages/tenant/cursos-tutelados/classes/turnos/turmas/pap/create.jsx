@@ -47,6 +47,15 @@ export default function Create() {
       {({ errors, processing }) => (
         <GrupoPapForm
           title="Criar grupo PAP"
+          turmaUrl={
+            show({
+              instituicao: instituicao.id,
+              cursoTutelado: cursoTutelado.id,
+              cursoClasse: cursoClasse.id,
+              cursoClasseTurno: cursoClasseTurno.id,
+              turma: turma.id,
+            }).url
+          }
           errors={errors}
           processing={processing}
           //professores={form.professores}

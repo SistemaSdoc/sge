@@ -5,6 +5,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\SugestaoTemaPap;
 use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Permission;
@@ -146,4 +147,72 @@ it('allows a colegio user to access the alunos endpoint for a tutelado course', 
     $response = $this->actingAs($user)->get("/dashboard/instituicoes/{$colegio->id}/cursos-tutelados/{$cursoTutelado->id}/alunos");
 
     $response->assertStatus(200);
+});
+
+it('allows a group coordinator to manage suggestions in their own course without course update permission', function () {
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'duracao_anos' => 4,
+    ]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 4,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_tutela' => 'propria',
+    ]);
+
+    $user = User::factory()->create([
+        'instituicao_id' => $instituicao->id,
+    ]);
+    $permission = Permission::create([
+        'name' => 'sugestaotema.gerir',
+        'guard_name' => 'tenant',
+    ]);
+    $role = Role::create([
+        'name' => 'Coordenador do Grupo Disciplinar',
+        'guard_name' => 'tenant',
+    ]);
+    $role->givePermissionTo($permission);
+    $user->assignRole($role);
+
+    expect($user->can('curso-tutelado.update'))->toBeFalse()
+        ->and(Gate::forUser($user)->allows('gerirSugestoesTemas', $cursoTutelado))->toBeTrue();
+});
+
+it('requires an edited suggestion before allowing resubmission after improvements', function () {
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $permission = Permission::create([
+        'name' => 'sugestaotema.gerir',
+        'guard_name' => 'tenant',
+    ]);
+    $role = Role::create([
+        'name' => 'Gestor de sugestões',
+        'guard_name' => 'tenant',
+    ]);
+    $role->givePermissionTo($permission);
+    $user = User::factory()->create();
+    $user->assignRole($role);
+    $sugestao = new SugestaoTemaPap([
+        'estado_aprovacao' => 'melhoria_solicitada',
+        'editada_apos_melhoria' => false,
+    ]);
+
+    expect(Gate::forUser($user)->allows('resubmeter', $sugestao))->toBeFalse();
+
+    $sugestao->editada_apos_melhoria = true;
+
+    expect(Gate::forUser($user)->allows('resubmeter', $sugestao))->toBeTrue();
 });

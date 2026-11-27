@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
 use App\Services\Tenant\Dashboards\DashboardAlunoService;
 use App\Services\Tenant\Dashboards\DashboardDirectorService;
 use App\Services\Tenant\Dashboards\DashboardProfessorService;
+use App\Services\Tenant\PrazosAlertaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -27,12 +29,16 @@ class DashboardController extends Controller
      * Este método decide a experiência correta do dashboard no servidor
      * com base na função do usuário, evitando a troca de funções apenas no frontend.
      */
-    public function index(): Response|RedirectResponse
+    public function index(PrazosAlertaService $prazosAlerta): Response|RedirectResponse
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = AnoLectivo::activo()?->id;
+
+        if ($user->hasRole('Secretario do Curso')) {
+            return $this->renderDirectorDashboard($user->instituicaoFiltro());
+        }
 
         if ($user->hasAnyRole(['SuperAdmin', 'Master', 'Director', 'Subdirector', 'Secretaria'])) {
             return $this->renderDirectorDashboard($user->instituicaoFiltro());
@@ -41,11 +47,12 @@ class DashboardController extends Controller
         if ($user->hasRole('Professor')) {
             $professor = $user?->professor;
 
-            return Inertia::render('tenant/dashboards/aluno/index', [
+            return Inertia::render('tenant/dashboards/professor/index', [
                 'proximasAulas' => $this->dashboardProfessorService->obterProximasAulas($professor, 2, 6),
                 'avisos' => $this->dashboardProfessorService->obterAvisos($professor, 6),
                 'anoLectivoId' => $anoLectivoId,          // ← NOVO
                 'anosLectivos' => AnoLectivo::all(),      // ← NOVO
+                'prazosAlerta' => $prazosAlerta->paraProfessor(auth()->user())->values()->all(),
             ]);
         }
 
@@ -73,6 +80,9 @@ class DashboardController extends Controller
             'metricas' => $this->dashboardDirectorService->obterMetricas($instituicaoId),
             'accoes' => $this->dashboardDirectorService->obterAccoesPendentes($instituicaoId),
             'eventos' => $this->dashboardDirectorService->obterAvisos($instituicaoId),
+            'can' => [
+                'viewProfessores' => Auth::guard('tenant')->user()?->can('viewAny', Professor::class) ?? false,
+            ],
         ]);
     }
 }

@@ -24,6 +24,15 @@ class ClasseTurnoDisciplinaPolicy
             return false;
         }
 
+        if ($user->hasRole('Secretario do Curso')) {
+            return $classeTurnoDisciplina->cursoClasseTurno
+                ?->cursoClasse
+                ?->cursoTutelado
+                ?->secretarios()
+                ->whereKey($user->getKey())
+                ->exists() ?? false;
+        }
+
         $cursoTutelado = $classeTurnoDisciplina->cursoClasseTurno
             ->cursoClasse
             ->cursoTutelado;
@@ -49,17 +58,17 @@ class ClasseTurnoDisciplinaPolicy
             ->cursoClasse
             ->cursoTutelado;
 
-        if (! $user->can('classeturnodisciplina.update')
-            || ! $cursoTutelado
-            || $cursoTutelado->curso_tutelado_shared_id === null) {
+        if (! $user->can('classeturnodisciplina.update') || ! $cursoTutelado) {
             return false;
         }
 
-        $status = $cursoTutelado->cursoTuteladoShared?->status;
-        $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
+        if ($cursoTutelado->curso_tutelado_shared_id !== null) {
+            $status = $cursoTutelado->cursoTuteladoShared?->status;
+            $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
 
-        if (in_array($statusValue, ['pendente', 'encerrado'], true)) {
-            return false;
+            if (in_array($statusValue, ['pendente', 'encerrado'], true)) {
+                return false;
+            }
         }
 
         return $cursoTutelado->instituicaoCurso?->instituicao_id === $user->instituicao_id;
@@ -70,8 +79,19 @@ class ClasseTurnoDisciplinaPolicy
      */
     public function delete(User $user, ClasseTurnoDisciplina $classeTurnoDisciplina): bool
     {
-        return $this->update($user, $classeTurnoDisciplina)
-            && $user->can('classeturnodisciplina.delete');
+        return ! $user->hasRole('Professor')
+            && $user->can('classeturnodisciplina.delete')
+            && $this->belongsToInstitution($user, $classeTurnoDisciplina);
+    }
+
+    private function belongsToInstitution(User $user, ClasseTurnoDisciplina $classeTurnoDisciplina): bool
+    {
+        $cursoTutelado = $classeTurnoDisciplina->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado;
+
+        return $cursoTutelado
+            && $cursoTutelado->instituicaoCurso?->instituicao_id === $user->instituicao_id;
     }
 
     /**

@@ -42,28 +42,45 @@ class ValidateCrossTenantAccess
             throw new AuthorizationException('Dados de acesso cross-tenant incompletos.');
         }
 
+        $shared = CursoTuteladoShared::query()
+            ->whereKey($cursoTuteladoSharedId)
+            ->where('status', 'activo')
+            ->firstOrFail();
+
+        if ($tutor->hasRole('Secretario do Curso')) {
+            abort_unless(
+                $tutor->instituicao?->tipo === 'instituto'
+                    && $tutor->cursosSecretariados()
+                        ->whereHas('instituicaoCurso', fn ($query) => $query->where('curso_id', $shared->curso_id))
+                        ->exists(),
+                404,
+            );
+        }
+
         $tenantColega = $this->service->validarAcessoDoTutorAoColega(
             $tutor,
             (string) $colegioTenantId,
             (string) $cursoTuteladoSharedId,
         );
 
+        $isReadOnlyCourseSecretary = $tutor->hasRole('Secretario do Curso');
+
         $request->attributes->set('cross_tenant_tutor', $tutor);
         $request->attributes->set(
             'cross_tenant_can_create_banca',
-            $tutor->can('bancajuripap.create'),
+            ! $isReadOnlyCourseSecretary && $tutor->can('bancajuripap.create'),
         );
         $request->attributes->set(
             'cross_tenant_can_delete_banca',
-            $tutor->can('bancajuripap.delete'),
+            ! $isReadOnlyCourseSecretary && $tutor->can('bancajuripap.delete'),
         );
         $request->attributes->set(
             'cross_tenant_can_update_banca',
-            $tutor->can('bancajuripap.update'),
+            ! $isReadOnlyCourseSecretary && $tutor->can('bancajuripap.update'),
         );
         $request->attributes->set(
             'cross_tenant_can_update_nota',
-            $tutor->can('elementogrupopap.atualizarNota'),
+            ! $isReadOnlyCourseSecretary && $tutor->can('elementogrupopap.atualizarNota'),
         );
 
         return $tenantColega->run(fn (): Response => $next($request));

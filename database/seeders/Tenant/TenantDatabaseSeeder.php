@@ -17,17 +17,17 @@ class TenantDatabaseSeeder extends Seeder
                 PermissionSeeder::class,
                 RoleSeeder::class,
                 RolePermissionSeeder::class,
+                CursoTuteladoSecretarioSeeder::class,
 
                 // TABELAS BASE
                 // InstituicaoSeeder::class,
-                // AnoLectivoSeeder::class,
                 // CursoSeeder::class,
                 ClasseSeeder::class,
                 TurnoSeeder::class,
                 NiveisEnsinoSeeder::class,
 
                 // RELACIONAMENTOS ACADÉMICOS
-                InstituicaoCursoSeeder::class,
+                // InstituicaoCursoSeeder::class,
                 // CursoTuteladoSeeder::class,
                 // CursoClasseSeeder::class,
                 // CursoClasseTurnoSeeder::class,

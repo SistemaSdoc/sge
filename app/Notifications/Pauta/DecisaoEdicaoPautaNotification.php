@@ -3,13 +3,19 @@
 namespace App\Notifications\Pauta;
 
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DecisaoEdicaoPautaNotification extends Notification
+class DecisaoEdicaoPautaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public SolicitacaoEdicaoPauta $solicitacao
@@ -48,7 +54,7 @@ class DecisaoEdicaoPautaNotification extends Notification
                 'aprovada' => $aprovada,
                 'observacao' => $this->solicitacao->observacao,
                 'prazoEdicaoAte' => $this->solicitacao->prazo_edicao_ate?->format('d/m/Y H:i'),
-                'urlPautas' => route('tenant.dashboard.pautas.cursos'),
+                'urlPautas' => $this->tenantNotificationUrl('tenant.dashboard.pautas.index'),
             ]);
     }
 

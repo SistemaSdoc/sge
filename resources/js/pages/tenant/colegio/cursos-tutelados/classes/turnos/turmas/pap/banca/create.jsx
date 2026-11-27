@@ -19,6 +19,7 @@ export default function Create() {
 
   const { data, setData, errors, processing } = useForm({
     professor_id: '',
+    professor_externo_tenant_id: '',
     funcao: '',
   });
 
@@ -36,6 +37,7 @@ export default function Create() {
       transform={(formData) => ({
         ...formData,
         professor_id: data.professor_id,
+        professor_externo_tenant_id: data.professor_externo_tenant_id,
         funcao: data.funcao,
       })}
       onSuccess={() =>

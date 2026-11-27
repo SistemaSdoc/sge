@@ -44,6 +44,7 @@ export function TenantForm({
   can = {},
 }) {
   const canSubmit = Boolean(can.create ?? true);
+  const centralAppUrl = new URL(import.meta.env.VITE_APP_URL);
 
   const tipoOptions = [
     { value: 'colegio', label: 'Colégio' },
@@ -51,7 +52,7 @@ export function TenantForm({
   ];
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-2xl">
       <form onSubmit={submitFn}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
@@ -120,7 +121,7 @@ export function TenantForm({
                     <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
                     <InputGroup className="max-w-xs">
                       <InputGroupAddon className="font-normal text-foreground">
-                        https://
+                        {centralAppUrl.protocol}//
                       </InputGroupAddon>
                       <InputGroupInput
                         id="domain"
@@ -133,7 +134,7 @@ export function TenantForm({
                         align="inline-end"
                         className="font-normal text-foreground"
                       >
-                        .sge.localhost
+                        .{centralAppUrl.host}
                       </InputGroupAddon>
                     </InputGroup>
 
@@ -181,7 +182,7 @@ export function TenantForm({
                   <Button
                     type="submit"
                     disabled={processing || !canSubmit}
-                    className="w-full"
+                    className="w-full hover:cursor-pointer"
                   >
                     {processing ? (
                       <>
@@ -197,7 +198,7 @@ export function TenantForm({
                     type="button"
                     disabled={processing}
                     variant={'outline'}
-                    className="w-full"
+                    className="w-full hover:cursor-pointer"
                     onClick={() => window.history.back()}
                   >
                     <ArrowUpLeft />

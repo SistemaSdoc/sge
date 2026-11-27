@@ -23,6 +23,10 @@ class ProfessorPolicy
      */
     public function view(User $user, Professor $professor): bool
     {
+        if ($user->is($professor->user)) {
+            return true;
+        }
+
         return $user->can('professores.view')
             && $professor->user->instituicao_id === $user->instituicao_id;
     }

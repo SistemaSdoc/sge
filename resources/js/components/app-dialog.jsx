@@ -42,7 +42,7 @@ export function AppDialog() {
   } = useDialogStore();
 
   const sizeClasses = {
-    sm: 'max-w-sm!',
+    sm: 'max-w-sm! p-4!',
     md: 'max-w-md!',
     lg: 'max-w-lg!',
     xl: 'max-w-2xl!',

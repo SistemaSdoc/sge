@@ -3,18 +3,36 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TemaSubmetidoAoTutorNotification extends Notification
+class TemaSubmetidoAoTutorNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(public GrupoPap $grupoPap) {}
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('Tema PAP corrigido e reenviado')
+            ->view('mail.pap.tema-submetido-tutor', [
+                'nomeGrupo' => $this->grupoPap->nome_grupo,
+                'temaGrupo' => $this->grupoPap->tema_grupo,
+                'url' => $this->urlGrupo(),
+            ]);
     }
 
     public function toArray(object $notifiable): array
@@ -24,7 +42,25 @@ class TemaSubmetidoAoTutorNotification extends Notification
             'titulo' => 'Novo tema aguarda validação',
             'mensagem' => "O grupo \"{$this->grupoPap->nome_grupo}\" submeteu o tema \"{$this->grupoPap->tema_grupo}\" para a sua validação.",
             'grupo_pap_id' => $this->grupoPap->id,
-            'url' => "/grupos-pap/{$this->grupoPap->id}",
+            'url' => $this->urlGrupo(),
         ];
+    }
+
+    private function urlGrupo(): string
+    {
+        $turma = $this->grupoPap->turma;
+        $turno = $turma->cursoClasseTurno;
+        $classe = $turno->cursoClasse;
+        $cursoTutelado = $classe->cursoTutelado;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
+
+        return $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $classe->id,
+            'cursoClasseTurno' => $turno->id,
+            'turma' => $turma->id,
+            'grupoPap' => $this->grupoPap->id,
+        ]);
     }
 }

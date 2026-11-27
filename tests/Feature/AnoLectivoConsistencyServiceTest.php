@@ -1,29 +1,31 @@
 <?php
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
+use App\Services\Central\AnoLectivoService;
 use App\Services\Tenant\AnoLectivoConsistencyService;
 
-it('marca apenas o ano lectivo actual como activo com base nas datas', function () {
-    AnoLectivo::create([
-        'data_inicio' => now()->subYears(2),
-        'data_fim' => now()->subYear()->subDay(),
+it('resolve o ano lectivo default exclusivamente na central', function () {
+    $anoCentral = AnoLectivo::query()->create([
+        'nome' => '2026/2027',
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
         'activo' => true,
+        'estado' => 'em_curso',
     ]);
 
-    $expectedActive = AnoLectivo::create([
-        'data_inicio' => now()->subDay(),
-        'data_fim' => now()->addYear(),
-        'activo' => false,
-    ]);
+    expect(app(AnoLectivoService::class)->defaultId())->toBe($anoCentral->getKey());
+});
 
-    $futureAnoLectivo = AnoLectivo::create([
-        'data_inicio' => now()->addYear(),
-        'data_fim' => now()->addYears(2),
-        'activo' => false,
+it('não copia o ano lectivo para uma base tenant', function () {
+    $anoCentral = AnoLectivo::query()->create([
+        'nome' => '2026/2027',
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
+        'activo' => true,
+        'estado' => 'em_curso',
     ]);
 
     app(AnoLectivoConsistencyService::class)->sincronizar();
 
-    expect($expectedActive->fresh()->activo)->toBeTrue()
-        ->and($futureAnoLectivo->fresh()->activo)->toBeFalse();
+    expect(AnoLectivo::query()->whereKey($anoCentral->id)->first()->activo)->toBeTrue();
 });

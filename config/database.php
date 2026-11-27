@@ -48,6 +48,26 @@ return [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
+
+            /**
+             * Hosts separados para leitura e escrita, mantidos para futura
+             * habilitação. Para reativar, descomente este bloco e configure
+             * DB_HOST_READ e DB_HOST_WRITE no ficheiro .env.
+             */
+            /*
+            'read' => [
+                'host' => [
+                    env('DB_HOST_READ', '127.0.0.1'),
+                ],
+            ],
+            'write' => [
+                'host' => [
+                    env('DB_HOST_WRITE', '127.0.0.1'),
+                ],
+            ],
+            'sticky' => true,
+            */
+
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'root'),

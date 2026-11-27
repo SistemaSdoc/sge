@@ -17,7 +17,10 @@ export function ProximoEventoItem({ event }) {
     <Item variant="outline">
       <ItemContent className="flex-1">
         <ItemTitle>
-          {event.titulo} - {format(event.data, 'dd MMMM Y', { locale: pt })}
+          {event.titulo}
+          {event.data
+            ? ` - ${format(new Date(event.data), 'dd MMMM yyyy', { locale: pt })}`
+            : ''}
         </ItemTitle>
 
         <ItemDescription>{event.descricao}</ItemDescription>

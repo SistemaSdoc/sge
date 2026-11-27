@@ -16,6 +16,11 @@ class TemaCreateResource extends JsonResource
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome,
             ])->values(),
+            'sugestoes_temas' => collect($this->sugestoes_temas)->map(fn ($sugestao) => [
+                'id' => data_get($sugestao, 'id'),
+                'titulo' => data_get($sugestao, 'titulo'),
+                'descricao' => data_get($sugestao, 'descricao'),
+            ])->values(),
         ];
     }
 }

@@ -26,8 +26,15 @@ class PautaTrimestralGenerator
             'aluno.inscricao.candidato:id,nome',
             'notas' => fn ($q) => $q->where('periodo', $this->periodo),
         ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true);
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
+            ->where('turma_aluno.activo', true)
+            ->orderBy('candidatos.nome')
+            ->orderBy('turma_aluno.id');
 
         if ($filtro) {
             if ($filtro === 'sem_notas') {
@@ -121,8 +128,8 @@ class PautaTrimestralGenerator
 
         return [
             'numero' => $numero,
-            'aluno_id' => $ta->aluno->id,
-            'nome' => $ta->aluno->inscricao?->candidato?->nome,
+            'aluno_id' => $ta->aluno?->id,
+            'nome' => $ta->aluno?->inscricao?->candidato?->nome,
             'situacao' => $ta->situacao,
             'notas' => $notas,
             'resultado' => $resultado,
@@ -132,6 +139,7 @@ class PautaTrimestralGenerator
     private function calcularResumo(Turma $turma): array
     {
         $totalAlunos = TurmaAluno::where('turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
             ->where('activo', true)
             ->count();
 
@@ -142,6 +150,7 @@ class PautaTrimestralGenerator
             'notas' => fn ($q) => $q->where('periodo', $this->periodo),
         ])
             ->where('turma_id', $turma->id)
+            ->whereHas('aluno', fn ($query) => $query->inscricaoNaoCancelada())
             ->where('activo', true)
             ->get();
 

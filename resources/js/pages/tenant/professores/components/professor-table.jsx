@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -29,6 +28,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import {
   create,
@@ -36,33 +44,104 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 
 export function ProfessorTable({
   professores,
+  filters,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
-  const isEmpty = !professores || professores.length === 0;
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['professores', 'filters'],
+    },
+  );
+  const hasActiveFilters = Boolean(
+    applied || (filters?.funcao && filters.funcao !== 'todas'),
+  );
+  const isEmpty = !professores?.data?.length;
+
+  const handleFunctionChange = (funcao) => {
+    const params = Object.fromEntries(
+      new URLSearchParams(window.location.search),
+    );
+    delete params.page;
+
+    if (funcao === 'todas') {
+      delete params.funcao;
+    } else {
+      params.funcao = funcao;
+    }
+
+    router.visit(window.location.pathname, {
+      data: params,
+      preserveScroll: true,
+      preserveState: true,
+      replace: true,
+      only: ['professores', 'filters'],
+    });
+  };
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Professores</CardTitle>
-        <CardDescription>Lista de professores cadastrados</CardDescription>
-        <CardAction>
-          <Button asChild>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Professores</CardTitle>
+          <CardDescription>Lista de professores cadastrados</CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
             <Link href={create().url}>Adicionar</Link>
           </Button>
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit}>
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <Select
+              value={filters?.funcao ?? 'todas'}
+              onValueChange={handleFunctionChange}
+            >
+              <SelectTrigger
+                id="funcao"
+                className="w-full sm:w-48"
+                aria-label="Filtrar por função"
+              >
+                <SelectValue placeholder="Todas as funções" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="todas">Todos</SelectItem>
+                  <SelectItem value="tutor_pap">Tutores da PAP</SelectItem>
+                  <SelectItem value="grupo_disciplinar">
+                    Membros do Grupo disciplinar
+                  </SelectItem>
+                  <SelectItem value="coordenador">
+                    Coordenadores dos cursos
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </TableSearch>
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum professor cadastrado"
+            title={
+              hasActiveFilters
+                ? 'Nenhum professor encontrado'
+                : 'Nenhum professor cadastrado'
+            }
+            description={
+              hasActiveFilters ? 'Tenta ajustar os filtros.' : undefined
+            }
             action={{
               label: 'Adicionar Professor',
               href: create().url,
@@ -86,10 +165,32 @@ export function ProfessorTable({
                 <TableRow
                   key={professor.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(show(professor.id).url)}
+                  onClick={(event) => {
+                    if (
+                      event.target instanceof Element &&
+                      event.target.closest(
+                        '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
+                      )
+                    ) {
+                      return;
+                    }
+
+                    router.visit(show(professor.id).url);
+                  }}
                 >
                   <TableCell className="px-4 font-medium">
-                    {professor.user.nome}
+                    <div className="flex items-center gap-3">
+                      <ProfileAvatarPreview
+                        src={professor.user.avatar_url}
+                        name={professor.user.nome}
+                      />
+                      <div className="flex min-w-0 flex-col">
+                        <span className="text-xs">{professor.user.nome}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {professor.user.email}
+                        </span>
+                      </div>
+                    </div>
                   </TableCell>
 
                   <TableCell className="px-4 font-medium">
@@ -108,7 +209,7 @@ export function ProfessorTable({
                       <Button
                         variant="outline"
                         size="xs"
-                        className="text-[10px]"
+                        className="text-[10px] hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.visit(edit(professor.id).url);
@@ -120,7 +221,7 @@ export function ProfessorTable({
                       <Button
                         variant="destructive"
                         size="xs"
-                        className="text-[10px]"
+                        className="text-[10px] hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteFn(professor.id);

@@ -2,17 +2,22 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Notifica o instituto actual para aprovar a troca de tutela.
  */
-class TrocaTutelaNotification extends Notification implements ShouldQueue
+class TrocaTutelaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoNova,
@@ -22,9 +27,7 @@ class TrocaTutelaNotification extends Notification implements ShouldQueue
         public string $tenantTutorAnteriorId,
         public ?string $cursoTuteladoSharedAnteriorId = null,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>
@@ -61,12 +64,11 @@ class TrocaTutelaNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $defaultUrl = config('app.url').'/dashboard';
-        $finalUrl = $this->url ?: $defaultUrl;
+        $finalUrl = $this->url ?: $this->tenantNotificationUrl('tenant.dashboard');
 
         return (new MailMessage)
             ->subject('Solicitação para troca de tutela')
-            ->markdown('mail.solicitacao-troca-tutela-notification', [
+            ->view('mail.solicitacao-troca-tutela-notification', [
                 'nomeInstituicaoSolicitante' => $this->instituicaoTutelada,
                 'nomeInstituicaoNova' => $this->instituicaoNova,
                 'nomeCurso' => $this->cursoNome,

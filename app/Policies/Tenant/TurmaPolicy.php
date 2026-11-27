@@ -7,6 +7,9 @@ use App\Models\Tenant\User;
 
 class TurmaPolicy
 {
+    /**
+     * Obtém a instituição responsável pela turma através da sua estrutura curricular.
+     */
     private function instituicaoId(Turma $turma): ?string
     {
         $turma->loadMissing('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
@@ -18,11 +21,17 @@ class TurmaPolicy
             ?->instituicao_id;
     }
 
+    /**
+     * Determina se a turma pertence à instituição do usuário.
+     */
     private function pertenceAInstituicao(User $user, Turma $turma): bool
     {
         return $this->instituicaoId($turma) === $user->instituicao_id;
     }
 
+    /**
+     * Determina se o professor autenticado lecciona na turma.
+     */
     private function isProfessorDaTurma(User $user, Turma $turma): bool
     {
         $professor = $user->professor;
@@ -37,44 +46,41 @@ class TurmaPolicy
     }
 
     /**
-     * Determina se o utilizador pode listar turmas.
+     * Determina se o usuário pode listar turmas.
      *
-     * Requer a permission 'turmas.viewAny' e instituição atribuída.
-     * Professor vê apenas as suas turmas — filtragem feita no controller.
+     * Requer a permissão 'turmas.viewAny' e uma instituição atribuída.
+     * A filtragem das turmas disponíveis deve respeitar o perfil do usuário.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('turmas.viewAny') && $user->instituicao_id !== null;
+        return $user->canAny(['turmas.viewAny']) && $user->instituicao_id !== null;
     }
 
     /**
-     * Determina se o utilizador pode ver uma turma específica.
+     * Determina se o usuário pode consultar uma turma específica.
      *
-     * Requer 'turmas.view' e pertencer à mesma instituição.
-     * Professor adicionalmente tem de lecionar nessa turma.
+     * A verificação de pertença institucional e de docência deve ser aplicada
+     * quando esta operação for restringida por instituição ou por professor.
      */
     public function view(User $user, Turma $turma): bool
     {
-        /*if (! $user->can('turmas.view')) {
-            return false;
-        }
+        if ($user->hasRole('Secretario do Curso')) {
+            $cursoTuteladoId = $turma->cursoClasseTurno
+                ?->cursoClasse
+                ?->curso_tutelado_id;
 
-        if (! $this->pertenceAInstituicao($user, $turma)) {
-            return false;
+            return $user->can('turmas.view')
+                && $cursoTuteladoId !== null
+                && $user->cursosSecretariados()->whereKey($cursoTuteladoId)->exists();
         }
-
-        // Professor tem restrição extra — só vê turmas onde leciona
-        if ($user->hasRole('Professor')) {
-            return $this->isProfessorDaTurma($user, $turma);
-        }*/
 
         return true;
     }
 
     /**
-     * Determina se o utilizador pode criar turmas.
+     * Determina se o usuário pode criar turmas.
      *
-     * Requer a permission 'turmas.create' e instituição atribuída.
+     * Requer a permissão 'turmas.create' e uma instituição atribuída.
      */
     public function create(User $user): bool
     {
@@ -82,9 +88,9 @@ class TurmaPolicy
     }
 
     /**
-     * Determina se o utilizador pode actualizar uma turma.
+     * Determina se o usuário pode actualizar uma turma.
      *
-     * Requer 'turmas.update' e que a turma pertença à sua instituição.
+     * Requer a permissão 'turmas.update' e que a turma pertença à sua instituição.
      */
     public function update(User $user, Turma $turma): bool
     {
@@ -107,9 +113,9 @@ class TurmaPolicy
     }
 
     /**
-     * Determina se o utilizador pode apagar uma turma.
+     * Determina se o usuário pode eliminar uma turma.
      *
-     * Requer 'turmas.delete' e que a turma pertença à sua instituição.
+     * Requer a permissão 'turmas.delete' e que a turma pertença à sua instituição.
      */
     public function delete(User $user, Turma $turma): bool
     {
@@ -117,7 +123,9 @@ class TurmaPolicy
     }
 
     /**
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Determina se o usuário pode restaurar uma turma.
+     *
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function restore(User $user, Turma $turma): bool
     {
@@ -125,7 +133,9 @@ class TurmaPolicy
     }
 
     /**
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Determina se o usuário pode eliminar permanentemente uma turma.
+     *
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function forceDelete(User $user, Turma $turma): bool
     {
@@ -133,9 +143,9 @@ class TurmaPolicy
     }
 
     /**
-     * Determina se o utilizador pode aceder à listagem de pautas.
+     * Determina se o usuário pode listar pautas associadas às turmas.
      *
-     * Requer 'pautas.viewAny' e instituição atribuída.
+     * Requer a permissão 'pautas.viewAny' e uma instituição atribuída.
      */
     public function viewAnyPauta(User $user): bool
     {
@@ -143,10 +153,10 @@ class TurmaPolicy
     }
 
     /**
-     * Determina se o utilizador pode ver a pauta de uma turma específica.
+     * Determina se o usuário pode consultar a pauta de uma turma específica.
      *
-     * Requer 'pautas.view' e pertencer à mesma instituição.
-     * Professor adicionalmente tem de lecionar nessa turma.
+     * Requer a permissão 'pautas.view', pertença à mesma instituição e,
+     * no caso de Professor, docência na turma.
      */
     public function viewPauta(User $user, Turma $turma): bool
     {

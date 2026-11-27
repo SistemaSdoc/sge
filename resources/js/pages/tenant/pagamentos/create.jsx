@@ -10,6 +10,7 @@ export default function Create({
   return (
     <>
       <Head title="Novo Pagamento" />
+
       <PagamentosForm
         alunos={alunos}
         itensPagaveis={itensPagaveis}

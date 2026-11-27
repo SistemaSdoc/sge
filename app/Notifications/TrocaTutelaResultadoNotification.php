@@ -2,17 +2,22 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Informa o colégio sobre o resultado de uma decisão na troca de tutela.
  */
-class TrocaTutelaResultadoNotification extends Notification implements ShouldQueue
+class TrocaTutelaResultadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $instituicaoDecisora,
@@ -22,9 +27,7 @@ class TrocaTutelaResultadoNotification extends Notification implements ShouldQue
         public string $resultado,
         public string $fase,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>
@@ -74,14 +77,13 @@ class TrocaTutelaResultadoNotification extends Notification implements ShouldQue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $defaultUrl = config('app.url').'/dashboard';
-        $finalUrl = $this->url ?: $defaultUrl;
+        $finalUrl = $this->url ?: $this->tenantNotificationUrl('tenant.dashboard');
 
         return (new MailMessage)
             ->subject($this->resultado === 'pendente'
                 ? 'Troca de tutela pendente'
                 : ($this->resultado === 'aprovada' ? 'Actualização da troca de tutela' : 'Tutela rejeitada'))
-            ->markdown('mail.troca-tutela-resultado-notification', [
+            ->view('mail.troca-tutela-resultado-notification', [
                 'nomeInstituicaoDecisora' => $this->instituicaoDecisora,
                 'nomeInstituicaoProposta' => $this->instituicaoProposta,
                 'nomeCurso' => $this->cursoNome,

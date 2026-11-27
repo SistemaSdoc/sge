@@ -20,6 +20,14 @@ const RESULTADO_CONFIG = {
     label: 'c/ Def.',
     className: 'bg-amber-50 text-amber-600 border-amber-200',
   },
+  reprovado: {
+    label: 'N/Transita',
+    className: 'bg-red-50 text-destructive border-red-200',
+  },
+  reprovado_negativas: {
+    label: 'N/Transita',
+    className: 'bg-red-50 text-destructive border-red-200',
+  },
   recurso: {
     label: 'Recurso',
     className: 'bg-green-50 text-green-600 border-green-200',
@@ -50,7 +58,7 @@ const RESULTADO_CONFIG = {
   },
 };
 
-export function ResultadoBadge({ resultado }) {
+export function ResultadoBadge({ resultado, label }) {
   if (resultado === null || resultado === undefined) {
     return <span className="text-sm text-muted-foreground">—</span>;
   }
@@ -65,7 +73,7 @@ export function ResultadoBadge({ resultado }) {
       variant="outline"
       className={`text-xs font-medium ${config.className}`}
     >
-      {config.label}
+      {label ?? config.label}
     </Badge>
   );
 }

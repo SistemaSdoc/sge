@@ -9,9 +9,24 @@ export function PermissionSection({
   addPermissions,
 }) {
   // itens disponíveis = extras já seleccionados + os disponíveis para adicionar
+  const resolveLabel = (permissionName) => {
+    const match = [...directPermissions, ...availablePermissions].find(
+      (permission) =>
+        permission.value === permissionName || permission === permissionName,
+    );
+
+    return match?.label ?? match ?? permissionName;
+  };
+
   const items = [
-    ...directPermissions.map((p) => ({ value: p, label: p })),
-    ...availablePermissions.map((p) => ({ value: p, label: p })),
+    ...directPermissions.map((p) => ({
+      value: p.value ?? p,
+      label: p.label ?? p.value ?? p,
+    })),
+    ...availablePermissions.map((p) => ({
+      value: p.value ?? p,
+      label: p.label ?? p.value ?? p,
+    })),
   ];
 
   return (
@@ -32,7 +47,7 @@ export function PermissionSection({
                 className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground"
               >
                 <Lock size={11} />
-                {p}
+                {resolveLabel(p)}
               </div>
             ))
           ) : (
@@ -49,7 +64,10 @@ export function PermissionSection({
 
         <MultiSelectorField
           items={items}
-          value={directPermissions.map((p) => ({ value: p, label: p }))}
+          value={directPermissions.map((p) => ({
+            value: p.value ?? p,
+            label: p.label ?? p.value ?? p,
+          }))}
           onChange={(selecionadas) =>
             addPermissions(selecionadas.map((s) => s.value))
           }

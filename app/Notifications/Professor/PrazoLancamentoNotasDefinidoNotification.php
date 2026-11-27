@@ -3,13 +3,19 @@
 namespace App\Notifications\Professor;
 
 use App\Models\Tenant\PeriodoLancamentoNotas;
+use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PrazoLancamentoNotasDefinidoNotification extends Notification
+class PrazoLancamentoNotasDefinidoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public PeriodoLancamentoNotas $periodo
@@ -32,6 +38,7 @@ class PrazoLancamentoNotasDefinidoNotification extends Notification
                 'dataInicio' => $this->periodo->data_inicio->format('d/m/Y H:i'),
                 'dataLimite' => $this->periodo->data_limite->format('d/m/Y H:i'),
                 'instituicao' => $instituicao,
+                'url' => $this->tenantNotificationUrl('tenant.dashboard'),
                 'artigoInstituicao' => match ($instituicao->tipo) {
                     'instituto', 'colegio' => 'ao',
                     default => 'à',
@@ -45,6 +52,7 @@ class PrazoLancamentoNotasDefinidoNotification extends Notification
             'tipo' => 'prazo_lancamento_notas',
             'titulo' => "Prazo de lançamento de notas — {$this->periodo->periodo}º Trimestre",
             'mensagem' => "O prazo de lançamento de notas do {$this->periodo->periodo}º trimestre foi definido. Início: {$this->periodo->data_inicio->format('d/m/Y H:i')} — Limite: {$this->periodo->data_limite->format('d/m/Y H:i')}.",
+            'url' => $this->tenantNotificationUrl('tenant.dashboard'),
         ];
     }
 }

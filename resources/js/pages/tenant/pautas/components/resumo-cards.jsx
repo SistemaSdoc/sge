@@ -133,7 +133,9 @@ export function ResumoCards({ resumo, tipo, filtroActivo, onFiltro }) {
   const items = cards[tipo] ?? [];
 
   return (
-    <div className={`grid ${colsMap[items.length] ?? 'grid-cols-4'}`}>
+    <div
+      className={`grid grid-cols-1 ${colsMap[items.length] ?? 'md:grid-cols-4'}`}
+    >
       {items.map((card) => (
         <Card
           key={card.label}

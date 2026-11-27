@@ -3,10 +3,10 @@
 namespace App\Services\Tenant;
 
 use App\Enums\TutelaStatus;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\Curso;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
@@ -27,16 +27,32 @@ class CursoTuteladoViewService
     /**
      * Lista os cursos da instituição com as permissões do utilizador.
      */
-    public function index(Instituicao $instituicao, User $user): LengthAwarePaginator
+    public function index(Instituicao $instituicao, User $user, ?string $search = null): LengthAwarePaginator
     {
         return $instituicao->instituicaoCursos()
             ->has('cursoTutelado')
+            ->when(
+                $user->hasRole('Secretario do Curso') && ! $user->hasAnyRole(['Director', 'SuperAdmin']),
+                function ($query) use ($user): void {
+                    $query->where(function ($courseQuery) use ($user): void {
+                        $courseQuery->whereHas(
+                            'cursoTutelado.secretarios',
+                            fn ($secretarios) => $secretarios->whereKey($user->getKey()),
+                        );
+
+                    });
+                },
+            )
+            ->search($search)
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
                 'cursoTutelado.cursoTuteladoShared:id,status,tenant_tutor_nome,tenant_tutor_id',
             ])
+            ->orderBy('created_at', 'desc')
             ->paginate(10)
+            ->withQueryString()
+
             ->through(function ($instituicaoCurso) use ($user): array {
                 $cursoTutelado = $instituicaoCurso->cursoTutelado;
                 $sharedActivo = $cursoTutelado ? $this->sharedActivo($cursoTutelado) : null;
@@ -44,9 +60,10 @@ class CursoTuteladoViewService
                 $conversaoPendente = $cursoTutelado
                     ? $this->temConversaoPendente($sharedActivo)
                     : false;
-                $sharedExibido = $sharedPendente?->status === TutelaStatus::PENDENTE
+                $sharedExibido = ($sharedPendente && $sharedPendente->status !== TutelaStatus::PENDENTE_TROCA)
                     ? $sharedPendente
                     : $sharedActivo;
+
                 $nomeTutor = $this->resolverNomeTutor($cursoTutelado, $sharedExibido);
                 $idTutor = $this->resolverIdTutor($cursoTutelado, $sharedExibido);
 
@@ -156,7 +173,12 @@ class CursoTuteladoViewService
      */
     public function createOptions(Instituicao $instituicao): array
     {
-        $classes = Classe::query()->select('id', 'nome')->orderBy('nome')->get();
+        $classes = Classe::query()
+            ->select('id', 'nome')
+            ->orderBy('nome') // mais antigo primeiro
+            ->get()
+            ->unique('nome') // elimina duplicados pelo nome
+            ->values();
 
         $niveisEnsino = NivelEnsino::query()->select('id', 'nome')->orderBy('nome')->get();
 
@@ -215,6 +237,50 @@ class CursoTuteladoViewService
     }
 
     /**
+     * Retorna o nível de ensino e classes de um curso tal como configurado no instituto tutor.
+     *
+     * @return array{nivel_ensino_id: string|null, nivel_ensino_nome: string|null, classes: array}
+     */
+    public function detalhesCursoTutor(string $tenantTutorId, string $cursoId, Instituicao $instituicao): array
+    {
+        $tenantTutor = Tenant::query()->findOrFail($tenantTutorId);
+        $instituicaoTutora = $this->tenantService->getInstituicao($tenantTutor);
+
+        if (! $instituicaoTutora || $instituicaoTutora->tipo !== 'instituto') {
+            return [];
+        }
+
+        return $tenantTutor->run(function () use ($instituicaoTutora, $cursoId): array {
+            $instCurso = InstituicaoCurso::query()
+                ->where('instituicao_id', $instituicaoTutora->getKey())
+                ->where('curso_id', $cursoId)
+                ->with([
+                    'cursoTutelado.cursoClasses.nivelEnsino:id,nome',
+                    'cursoTutelado.classes:id,nome',
+                ])
+                ->first();
+
+            if (! $instCurso?->cursoTutelado) {
+                return [];
+            }
+
+            $cursoTutelado = $instCurso->cursoTutelado;
+            $nivelEnsino = $cursoTutelado->cursoClasses->first()?->nivelEnsino;
+
+            return [
+                'nivel_ensino_id' => $nivelEnsino ? (string) $nivelEnsino->getKey() : null,
+                'nivel_ensino_nome' => $nivelEnsino?->nome,
+                'classes' => $cursoTutelado->classes
+                    ->map(fn (Classe $classe): array => [
+                        'id' => (string) $classe->getKey(),
+                        'nome' => $classe->nome,
+                    ])
+                    ->all(),
+            ];
+        });
+    }
+
+    /**
      * Carrega as relações necessárias para a página de detalhe.
      */
     public function prepareShow(CursoTutelado $cursoTutelado, string $anoLectivoId): void
@@ -223,18 +289,28 @@ class CursoTuteladoViewService
             'instituicaoCurso.curso:id,nome,descricao',
             'instituicaoCurso.instituicao:id,nome',
             'instituicaoTutora:id,nome',
+            'cursoTuteladoShared',
             'cursoClasses.classe:id,nome',
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId): void {
                 $query->with([
-                    'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId),
+                    'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)
+                        ->with([
+                            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                            'cursoClasseTurno.cursoClasse.cursoTutelado.cursoTuteladoShared',
+                        ]),
                     'turmas.cursoClasseTurno.turno:id,nome',
                     'turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
                     'classeTurnoDisciplinas.professores',
                     'classeTurnoDisciplinas',
                 ]);
             },
-            'professores.user:id,nome',
+            'professores' => function ($query) {
+                $query->with('user:id,nome,instituicao_id')
+                    ->orderBy('created_at', 'desc');
+            },
+            'sugestoesTemas' => fn ($query) => $query->with('aprovadoPor:id,nome')->orderBy('titulo'),
+            'secretarios:id,nome,email',
         ]);
     }
 
@@ -249,7 +325,7 @@ class CursoTuteladoViewService
             'instituicaoTutora:id,nome',
             'cursoTuteladoShared:id,tenant_tutor_id,tenant_tutor_nome,curso_nome,status',
             'cursoClasses.nivelEnsino:id,nome',
-            'classes:id',
+            'classes:id,nome',
         ]);
     }
 
@@ -263,7 +339,12 @@ class CursoTuteladoViewService
         $cursoId = (string) $cursoTutelado->instituicaoCurso?->curso_id;
 
         return [
-            'classes' => Classe::query()->select('id', 'nome')->orderBy('nome')->get(),
+            'classes' => Classe::query()
+                ->select('id', 'nome')
+                ->orderBy('nome')
+                ->get()
+                ->unique('nome')
+                ->values(),
             'niveisEnsino' => NivelEnsino::query()->select('id', 'nome')->orderBy('nome')->get(),
             'tenantsTutores' => $instituicao->tipo === 'colegio'
                 ? $this->tenantService->getAvailableTutors(

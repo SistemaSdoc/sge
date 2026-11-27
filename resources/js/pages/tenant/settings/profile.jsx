@@ -117,7 +117,7 @@ export default function Profile({ mustVerifyEmail, status }) {
         </Form>
       </div>
 
-      <DeleteUser />
+      {/*<DeleteUser />*/}
     </>
   );
 }

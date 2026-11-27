@@ -47,7 +47,7 @@ class AprovacaoTemaService
 
         $temasPendentes = $this->temasPendentesDosCursos($cursosTutelados);
 
-        $this->crossTenantAccessService->vinculosCoordenados($user)
+        $this->crossTenantAccessService->vinculosVisiveisPorProfessor($user)
             ->each(function (CursoTuteladoShared $shared) use (&$temasPendentes): void {
                 $tenantTutelado = Tenant::query()->find($shared->tenant_tutelado_id);
 
@@ -163,14 +163,7 @@ class AprovacaoTemaService
 
         $actorTenantId ??= (string) $currentTenantId;
 
-        return DB::transaction(function () use (
-            $grupoPap,
-            $user,
-            $novoEstado,
-            $comentario,
-            $actorTenantId,
-            $currentTenantId
-        ) {
+        return DB::transaction(function () use ($grupoPap, $user, $novoEstado, $comentario, $actorTenantId, $currentTenantId) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
             $isExternalActor = $actorTenantId !== null
@@ -200,7 +193,8 @@ class AprovacaoTemaService
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
-                'objectivos' => $grupoPap->objectivos,
+                'objectivo_geral' => $grupoPap->objectivo_geral,
+                'objectivos_especificos' => $grupoPap->objectivos_especificos,
                 'estado_novo' => $novoEstado,
                 'comentario' => $comentario,
             ]);
@@ -235,11 +229,7 @@ class AprovacaoTemaService
             return false;
         }
 
-        return DB::transaction(function () use (
-            $grupoPap,
-            $user,
-            $dados
-        ) {
+        return DB::transaction(function () use ($grupoPap, $user, $dados) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 
@@ -247,7 +237,8 @@ class AprovacaoTemaService
                 'nome_grupo' => $dados['nome_grupo'],
                 'tema_grupo' => $dados['tema_grupo'],
                 'problema' => $dados['problema'] ?? null,
-                'objectivos' => $dados['objectivos'] ?? null,
+                'objectivo_geral' => $dados['objectivo_geral'] ?? null,
+                'objectivos_especificos' => $dados['objectivos_especificos'] ?? null,
                 'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
                 'aprovado_por_id' => null,
                 'data_aprovacao' => null,
@@ -259,7 +250,8 @@ class AprovacaoTemaService
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
-                'objectivos' => $grupoPap->objectivos,
+                'objectivo_geral' => $grupoPap->objectivo_geral,
+                'objectivos_especificos' => $grupoPap->objectivos_especificos,
                 'estado_novo' => GrupoPap::APROVACAO_SUBMETIDO,
                 'comentario' => 'Tema corrigido e reenviado para revisão do professor tutor.',
             ]);
@@ -269,6 +261,7 @@ class AprovacaoTemaService
             if ($tutor) {
                 $tutor->notify(new TemaSubmetidoAoTutorNotification($grupoPap));
             }
+            $this->notificarTemaSubmetidoConfirmacaoAlunos($grupoPap);
             // ──────────────────────────────────────────────────────
 
             return true;

@@ -1,40 +1,75 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { CalendarClock } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { index } from '@/actions/App/Http/Controllers/Tenant/HorarioController';
+import { EmptyState } from '@/components/empty-state';
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
+import { Label } from '@/components/ui/label';
+import { HorarioTable } from './components/horario-table';
 
-export default function Horarioss() {
+export default function Horarios({
+  aulas = [],
+  perfil,
+  professores = [],
+  professorSeleccionado,
+  anosLectivos = [],
+  anoLectivoActual,
+}) {
+  const handleAnoLectivoChange = (value) => {
+    const data = { ano_lectivo_id: value };
+
+    if (perfil === 'director' && professorSeleccionado) {
+      data.professor_id = professorSeleccionado;
+    }
+
+    router.visit(index().url, {
+      data,
+      preserveScroll: true,
+      preserveState: true,
+    });
+  };
+
+  const handleProfessorChange = (professor) => {
+    const data = { ano_lectivo_id: anoLectivoActual };
+
+    if (professor?.id) {
+      data.professor_id = professor.id;
+    }
+
+    router.visit(index().url, {
+      data,
+      preserveScroll: true,
+      preserveState: true,
+    });
+  };
+
+  const professorNome = professores.find(
+    (professor) => professor.id === professorSeleccionado,
+  )?.nome;
+  const professorActual =
+    professores.find((professor) => professor.id === professorSeleccionado) ??
+    null;
+
   return (
-    <div className="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center sm:gap-4 sm:p-6 sm:py-24">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Head title="Horários" />
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <CalendarClock className="size- text-secondary" />
-          </EmptyMedia>
-          <EmptyTitle>Horários</EmptyTitle>
-          <EmptyDescription>
-            Esta funcionalidade está em desenvolvimento e ficará disponível em
-            breve.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <EmptyDescription>
-            <Button variant="link" className="group">
-              <ArrowLeft className="transition-all duration-150 group-hover:transform-[rotate(45deg)] group-hover:text-secondary" />
-              <Link href="/dashboard">Voltar ao Dashboard</Link>
-            </Button>
-          </EmptyDescription>
-        </EmptyContent>
-      </Empty>
+      <HorarioTable
+        aulas={aulas}
+        perfil={perfil}
+        professores={professores}
+        professorSeleccionado={professorSeleccionado}
+        onProfessorChange={handleProfessorChange}
+        professorNome={professorNome}
+        anosLectivos={anosLectivos}
+        anoLectivoActual={anoLectivoActual}
+        onAnoLectivoChange={handleAnoLectivoChange}
+      />
     </div>
   );
 }

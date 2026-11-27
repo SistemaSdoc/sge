@@ -2,6 +2,7 @@
 
 namespace App\Models\Central;
 
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -34,7 +35,9 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    protected array $searchable = ['nome', 'email', 'telefone', 'roles.name'];
 
     // Propriedade que o Laravel usa
     protected $guard = 'web';

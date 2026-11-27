@@ -17,8 +17,8 @@ class PreencherHistoricoService
     /**
      * Retorna classes que o aluno ainda precisa de histórico.
      * Mostra:
-     * - "Lançar Notas" para classes sem turma_aluno
-     * - "Continuar" para classes com notas não finalizadas
+     * - "Iniciar lançamento" para classes sem vínculo histórico
+     * - "Lançar Notas" ou "Continuar" para vínculos históricos incompletos
      * - Oculta classes com lançamento completo e finalizado
      */
     public function obterClassesFaltando(Aluno $aluno): array
@@ -87,21 +87,22 @@ class PreencherHistoricoService
         }
 
         $turmaAlunos = TurmaAluno::where('aluno_id', $aluno->id)
+            ->where('is_historico', true)
             ->with([
                 'turma.cursoClasseTurno.cursoClasse.classe',
-                'notas',   // ← carrega notas para detectar "sem notas"
+                'notas',
             ])
             ->get();
 
         $resultado = [];
 
         foreach ($classes as $cc) {
-            $ta = $turmaAlunos->first(
-                fn ($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
+            $turmaAlunoHistorico = $turmaAlunos->first(
+                fn ($turmaAluno) => $turmaAluno->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
             );
 
-            if (! $ta) {
-                // Nunca iniciou — mostra botão "Lançar Notas"
+            if (! $turmaAlunoHistorico) {
+                // Ainda não existe vínculo histórico para continuar.
                 $resultado[] = [
                     'curso_classe_id' => $cc->id,
                     'classe' => $cc->classe->nome,
@@ -114,11 +115,14 @@ class PreencherHistoricoService
                 continue;
             }
 
-            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id, $ta->id);
+            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas(
+                $turmaAlunoHistorico->turma->id,
+                $turmaAlunoHistorico->id,
+            );
 
             \Log::debug('[Historico] verificacao', [
-                'turma_id' => $ta->turma->id,
-                'ta_id' => $ta->id,
+                'turma_id' => $turmaAlunoHistorico->turma->id,
+                'ta_id' => $turmaAlunoHistorico->id,
                 'todas_finalizadas' => $todasFinalizadas,
             ]);
 
@@ -127,15 +131,14 @@ class PreencherHistoricoService
                 continue;
             }
 
-            // turma_aluno existe mas histórico incompleto (com ou sem notas)
+            // O vínculo histórico existe, mas ainda tem períodos por finalizar.
             $resultado[] = [
                 'curso_classe_id' => $cc->id,
                 'classe' => $cc->classe->nome,
                 'ordem' => $cc->classe->ordem,
-                'turma_aluno_id' => $ta->id,
+                'turma_aluno_id' => $turmaAlunoHistorico->id,
                 'em_curso' => true,
-                'tem_notas' => $ta->notas->isNotEmpty(), // ← true se há rascunho
-
+                'tem_notas' => $turmaAlunoHistorico->notas->isNotEmpty(),
             ];
         }
 
@@ -294,6 +297,7 @@ class PreencherHistoricoService
         // Se já existe com notas, não permite recriar
         $comNotas = TurmaAluno::where('aluno_id', $aluno->id)
             ->where('turma_id', $turmaId)
+            ->where('is_historico', true)
             ->whereHas('notas')
             ->first();
 
@@ -301,9 +305,10 @@ class PreencherHistoricoService
             throw new \Exception('Aluno já tem notas registadas para essa turma.');
         }
 
-        // Se já existe sem notas, reutiliza em vez de duplicar
+        // Reutiliza apenas um vínculo histórico sem notas.
         $semNotas = TurmaAluno::where('aluno_id', $aluno->id)
             ->where('turma_id', $turmaId)
+            ->where('is_historico', true)
             ->first();
 
         if ($semNotas) {

@@ -7,10 +7,12 @@ use App\Models\Tenant\TrabalhoPap;
 use App\Models\Tenant\TrabalhoPapFeedback;
 use App\Models\Tenant\TrabalhoPapVersao;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\TrabalhoSubmetidoAoTutorConfirmacaoNotification;
 use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class TrabalhoPapService
 {
@@ -53,9 +55,8 @@ class TrabalhoPapService
                 'private_root_escrevivel' => is_writable(config('filesystems.disks.private.root')),
             ]);
 
-            $caminho = $ficheiro->storeAs(
+            $caminho = $ficheiro->store(
                 "trabalhos_pap/{$trabalho->grupo_pap_id}",
-                "v{$numeroVersao}_{$ficheiro->getClientOriginalName()}",
                 'private'
             );
 
@@ -72,10 +73,15 @@ class TrabalhoPapService
 
             // ── Notificações ──────────────────────────────────────
             // ── Notificações ──────────────────────────────────────
-            $grupoPap = $trabalho->grupoPap->load('professor.user');
+            $grupoPap = $trabalho->grupoPap->load('professor.user', 'alunos.user');
             $tutor = $grupoPap->professor?->user;
             $revisores = collect($tutor ? [$tutor] : []);
             $this->notificarTrabalhoSubmetido($grupoPap, $revisores);
+
+            $alunos = $grupoPap->alunos->map->user->filter();
+            if ($alunos->isNotEmpty()) {
+                Notification::send($alunos, new TrabalhoSubmetidoAoTutorConfirmacaoNotification($grupoPap));
+            }
             // ──────────────────────────────────────────────────────
             // ──────────────────────────────────────────────────────
 
@@ -234,9 +240,8 @@ class TrabalhoPapService
                     default => 'correcao',
                 };
 
-                $caminhoCorrecao = $ficheiroCorrecao->storeAs(
-                    "trabalhos_pap/{$trabalho->grupo_pap_id}/correcoes",
-                    "{$prefixo}_v{$versaoAtual?->numero_versao}_{$ficheiroCorrecao->getClientOriginalName()}",
+                $caminhoCorrecao = $ficheiroCorrecao->store(
+                    "trabalhos_pap/{$trabalho->grupo_pap_id}/correcoes/{$prefixo}-v{$versaoAtual?->numero_versao}",
                     'private'
                 );
                 $nomeOriginalCorrecao = $ficheiroCorrecao->getClientOriginalName();
